@@ -1,0 +1,214 @@
+{
+  "43754532953235": {
+    "title": "Motivo de Contato (Pai)",
+    "options": {
+      "motivo_contato_appblis": "1. AppBlis",
+      "motivo_contato_blis_doctor": "2. Cadastros",
+      "motivo_contato_consulta_medicacao_tratamento": "3. Blis Médicos",
+      "motivo_contato_documentacao": "4. Documentos",
+      "motivo_contato_entrega_logistica": "5. Logística",
+      "motivo_contato_pagamento": "6. Pagamentos",
+      "motivo_contato_produtos_marcas": "7. Estoque",
+      "motivo_contato_receita_anvisa": "8. Receitas",
+      "motivo_cancelamento": "9. Cancelar Tratamento"
+    }
+  },
+  "43754259823123": {
+    "title": "Perfil",
+    "options": {
+      "não_baixou_app__sem_login": "Não Baixou App, sem login",
+      "perfil_paciente": "Fez Login, não Fez Cadastro",
+      "perfil_nao_paciente": "Fez Cadastro, não Fez Anamnese",
+      "perfil_medico": "Fez Anamnese, não Fez Consulta",
+      "fez_consulta__não_comprou": "Fez Consulta, não comprou",
+      "fez_primeira_compra_há_menos_de_30_dias": "Fez primeira compra há menos de 30 dias",
+      "fez_primeira_compra_há_mais_de_30_dias_e_não_recomprou_": "Fez primeira compra há mais de 30 dias e não recomprou ",
+      "fez_segunda_recompra_ou_mais": "Fez segunda recompra ou mais",
+      "medicos": "Medicos",
+      "pergunta": "Pergunta"
+    }
+  },
+  "43754673247379": {
+    "title": "Motivos Receita | Acompanhamento",
+    "options": {
+      "alterar_dados_da_receita": "Alterar dados da receita",
+      "autorização_anvisa_": "Autorização Anvisa",
+      "efeitos_colaterais": "Efeitos Colaterais",
+      "falta_de_contato": "Falta de contato / sem resposta",
+      "feedback": "Feedback",
+      "inicio_tratamento": "Inicio Tratamento",
+      "menor_de_idade": "Menor de Idade",
+      "submotivo_pedido_da_receita_app": "Pedido da Receita",
+      "receita_associação": "Receita associação",
+      "receita_farmácia": "Receita farmácia",
+      "submotivo_receita_fora_app": "Receita Fora App",
+      "pet": "Tratamento Pet",
+      "submotivo_uso_da_receita": "Uso da Receita",
+      "submotivo_vencimento_prazo": "Vencimento | Prazo Receita",
+      "submotivo_viagem": "Viagem",
+      "uso_recreativo": "Uso recreativo",
+      "efeito_colateral___náu": "Efeito Colateral | Náusea",
+      "efeito_colateral___dor_de_cabeça": "Efeito Colateral | Dor de cabeça",
+      "efeito_colateral___diarreia_": "Efeito Colateral | Diarreia ",
+      "efeito_colateral___tontura_": "Efeito Colateral | Tontura ",
+      "efeito_colateral___sonolência": "Efeito Colateral | Sonolência",
+      "efeito_colateral___falta_de_apetite": "Efeito Colateral | Falta de apetite",
+      "efeito_colateral___boca_seca": "Efeito Colateral | Boca Seca",
+      "efeito_colateral___insonia": "Efeito Colateral | Insonia",
+      "efeito_colateral___dor_no_estomago": "Efeito Colateral | Dor no Estomago"
+    }
+  },
+  "43754737472019": {
+    "title": "Motivos Pagamentos",
+    "options": {
+      "pagamento_cartao": "Cartão Sem Limite",
+      "cupom_de_consulta": "Cupom de Consulta",
+      "cupom_de_fretecompra": "Cupom de Pedido",
+      "problema_com_link": "Link de Pagamento",
+      "médicopagamentos": "Médico | Pagamentos",
+      "pagamento_bug_pagarme": "Pagar-me Bug",
+      "valor_consulta": "Valor Consulta Alto",
+      "valor_pagamento": "Valor Medicamento Alto",
+      "estorno_consul": "Estorno Consulta",
+      "nota_fiscal_consulta": "Nota Fiscal Consulta",
+      "valor_de_consulta": "Valor de Consulta",
+      "valor_de_produto": "Valor de Produto"
+    }
+  },
+  "43754883922323": {
+    "title": "Motivos Logística",
+    "options": {
+      "cliente_não_recebeu": "Status Entregue | Cliente Não Recebeu ",
+      "codigo_rastreio": "Código de Rastreio | Não possui ",
+      "entrega_sem_nf": "Entrega sem Nota Fiscal ",
+      "prazo_de_entrega": "Prazo de entrega",
+      "local_entrega": "Local de Entrega ",
+      "pedido_entregue": "Pedido Entregue ",
+      "fora_do_prazo_": "Pedido Fora do Prazo | Atrasado",
+      "pedido_voltou": "Pedido Voltou ",
+      "devolucao": "Poli­tica Devolucao",
+      "devolucao_produto_errado": "Devolucao | Produto Errado ",
+      "qdade_errada_produto": "Qdade de Produto Errada ",
+      "rastreio__parado": "Rastreio Parado até 6 dias",
+      "rastreioparado__7_dias": "Rastreio Parado +7 dias",
+      "rastreioparado__15_dias": "Rastreio Parado +15 dias",
+      "rastreioparado__20_dias": "Rastreio Parado +20 dias",
+      "extravio_produto": "Extravio Produto",
+      "receita_federal": " CPF Irregular Receita Federal",
+      "pedido_não_alocado": "Pedido não Alocado",
+      "fiscalização_anvisa/receita_federal": "Fiscalização Anvisa/Receita Federal"
+    }
+  },
+  "43754976302099": {
+    "title": "Motivo bugs appBlis",
+    "options": {
+      "avaliacao_lojapp": "Avaliacao Loja App Negativa",
+      "avaliacao_loja_app_positva": "Avaliacao Loja App Positva",
+      "bug_cupom": "Bug Cupom",
+      "bug_tela_cliente": "Bug Tela Cliente ",
+      "consulta_caiu": "Bug Tela Consulta ",
+      "bug_tela_docs": "Bug Tela Docs ",
+      "tela_rastreio_problema": "Bug Tela Rastreio",
+      "bug_tela_vidaas": "Bug Tela Vidaas",
+      "como_funciona": "Como Funciona",
+      "notificacoes": "Notificaçoes",
+      "parcerias": "Parcerias",
+      "login_e_senha___não_recebe": "Login e senha | Não Recebe"
+    }
+  },
+  "43771177081747": {
+    "title": "Motivos Estoque",
+    "options": {
+      "certificado_de_análise": "Certificado de análise",
+      "produtos_marcas_condicoes_de_armazenamento": "Condicoes de Armazenamento ",
+      "produtos_marcas_conteudo_medidas": "Conteudo | Medidas ",
+      "produtos_marcas_duracao": "Duracao produto ",
+      "embalagem": "Embalagem ",
+      "falta_produto_no_estoque": "Falta Produto no Estoque",
+      "goma_com_defeito": "Goma com Defeito",
+      "maior_concentração_thc": "Maior Concentracao THC ",
+      "produto_sem_lacre": "Produto sem lacre",
+      "aparencia_do_produto": "Questionou apararencia do Produto ",
+      "tampa_do_frasco": "Tampa do frasco ",
+      "produtos_marcas_tipo_formato": "Tipo | Formato Produto ",
+      "produtos_marcas_validade": "Validade do Produto"
+    }
+  },
+  "43771237175955": {
+    "title": "Motivo Documentos",
+    "options": {
+      "comp_endereco": "Comprovante de Endereço | Ilegível ",
+      "comp_vinculo": "Comprovante de Vínculo",
+      "rg": "RG",
+      "cpf": "CPF",
+      "cnh": "CNH",
+      "doc_rne": "RNE",
+      "procuracao": "Procuracao",
+      "não_anexou_documento": "Não Anexou Documento",
+      "comprovante_de_endereço___incorreto": "Comprovante de Endereço | Incorreto",
+      "comprovante_de_endereço___não_anexou": "Comprovante de Endereço | Não Anexou"
+    }
+  },
+  "43771301635091": {
+    "title": "Motivo Médicos | Tratamentos",
+    "options": {
+      "ajuste_enfermagem": "Ajuste Enfermagem",
+      "ajuste_médico": "Ajuste Médico",
+      "submotivo_especialidades_medicas": "Atendimento Ruim | Medico ",
+      "desmame_medicamentos": "Desmame medicamentos",
+      "duracao_tratamento": "Duração Tratamento ",
+      "especialidades_medicas": "Especialidades Medicas | CRM ",
+      "exame_toxicológico": "Exame Toxicológico",
+      "feedback_inicio_tratamento": "Feedback Inicio Tratamento",
+      "histórico_de_consulta": "Histórico de Consulta",
+      "informacoes_sobre_consultas_no_app": "Informacoes sobre consultas no app",
+      "laudo_": "Laudo ",
+      "recibo_reembolso": "Médico | Recibo Reembolso",
+      "prescrição_insuficiente": "Prescrição Insuficiente",
+      "exames_clinicos_": "Solicitacao Exames Clinicos ",
+      "tipos_de_tratamento": "Tipos de Tratamento",
+      "agendamento_consulta": "Agendamento Consulta"
+    }
+  },
+  "44807136133907": {
+    "title": "Motivo Cadastros",
+    "options": {
+      "bug_app": "Atualizacao Cadastro Adm ",
+      "_alterar_dados_cpf": " Alterar dados CPF",
+      "login_esqueceu_senha": "Login Esqueceu Senha",
+      "alterar_dados_menor_de_idade": "Alterar dados Menor de idade",
+      "vidaas": "Vidaas Certificado Digital",
+      "blisdoctor_cadastro": "Médico | Cadastro",
+      "alterar_dados_nome": "Médico | Alterar dados Nome",
+      "_médico___alterar_dados_cpf": " Médico | Alterar dados CPF",
+      "abandonado": "Abandonado",
+      "excluir_comunicações": "Excluir comunicações",
+      "excluir_conta": "Excluir Conta",
+      "relay": "Relay"
+    }
+  },
+  "48166687223315": {
+    "title": "Motivos Cancelar Tratamento",
+    "options": {
+      "autorização_anvisa": "Autorizacao Anvisa ",
+      "indicação_médica": "Cartão Crédito Sem Limite",
+      "cpf_irregularr": "CPF Irregular",
+      "efeitoscolaterais": "Efeitos Colaterais",
+      "estorno_consulta": "Entrega sem o produto",
+      "entrega_sem_produto": "Extravio do Produto",
+      "prazo": "Fora do Prazo/Entrega atrasou",
+      "extravio": "Indicação Medica",
+      "receita_vencida": "Receita vencida",
+      "fora_do_prazo": "Inspecão Anvisa (GRU)",
+      "inspeção_anvisa": "Plataforma Pagar-me com Problema",
+      "preço": "Preço alto",
+      "qnt_errada": "Qtdade Errada",
+      "rastreio_parado__7_dias": "Rastreio Parado +7 dias",
+      "rastreio_parado": "Rastreio Parado +15 dias",
+      "rastreio_parado__20_dias": "Rastreio Parado +20 dias",
+      "não_informou_motivo_desistência": "Não informou motivo desistência",
+      "não_tem_a_documentação_necessária": "Não tem a documentação necessária",
+      "parcelamento_errado": "Parcelamento errado"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+﻿agent_id,nome,email,role,ativo
+43287340696339,Juliana Carvalho,juliana.carvalho@appblis.com,agent,True
+43287798310419,Marcia Carvalho Xavier,marcia.xavier@appblis.com,agent,True
+43983403785619,Roberto venzi pires,welington.morais@appblis.com,agent,True
+45804566963091,AI Agent,,agent,True
+50171756894227,Letícia Nascimento,leticia.nascimento@appblis.com,agent,True
+50775753383827,Gustavo Silva,gustavo.silva@appblis.com,agent,True
+50775890335379,Franciele Faria,franciele.faria@appblis.com,agent,True
+50981402031507,Logística Agentes,logistica@appblis.com,agent,True
+51393694500371,Luanna Ferreira,luanna.ferreira@appblis.com,agent,True
+43413446089875,Bruna Zandonadi,bruna.guimaraes@appblis.com,admin,True
+50102757263251,Admin,ferramentas@appblis.com,admin,True
