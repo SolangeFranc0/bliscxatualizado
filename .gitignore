@@ -1,0 +1,5 @@
+.env
+output/
+__pycache__/
+*.pyc
+dashboard_2026.backup.html
