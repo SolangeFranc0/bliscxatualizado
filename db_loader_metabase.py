@@ -431,6 +431,63 @@ def load_totais_diarios(sb: Client, mb: dict) -> None:
     log.info(f"mb_totais_diarios        → 1 registro ({TODAY})")
 
 
+def load_performance_medicos_mensal(sb: Client, mb: dict) -> None:
+    """Carrega performance por médico por mês (card 143 filtrado por data)."""
+    card = mb.get("performanceMedicosMensal")
+    if not card:
+        log.warning("performanceMedicosMensal não encontrado no MB_PRELOADED")
+        return
+
+    rows = to_objects(card)
+    # Agrega por (periodo, nome_medico) — mesmo médico pode ter dois doctor_ids
+    from collections import defaultdict
+    agg: dict = defaultdict(lambda: {
+        "consultas_criadas": 0, "consultas_finalizadas": 0, "consultas_canceladas": 0,
+        "quantidade_orders": 0, "quantidade_nfs": 0, "receita": 0.0,
+        "_csat_sum": 0.0, "_nps_sum": 0.0, "_avg_steps_sum": 0.0, "_w": 0,
+    })
+    for r in rows:
+        nome = (r.get("nome_medico") or "").strip()
+        periodo = r.get("periodo") or ""
+        if not nome or not periodo:
+            continue
+        key = (periodo, nome)
+        a = agg[key]
+        cf = safe_int(r.get("consultas_finalizadas")) or 0
+        w  = cf or 1
+        a["consultas_criadas"]    += safe_int(r.get("consultas_criadas"))    or 0
+        a["consultas_finalizadas"]+= cf
+        a["consultas_canceladas"] += safe_int(r.get("consultas_canceladas")) or 0
+        a["quantidade_orders"]    += safe_int(r.get("quantidade_orders"))    or 0
+        a["quantidade_nfs"]       += safe_int(r.get("quantidade_nfs"))       or 0
+        a["receita"]              += safe_float(r.get("R$ total consultas")) or 0.0
+        a["_csat_sum"]            += (safe_float(r.get("média_de_avaliações")) or 0.0) * w
+        a["_nps_sum"]             += (safe_float(r.get("NPS"))                or 0.0) * w
+        a["_avg_steps_sum"]       += (safe_float(r.get("avg_steps"))          or 0.0) * w
+        a["_w"]                   += w
+
+    records = []
+    for (periodo, nome), a in agg.items():
+        w = a["_w"] or 1
+        records.append({
+            "periodo":               periodo,
+            "nome_medico":           nome,
+            "consultas_criadas":     a["consultas_criadas"],
+            "consultas_finalizadas": a["consultas_finalizadas"],
+            "consultas_canceladas":  a["consultas_canceladas"],
+            "quantidade_orders":     a["quantidade_orders"],
+            "quantidade_nfs":        a["quantidade_nfs"],
+            "receita":               round(a["receita"], 2),
+            "media_avaliacoes":      round(a["_csat_sum"] / w, 4),
+            "nps":                   round(a["_nps_sum"]  / w, 4),
+            "avg_steps":             round(a["_avg_steps_sum"] / w, 2),
+            "data_carga":            TODAY,
+        })
+
+    sent = upsert_batch(sb, "mb_performance_medicos_mes", records, "periodo,nome_medico")
+    log.info(f"mb_performance_medicos_mes → {sent} registros")
+
+
 # ── Ponto de entrada ───────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -449,6 +506,7 @@ def main() -> None:
     load_coupons(sb, mb)
     load_conversao_coupons(sb, mb)
     load_totais_diarios(sb, mb)
+    load_performance_medicos_mensal(sb, mb)
 
     log.info("=== db_loader_metabase concluído ===")
 

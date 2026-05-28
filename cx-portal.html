@@ -733,6 +733,10 @@ canvas.med-chart{max-height:240px}
 #section-medicos .kpi-card:nth-child(3) .kpi-value { animation-delay: .15s; }
 #section-medicos .kpi-card:nth-child(4) .kpi-value { animation-delay: .20s; }
 #section-medicos .kpi-card:nth-child(5) .kpi-value { animation-delay: .25s; }
+#section-medicos .kpi-card:nth-child(6) .kpi-value { animation-delay: .30s; }
+#section-medicos .kpi-card:nth-child(7) .kpi-value { animation-delay: .35s; }
+#section-medicos .kpi-card:nth-child(8) .kpi-value { animation-delay: .40s; }
+#section-medicos .kpi-card:nth-child(9) .kpi-value { animation-delay: .45s; }
 
 /* ── Edit mode ── */
 .edit-toggle-btn {
@@ -1652,7 +1656,7 @@ async function _loadFromSupabase() {
 
   const [
     statusRows, statusTempRows, perfRows, reviewsRows,
-    cancelRows, npsRows, tempoRows, couponsRows, conversaoRows,
+    cancelRows, npsRows, tempoRows, couponsRows, conversaoRows, perfMensalRows,
   ] = await Promise.all([
     sd  ? _sbGet('mb_consultas_status',    'select=status_consulta,qtd_consultas&data_carga=eq.' + sd)             : Promise.resolve([]),
     _sbGet('mb_status_temporal',           'select=periodo,status_consulta,qtd_consultas&order=periodo.asc'),
@@ -1663,6 +1667,7 @@ async function _loadFromSupabase() {
     _sbGet('mb_tempo_consulta',            'select=periodo,avg_steps_minutos&order=periodo.asc'),
     cd  ? _sbGet('mb_coupons',             'select=*&data_carga=eq.' + cd  + '&order=uses.desc')                   : Promise.resolve([]),
     cvd ? _sbGet('mb_conversao_coupons',   'select=*&data_carga=eq.' + cvd + '&order=total_consultas_com_cupom.desc') : Promise.resolve([]),
+    _sbGet('mb_performance_medicos_mes',   'select=periodo,nome_medico,consultas_criadas,consultas_finalizadas,consultas_canceladas,quantidade_orders,receita,media_avaliacoes,nps,avg_steps&order=periodo.asc').catch(() => []),
   ]);
 
   _med.raw.totalConsultas      = _sbCard(['total_consultas'], [[latest.total_consultas ?? 0]]);
@@ -1692,6 +1697,19 @@ async function _loadFromSupabase() {
     ['cupom','tipo_cupom','tipo_de_desconto','total_consultas_com_cupom','consultas_com_pedido','taxa_conversao_pct','valor_cupom','receita_primeiro_pedido'],
     conversaoRows.map(r => [r.cupom, r.tipo_cupom, r.tipo_desconto, r.total_consultas_com_cupom, r.consultas_com_pedido, r.taxa_conversao_pct, r.valor_cupom, r.receita_primeiro_pedido])
   );
+  // Dados reais por médico por mês — card 143 filtrado por data via dashboard API
+  if (perfMensalRows.length) {
+    _med.raw.performanceMedicosMes = _sbCard(
+      ['periodo','nome_medico','consultas_criadas','consultas_finalizadas','consultas_canceladas',
+       'quantidade_orders','receita','media_avaliacoes','nps','avg_steps'],
+      perfMensalRows.map(r => [
+        r.periodo, r.nome_medico, r.consultas_criadas, r.consultas_finalizadas,
+        r.consultas_canceladas, r.quantidade_orders, r.receita,
+        r.media_avaliacoes, r.nps, r.avg_steps
+      ])
+    );
+    console.log(`[_loadFromSupabase] performanceMedicosMes: ${perfMensalRows.length} linhas`);
+  }
 }
 
 async function _loadPreloaded() {
@@ -1804,15 +1822,23 @@ function _kpiCard(k, i) {
   return `<div class="kpi-card" id="kpi-${i}"><div class="kpi-icon">${k.icon}</div><div class="kpi-value">${k.val}</div><div class="kpi-label">${k.label}</div><div class="kpi-sub">${k.sub}</div></div>`;
 }
 
-function _reviewStats(docName, month) {
-  if (!_med.raw.reviewsMedicos) return null;
+function _matchMonth(dateStr, month) {
+  const d = String(dateStr || '');
+  return d.slice(0, 7) === month || d.slice(0, 7).replace('/', '-') === month;
+}
+
+function _filterReviews(docName, month) {
+  if (!_med.raw.reviewsMedicos) return [];
   let rows = MetabaseService.toObjects(_med.raw.reviewsMedicos);
   if (docName) rows = rows.filter(r => (r['nome do doutor'] || '').trim() === docName.trim());
-  if (month)   rows = rows.filter(r => {
-    const d = String(r['data da avaliação'] || '');
-    return d.slice(0, 7) === month || d.slice(0, 7).replace('/', '-') === month;
-  });
-  const ratings    = rows.map(r => Number(r['avaliação'] || r.avaliacao || 0)).filter(v => v > 0);
+  if (month)   rows = rows.filter(r => _matchMonth(r['data da avaliação'], month));
+  console.log(`[_filterReviews] doc="${docName||'todos'}" mês="${month||'todos'}" → ${rows.length} registros`);
+  return rows;
+}
+
+function _reviewStats(docName, month) {
+  const rows    = _filterReviews(docName, month);
+  const ratings = rows.map(r => Number(r['avaliação'] || r.avaliacao || 0)).filter(v => v > 0);
   const total      = ratings.length;
   const avg        = total ? ratings.reduce((a, b) => a + b, 0) / total : 0;
   const promotores = ratings.filter(v => v >= 4).length;
@@ -1824,56 +1850,103 @@ function _reviewStats(docName, month) {
 function _renderKPIs() {
   const grid = document.getElementById('kpi-grid');
   const MONTHS_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  console.log(`[_renderKPIs] modo: médico="${_med.medico||''}" mês="${_med.month||''}"`);
 
-  // Médico + Mês: usar reviewsMedicos (única fonte com dimensão médico×mês)
+  // Médico + Mês: dados reais do Metabase (card 143 filtrado)
   if (_med.medico && _med.month) {
-    const rv  = _reviewStats(_med.medico, _med.month) || { total: 0, avg: 0, promotores: 0, detratores: 0, nps: 0 };
     const [y, m] = _med.month.split('-');
-    const sub = `${MONTHS_PT[+m - 1]}/${y}`;
-    const allPerf    = _med.raw.performanceMedicos ? MetabaseService.toObjects(_med.raw.performanceMedicos) : [];
-    const totalHist  = allPerf.filter(r => r.name === _med.medico)
-      .reduce((acc, r) => acc + (Number(r.consultas_finalizadas) || 0), 0);
+    const subMes = `${MONTHS_PT[+m - 1]}/${y}`;
+
+    // Dados reais por médico por mês (performanceMedicosMes)
+    let docMes = null;
+    if (_med.raw.performanceMedicosMes) {
+      const allMes = MetabaseService.toObjects(_med.raw.performanceMedicosMes);
+      // filtra por médico e mês (periodo = YYYY-MM-01)
+      const mesKey = _med.month + '-01';
+      const docRows = allMes.filter(r => {
+        const p = String(r.periodo || '').slice(0, 7);
+        return p === _med.month && (r.nome_medico || '').trim() === _med.medico.trim();
+      });
+      console.log(`[_renderKPIs] performanceMedicosMes linhas para ${_med.medico} ${_med.month}:`, docRows.length);
+      if (docRows.length) {
+        docMes = docRows.reduce((acc, r) => {
+          acc.criadas     += Number(r.consultas_criadas)    || 0;
+          acc.finalizadas += Number(r.consultas_finalizadas)|| 0;
+          acc.canceladas  += Number(r.consultas_canceladas) || 0;
+          acc.orders      += Number(r.quantidade_orders)    || 0;
+          acc.receita     += Number(r.receita)              || 0;
+          const w = Number(r.consultas_finalizadas) || 1;
+          acc._csatSum    += (Number(r.media_avaliacoes) || 0) * w;
+          acc._npsSum     += (Number(r.nps)              || 0) * w;
+          acc._stepsSum   += (Number(r.avg_steps)        || 0) * w;
+          acc._w          += w;
+          return acc;
+        }, { criadas:0, finalizadas:0, canceladas:0, orders:0, receita:0, _csatSum:0, _npsSum:0, _stepsSum:0, _w:0 });
+        const w = docMes._w || 1;
+        docMes.csat  = docMes._csatSum / w;
+        docMes.nps   = docMes._npsSum  / w;
+        docMes.steps = docMes._stepsSum / w;
+      }
+    }
+
+    // Fallback reviews para CSAT/NPS se não tiver dado mensal
+    const rv = _reviewStats(_med.medico, _med.month) || { total: 0, avg: 0, promotores: 0, detratores: 0, nps: 0 };
+    const promotPct = rv.total ? ((rv.promotores / rv.total) * 100).toFixed(0) + '%' : '—';
+    const detratPct = rv.total ? ((rv.detratores / rv.total) * 100).toFixed(0) + '%' : '—';
+
+    const csatVal  = docMes ? docMes.csat.toFixed(2) + ' / 5' : (rv.total ? rv.avg.toFixed(2) + ' / 5' : '—');
+    const npsVal   = docMes ? (docMes.nps * 100).toFixed(1) + '%' : (rv.total ? rv.nps.toFixed(1) + '%' : '—');
+    const tempoVal = docMes && docMes.steps > 0 ? docMes.steps.toFixed(1) + ' min' : '—';
+
     const kpis = [
-      { icon: '📝', val: _fmt(rv.total),                               label: 'Avaliações no Mês',    sub },
-      { icon: '⭐', val: rv.total ? rv.avg.toFixed(2) + ' / 5' : '—', label: 'CSAT do Mês',          sub },
-      { icon: '📈', val: rv.total ? rv.nps.toFixed(1) + '%' : '—',    label: 'NPS do Mês',           sub },
-      { icon: '✅', val: _fmt(rv.promotores),                          label: 'Promotores (4-5★)',    sub },
-      { icon: '📋', val: _fmt(totalHist),                              label: 'Consultas Históricas', sub: 'total geral do médico' },
+      { icon: '📋', val: docMes ? _fmt(docMes.criadas)     : '—', label: 'Consultas Criadas',   sub: subMes },
+      { icon: '✅', val: docMes ? _fmt(docMes.finalizadas) : '—', label: 'Finalizadas',          sub: subMes },
+      { icon: '❌', val: docMes ? _fmt(docMes.canceladas)  : '—', label: 'Canceladas',           sub: subMes },
+      { icon: '🛒', val: docMes ? _fmt(docMes.orders)      : '—', label: 'Pedidos Gerados',      sub: subMes },
+      { icon: '💰', val: docMes ? 'R$ ' + _fmtMoney(docMes.receita) : '—', label: 'Receita',    sub: subMes },
+      { icon: '⭐', val: csatVal,                                   label: 'CSAT',                sub: subMes },
+      { icon: '📈', val: npsVal,                                    label: 'NPS',                 sub: subMes },
+      { icon: '⏱️', val: tempoVal,                                   label: 'Tempo Médio',         sub: subMes },
+      { icon: '📝', val: _fmt(rv.total),                            label: 'Avaliações Recebidas', sub: subMes },
     ];
     grid.innerHTML = kpis.map(_kpiCard).join('');
     return;
   }
 
-  // Apenas Médico (sem mês): totais históricos via performanceMedicos
-  if (_med.medico && _med.raw.performanceMedicos) {
-    const allPerf = MetabaseService.toObjects(_med.raw.performanceMedicos);
+  // Apenas Médico (sem mês): totais históricos via performanceMedicos + reviewsMedicos
+  if (_med.medico) {
+    const allPerf = _med.raw.performanceMedicos ? MetabaseService.toObjects(_med.raw.performanceMedicos) : [];
     const docRows = allPerf.filter(r => r.name === _med.medico);
-    if (docRows.length) {
-      const tot = docRows.reduce((acc, r) => {
-        acc.finalizadas += Number(r.consultas_finalizadas)  || 0;
-        acc.orders      += Number(r.quantidade_orders)       || 0;
-        acc.receita     += Number(r['R$ total consultas'])   || 0;
-        return acc;
-      }, { finalizadas: 0, orders: 0, receita: 0 });
-      let csatNum = 0, npsNum = 0, totalW = 0;
-      docRows.forEach(r => {
-        const w = Number(r.consultas_finalizadas) || 1;
-        csatNum += (Number(r['média_de_avaliações']) || 0) * w;
-        npsNum  += (Number(r.NPS) || 0) * w;
-        totalW  += w;
-      });
-      const csatMedia = totalW ? (csatNum / totalW).toFixed(2) : '—';
-      const npsMedia  = totalW ? ((npsNum / totalW) * 100).toFixed(1) + '%' : '—';
-      const kpis = [
-        { icon: '📋', val: _fmt(tot.finalizadas),           label: 'Consultas Finalizadas', sub: 'total histórico' },
-        { icon: '🛒', val: _fmt(tot.orders),                label: 'Pedidos Gerados',       sub: 'total histórico' },
-        { icon: '💰', val: 'R$ ' + _fmtMoney(tot.receita), label: 'Receita Total',          sub: 'total histórico' },
-        { icon: '⭐', val: csatMedia + ' / 5',              label: 'CSAT Médio',            sub: 'avaliações recebidas' },
-        { icon: '📈', val: npsMedia,                        label: 'NPS',                   sub: 'do médico' },
-      ];
-      grid.innerHTML = kpis.map(_kpiCard).join('');
-      return;
-    }
+    const tot = docRows.reduce((acc, r) => {
+      acc.finalizadas += Number(r.consultas_finalizadas) || 0;
+      acc.orders      += Number(r.quantidade_orders)     || 0;
+      acc.receita     += Number(r['R$ total consultas']) || 0;
+      return acc;
+    }, { finalizadas: 0, orders: 0, receita: 0 });
+    let csatNum = 0, npsNum = 0, totalW = 0;
+    docRows.forEach(r => {
+      const w = Number(r.consultas_finalizadas) || 1;
+      csatNum += (Number(r['média_de_avaliações']) || 0) * w;
+      npsNum  += (Number(r.NPS) || 0) * w;
+      totalW  += w;
+    });
+    const csatMedia = totalW ? (csatNum / totalW).toFixed(2) : '—';
+    const npsMedia  = totalW ? ((npsNum / totalW) * 100).toFixed(1) + '%' : '—';
+    const rvAll = _reviewStats(_med.medico, null) || { total: 0, avg: 0, promotores: 0, detratores: 0, nps: 0 };
+    const promotPct = rvAll.total ? ((rvAll.promotores / rvAll.total) * 100).toFixed(0) + '%' : '—';
+    const detratPct = rvAll.total ? ((rvAll.detratores / rvAll.total) * 100).toFixed(0) + '%' : '—';
+    const kpis = [
+      { icon: '📋', val: _fmt(tot.finalizadas),           label: 'Consultas Finalizadas', sub: 'total histórico' },
+      { icon: '🛒', val: _fmt(tot.orders),                label: 'Pedidos Gerados',       sub: 'total histórico' },
+      { icon: '💰', val: 'R$ ' + _fmtMoney(tot.receita), label: 'Receita Total',          sub: 'total histórico' },
+      { icon: '⭐', val: csatMedia + ' / 5',              label: 'CSAT Médio',            sub: 'avaliações históricas' },
+      { icon: '📈', val: npsMedia,                        label: 'NPS',                   sub: 'histórico do médico' },
+      { icon: '📝', val: _fmt(rvAll.total),               label: 'Total de Avaliações',   sub: 'todas as avaliações' },
+      { icon: '✅', val: `${_fmt(rvAll.promotores)} (${promotPct})`, label: 'Promotores (4-5★)', sub: 'histórico' },
+      { icon: '⚠️', val: `${_fmt(rvAll.detratores)} (${detratPct})`, label: 'Detratores (1-2★)', sub: 'histórico' },
+    ];
+    grid.innerHTML = kpis.map(_kpiCard).join('');
+    return;
   }
 
   let totalConsultas, finalizadas = 0, canceladas = 0;
@@ -1936,7 +2009,9 @@ function _renderStatus() {
   const wrap = document.querySelector('#block-status .card-body');
   const data = { Finalizado: 0, Cancelado: 0, Criado: 0 };
   if (_med.raw.statusTemporal) {
-    _filterByMonth(MetabaseService.rows(_med.raw.statusTemporal), 0).forEach(r => {
+    const filtRows = _filterByMonth(MetabaseService.rows(_med.raw.statusTemporal), 0);
+    console.log(`[_renderStatus] statusTemporal filtrado=${filtRows.length} (mês="${_med.month||'todos'}")`);
+    filtRows.forEach(r => {
       const s = r[1], q = Number(r[2]) || 0;
       if (s in data) data[s] += q;
     });
@@ -1947,7 +2022,10 @@ function _renderStatus() {
   }
   const total = data.Finalizado + data.Cancelado + data.Criado;
   if (!total) { wrap.innerHTML = '<p style="color:#9CA3AF;font-size:13px;text-align:center;width:100%">Sem dados no período</p>'; return; }
-  wrap.innerHTML = _globalNote() + '<canvas id="chartStatus" style="max-height:220px"></canvas>';
+  const nota = _med.medico
+    ? `<div style="font-size:11px;color:var(--blis-muted);text-align:center;padding:3px 0 8px;background:rgba(245,158,11,.07);border-radius:6px;margin-bottom:8px">Plataforma — todos os médicos${_med.month ? ' · ' + _med.month : ''}</div>`
+    : '';
+  wrap.innerHTML = nota + '<canvas id="chartStatus" style="max-height:220px"></canvas>';
   if (_chartStatus) { _chartStatus.destroy(); _chartStatus = null; }
   _chartStatus = new Chart(document.getElementById('chartStatus'), {
     type: 'doughnut',
@@ -1977,11 +2055,8 @@ function _renderPerformance() {
 
   // Quando mês selecionado → usa reviewsMedicos para dados do período
   if (_med.month && _med.raw.reviewsMedicos) {
-    let reviews = MetabaseService.toObjects(_med.raw.reviewsMedicos).filter(r => {
-      const d = String(r['data da avaliação'] || '');
-      return d.slice(0, 7) === _med.month || d.slice(0, 7).replace('/', '-') === _med.month;
-    });
-    if (_med.medico) reviews = reviews.filter(r => (r['nome do doutor'] || '').trim() === _med.medico.trim());
+    const reviews = _filterReviews(_med.medico, _med.month);
+    console.log(`[_renderPerformance] modo=mês reviews=${reviews.length}`);
 
     const byDoc = {};
     reviews.forEach(r => {
@@ -2069,6 +2144,67 @@ function sortTable(col, th) {
 
 function _renderEvolucao() {
   const wrap = document.querySelector('#block-evolucao .card-body');
+
+  // Quando médico selecionado → usa reviewsMedicos agrupado por dia (única fonte com dimensão médico+data)
+  if (_med.medico && _med.raw.reviewsMedicos) {
+    const reviews = _filterReviews(_med.medico, _med.month);
+    console.log(`[_renderEvolucao] médico="${_med.medico}" mês="${_med.month||'todos'}" reviews=${reviews.length}`);
+    const byDay = {};
+    reviews.forEach(r => {
+      const d = String(r['data da avaliação'] || '').slice(0, 10);
+      if (!d || d.length < 10) return;
+      if (!byDay[d]) byDay[d] = { total: 0, prom: 0, detr: 0 };
+      byDay[d].total++;
+      const v = Number(r['avaliação'] || 0);
+      if (v >= 4) byDay[d].prom++;
+      else if (v <= 2 && v > 0) byDay[d].detr++;
+    });
+    const days = Object.keys(byDay).sort();
+    if (!days.length) {
+      wrap.innerHTML = '<p style="color:#9CA3AF;font-size:13px;text-align:center;width:100%">Sem avaliações no período</p>';
+      if (_chartEvo) { _chartEvo.destroy(); _chartEvo = null; }
+      return;
+    }
+    wrap.innerHTML = '<canvas id="chartEvo"></canvas>';
+    if (_chartEvo) { _chartEvo.destroy(); _chartEvo = null; }
+    _chartEvo = new Chart(document.getElementById('chartEvo'), {
+      type: 'bar',
+      data: {
+        labels: days.map(_fmtDate),
+        datasets: [
+          { label: 'Total Avaliações', data: days.map(d => byDay[d].total),
+            backgroundColor: 'rgba(23,174,85,.75)', borderColor: '#17AE55',
+            borderWidth: 1, borderRadius: 4 },
+          { label: 'Promotores (4-5★)', data: days.map(d => byDay[d].prom),
+            type: 'line', borderColor: '#0D8040', backgroundColor: 'transparent',
+            borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#0D8040', tension: 0.3 },
+          { label: 'Detratores (1-2★)', data: days.map(d => byDay[d].detr),
+            type: 'line', borderColor: '#EF4444', backgroundColor: 'transparent',
+            borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#EF4444', tension: 0.3 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { font: { size: 11 } } },
+          datalabels: {
+            display: ctx => ctx.datasetIndex === 0 && ctx.parsed.y > 0,
+            anchor: 'end', align: 'top',
+            color: '#1B4D2E', font: { size: 9, weight: 700 },
+            formatter: v => _fmt(v),
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 }, maxTicksLimit: 14 } },
+          y: { beginAtZero: true, grid: { color: '#F3F4F6' }, ticks: { font: { size: 10 } } }
+        }
+      },
+      plugins: [ChartDataLabels]
+    });
+    return;
+  }
+
+  // Sem médico → dados globais da plataforma (statusTemporal)
   if (!_med.raw.statusTemporal) { wrap.innerHTML = '<div class="skel" style="width:100%;height:240px;border-radius:8px"></div>'; return; }
   const rows = MetabaseService.rows(_med.raw.statusTemporal);
   const filtered = _filterByMonth(rows, 0);
@@ -2285,17 +2421,8 @@ function _renderCsat() {
     <div class="csat-nps">de 5.0</div>
     ${npsVal !== null ? `<div style="margin-top:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;color:var(--title)">${(npsVal*100).toFixed(1)}%</div><div class="csat-nps">NPS</div>` : ''}`;
   if (!_med.raw.reviewsMedicos) return;
-  let reviews = MetabaseService.toObjects(_med.raw.reviewsMedicos);
-  // Aplica filtro de mês e médico na distribuição de notas
-  if (_med.month) {
-    reviews = reviews.filter(r => {
-      const d = String(r['data da avaliação'] || '');
-      return d.slice(0, 7) === _med.month || d.slice(0, 7).replace('/', '-') === _med.month;
-    });
-  }
-  if (_med.medico) {
-    reviews = reviews.filter(r => (r['nome do doutor'] || '').trim() === _med.medico.trim());
-  }
+  const reviews = _filterReviews(_med.medico, _med.month);
+  console.log(`[_renderCsat] reviews filtradas=${reviews.length}`);
   const dist = [0, 0, 0, 0, 0];
   reviews.forEach(r => {
     const v = Math.round(Number(r['avaliação'] || r.avaliacao || 0));
@@ -2337,23 +2464,21 @@ function _renderCsatEvo() {
 
   // Quando médico selecionado → computa evolução a partir de reviewsMedicos
   if (_med.medico && _med.raw.reviewsMedicos) {
-    let reviews = MetabaseService.toObjects(_med.raw.reviewsMedicos)
-      .filter(r => (r['nome do doutor'] || '').trim() === _med.medico.trim());
-    if (_med.month) reviews = reviews.filter(r => {
-      const d = String(r['data da avaliação'] || '');
-      return d.slice(0, 7) === _med.month || d.slice(0, 7).replace('/', '-') === _med.month;
-    });
+    const reviews = _filterReviews(_med.medico, _med.month);
+    console.log(`[_renderCsatEvo] médico="${_med.medico}" mês="${_med.month||'todos'}" reviews=${reviews.length}`);
 
-    const byMonth = {};
+    // Quando mês selecionado agrupa por dia; senão agrupa por mês
+    const sliceLen = _med.month ? 10 : 7;
+    const byPeriod = {};
     reviews.forEach(r => {
-      const d = String(r['data da avaliação'] || '').slice(0, 7).replace('/', '-');
-      if (!d || d.length < 7) return;
-      if (!byMonth[d]) byMonth[d] = [];
+      let d = String(r['data da avaliação'] || '').slice(0, sliceLen).replace('/', '-');
+      if (!d || d.length < sliceLen) return;
+      if (!byPeriod[d]) byPeriod[d] = [];
       const v = Number(r['avaliação'] || 0);
-      if (v > 0) byMonth[d].push(v);
+      if (v > 0) byPeriod[d].push(v);
     });
 
-    const labels = Object.keys(byMonth).sort();
+    const labels = Object.keys(byPeriod).sort();
     if (!labels.length) {
       wrap.innerHTML = '<p style="color:#9CA3AF;font-size:13px;text-align:center;width:100%">Sem avaliações no período</p>';
       if (_chartCsatEvo) { _chartCsatEvo.destroy(); _chartCsatEvo = null; }
@@ -2362,7 +2487,7 @@ function _renderCsatEvo() {
 
     const csatMap = {}, npsMap = {};
     labels.forEach(l => {
-      const ratings = byMonth[l];
+      const ratings = byPeriod[l];
       csatMap[l] = ratings.length ? ratings.reduce((a,b)=>a+b,0)/ratings.length : null;
       const prom  = ratings.filter(v=>v>=4).length;
       const detr  = ratings.filter(v=>v<=2).length;
@@ -2539,6 +2664,12 @@ function applyFilters() {
   _med.month  = document.getElementById('filter-mes').value;
   _med.medico = document.getElementById('filter-medico').value;
   _med.cupom  = document.getElementById('filter-cupom').value;
+  console.log(`[applyFilters] médico="${_med.medico||''}" mês="${_med.month||''}" cupom="${_med.cupom||''}"`);
+  if (_med.raw.reviewsMedicos) {
+    const total = MetabaseService.toObjects(_med.raw.reviewsMedicos).length;
+    const filtrado = _filterReviews(_med.medico, _med.month).length;
+    console.log(`[applyFilters] reviewsMedicos total=${total} → filtrado=${filtrado}`);
+  }
   const hasFilter = _med.month || _med.medico || _med.cupom;
   const bar = document.getElementById('med-filter-bar');
   if (bar) {
@@ -2629,6 +2760,7 @@ function _renderCancelamentos() {
   const rows = [...MetabaseService.rows(_med.raw.cancelamentosPeriodo)]
     .sort((a,b) => String(a[0]).localeCompare(String(b[0])));
   const filtered = _filterByMonth(rows, 0);
+  console.log(`[_renderCancelamentos] filtrado=${filtered.length} (mês="${_med.month||'todos'}")`);
 
   if (!filtered.length) {
     wrap.innerHTML = '<p style="color:#9CA3AF;font-size:13px;text-align:center;width:100%">Sem dados no período</p>';
@@ -2649,7 +2781,10 @@ function _renderCancelamentos() {
   const canceladas = filtered.map(r => Number(r[2]) || 0);
   const pctVals    = filtered.map(r => r[3] != null ? Math.round(Number(r[3]) * 100 * 10) / 10 : null);
 
-  wrap.innerHTML = '<canvas id="chartCancelamentos"></canvas>';
+  const notaCancel = _med.medico
+    ? `<div style="font-size:11px;color:var(--blis-muted);text-align:center;padding:3px 0 8px;background:rgba(245,158,11,.07);border-radius:6px;margin-bottom:8px">Plataforma — todos os médicos${_med.month ? ' · ' + _med.month : ''}</div>`
+    : '';
+  wrap.innerHTML = notaCancel + '<canvas id="chartCancelamentos"></canvas>';
   if (_chartCancelamentos) { _chartCancelamentos.destroy(); _chartCancelamentos = null; }
   _chartCancelamentos = new Chart(document.getElementById('chartCancelamentos'), {
     type: 'bar',
@@ -2720,18 +2855,8 @@ function _renderReviews() {
     return;
   }
 
-  let rows = MetabaseService.toObjects(_med.raw.reviewsMedicos);
-
-  // Filtro de mês
-  if (_med.month) {
-    rows = rows.filter(r => {
-      const d = String(r['data da avaliação'] || '');
-      return d.slice(0, 7) === _med.month || d.slice(0, 7).replace('/', '-') === _med.month;
-    });
-  }
-
-  // Filtro de médico
-  if (_med.medico) rows = rows.filter(r => (r['nome do doutor'] || '').trim() === _med.medico.trim());
+  let rows = _filterReviews(_med.medico, _med.month);
+  console.log(`[_renderReviews] reviews=${rows.length}`);
 
   // Contagem geral antes do filtro de sentimento
   const posAll = rows.filter(r => Number(r['avaliação'] || r.avaliacao || 0) >= 4).length;

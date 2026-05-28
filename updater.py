@@ -892,6 +892,53 @@ def fetch_metabase_data():
             log.info(f"Metabase couponsGasto: OK ({len(rows_export)} pedidos, {len(result['couponsGasto']['data']['rows'])} cupons)")
         except Exception as e:
             log.warning(f"Metabase couponsGasto: {e}")
+
+        # performanceMedicosMensal — card 143 via dashboard API filtrado por mês
+        try:
+            import calendar as _cal
+            now_d = datetime.now(tz=timezone(timedelta(hours=-3)))
+            mensal_rows = []
+            for year in [2026]:
+                last_m = now_d.month if year == now_d.year else 12
+                for month in range(1, last_m + 1):
+                    start = f"{year}-{month:02d}-01"
+                    end   = f"{year}-{month:02d}-{_cal.monthrange(year, month)[1]:02d}"
+                    periodo = f"{year}-{month:02d}-01"
+                    body_m = {
+                        "parameters": [
+                            {"type": "date/single", "id": "5734d13",  "value": start, "target": ["variable", ["template-tag", "start_date"]]},
+                            {"type": "date/single", "id": "ac4b8018", "value": end,   "target": ["variable", ["template-tag", "end_date"]]},
+                        ]
+                    }
+                    resp_m = mb_post("/api/dashboard/1/dashcard/146/card/143/query", body_m, token=token)
+                    rows_m = resp_m.get("data", {}).get("rows", [])
+                    for r in rows_m:
+                        mensal_rows.append([
+                            periodo,          # 0 periodo
+                            r[1],             # 1 nome_medico
+                            r[0],             # 2 doctor_id
+                            r[2],             # 3 status_doctor
+                            r[3],             # 4 consultas_criadas
+                            r[4],             # 5 quantidade_orders
+                            r[7],             # 6 consultas_finalizadas
+                            r[8],             # 7 consultas_canceladas
+                            r[10],            # 8 quantidade_nfs
+                            r[11],            # 9 R$ total consultas
+                            r[12],            # 10 média_de_avaliações
+                            r[13],            # 11 NPS
+                            r[14],            # 12 avg_steps (tempo médio min)
+                        ])
+                    log.info(f"Metabase performanceMedicosMensal {periodo}: {len(rows_m)} médicos")
+            cols_m = ["periodo","nome_medico","doctor_id","status_doctor","consultas_criadas",
+                      "quantidade_orders","consultas_finalizadas","consultas_canceladas",
+                      "quantidade_nfs","R$ total consultas","média_de_avaliações","NPS","avg_steps"]
+            result["performanceMedicosMensal"] = {
+                "data": {"cols": [{"name": c} for c in cols_m], "rows": mensal_rows}
+            }
+            log.info(f"Metabase performanceMedicosMensal: {len(mensal_rows)} linhas no total")
+        except Exception as e:
+            log.warning(f"Metabase performanceMedicosMensal: {e}")
+
         ts_brt = datetime.now(tz=timezone(timedelta(hours=-3))).strftime("%Y-%m-%dT%H:%M:%S")
         js = f"/* Metabase preloaded — {ts_brt} BRT */\nwindow.MB_PRELOADED={json.dumps(result, ensure_ascii=False, separators=(',',':'))};\n"
         MB_DATA_JS.write_text(js, encoding="utf-8")
