@@ -1972,6 +1972,45 @@ function _renderStatus() {
 }
 
 function _renderPerformance() {
+  const thConsultas = document.querySelector('#perf-table thead th:nth-child(2)');
+  const thPedidos   = document.querySelector('#perf-table thead th:nth-child(5)');
+
+  // Quando mês selecionado → usa reviewsMedicos para dados do período
+  if (_med.month && _med.raw.reviewsMedicos) {
+    let reviews = MetabaseService.toObjects(_med.raw.reviewsMedicos).filter(r => {
+      const d = String(r['data da avaliação'] || '');
+      return d.slice(0, 7) === _med.month || d.slice(0, 7).replace('/', '-') === _med.month;
+    });
+    if (_med.medico) reviews = reviews.filter(r => (r['nome do doutor'] || '').trim() === _med.medico.trim());
+
+    const byDoc = {};
+    reviews.forEach(r => {
+      const name = (r['nome do doutor'] || '').trim();
+      if (!name) return;
+      if (!byDoc[name]) byDoc[name] = [];
+      const v = Number(r['avaliação'] || 0);
+      if (v > 0) byDoc[name].push(v);
+    });
+
+    _med.perfRows = Object.entries(byDoc).map(([name, ratings]) => {
+      const total = ratings.length;
+      const avg   = total ? ratings.reduce((a, b) => a + b, 0) / total : 0;
+      const prom  = ratings.filter(v => v >= 4).length;
+      const detr  = ratings.filter(v => v <= 2).length;
+      return { name, consultas_finalizadas: total, media: avg,
+               nps: total ? (prom - detr) / total : 0, orders: null, receita: 0, nfs: 0 };
+    });
+
+    if (thConsultas) thConsultas.childNodes[0].textContent = 'Avaliações ';
+    if (thPedidos)   thPedidos.style.display = 'none';
+    _sortPerfTable(true);
+    return;
+  }
+
+  // Sem filtro de mês → dados históricos de performanceMedicos
+  if (thConsultas) thConsultas.childNodes[0].textContent = 'Consultas ';
+  if (thPedidos)   thPedidos.style.display = '';
+
   if (!_med.raw.performanceMedicos) return;
   const raw = MetabaseService.toObjects(_med.raw.performanceMedicos);
   const map = new Map();
@@ -2002,19 +2041,20 @@ function _sortPerfTable() {
   const countEl = document.getElementById('med-count');
   countEl.textContent = `${_med.perfRows.length} médico${_med.perfRows.length !== 1 ? 's' : ''}`;
   countEl.style.display = '';
+  const hidePedidos = _med.month && !_med.raw.performanceMedicos?.data;
   tbody.innerHTML = _med.perfRows.length
     ? _med.perfRows.map(r => `
         <tr>
           <td>${r.name}</td>
           <td>${_fmt(r.consultas_finalizadas)}</td>
           <td>
-            <span class="stars">★</span> ${r.media.toFixed(2)}
+            <span class="stars">★</span> ${r.media > 0 ? r.media.toFixed(2) : '—'}
             <div class="progress-bar" style="margin-top:4px"><div class="progress-fill" style="width:${(r.media/5*100).toFixed(0)}%"></div></div>
           </td>
           <td>${(r.nps * 100).toFixed(1)}%</td>
-          <td>${_fmt(r.orders)}</td>
+          ${r.orders !== null ? `<td>${_fmt(r.orders)}</td>` : '<td style="display:none"></td>'}
         </tr>`).join('')
-    : '<tr><td colspan="5" style="text-align:center;color:#9CA3AF;font-size:13px;padding:20px">Sem dados</td></tr>';
+    : '<tr><td colspan="5" style="text-align:center;color:#9CA3AF;font-size:13px;padding:20px">Sem dados no período</td></tr>';
 }
 
 function sortTable(col, th) {
