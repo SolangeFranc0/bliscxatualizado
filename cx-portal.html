@@ -2216,9 +2216,15 @@ function _renderCuponsPedido() {
 }
 
 function _renderCsat() {
-  // Score/NPS: período específico quando mês selecionado, global caso contrário
   let media = '—', npsVal = null;
-  if (_med.month) {
+  if (_med.medico) {
+    // Médico selecionado → calcula de reviewsMedicos
+    const rv = _reviewStats(_med.medico, _med.month);
+    if (rv && rv.total > 0) {
+      media  = rv.avg.toFixed(2);
+      npsVal = rv.nps / 100;
+    }
+  } else if (_med.month) {
     if (_med.raw.avaliacaoPeriodo) {
       const r = _filterByMonth(MetabaseService.rows(_med.raw.avaliacaoPeriodo), 0)[0];
       if (r?.[2] != null) media = Number(r[2]).toFixed(2);
@@ -2288,11 +2294,84 @@ function _renderCsat() {
 
 function _renderCsatEvo() {
   const wrap = document.querySelector('#block-csat-evo .card-body');
+
+  // Quando médico selecionado → computa evolução a partir de reviewsMedicos
+  if (_med.medico && _med.raw.reviewsMedicos) {
+    let reviews = MetabaseService.toObjects(_med.raw.reviewsMedicos)
+      .filter(r => (r['nome do doutor'] || '').trim() === _med.medico.trim());
+    if (_med.month) reviews = reviews.filter(r => {
+      const d = String(r['data da avaliação'] || '');
+      return d.slice(0, 7) === _med.month || d.slice(0, 7).replace('/', '-') === _med.month;
+    });
+
+    const byMonth = {};
+    reviews.forEach(r => {
+      const d = String(r['data da avaliação'] || '').slice(0, 7).replace('/', '-');
+      if (!d || d.length < 7) return;
+      if (!byMonth[d]) byMonth[d] = [];
+      const v = Number(r['avaliação'] || 0);
+      if (v > 0) byMonth[d].push(v);
+    });
+
+    const labels = Object.keys(byMonth).sort();
+    if (!labels.length) {
+      wrap.innerHTML = '<p style="color:#9CA3AF;font-size:13px;text-align:center;width:100%">Sem avaliações no período</p>';
+      if (_chartCsatEvo) { _chartCsatEvo.destroy(); _chartCsatEvo = null; }
+      return;
+    }
+
+    const csatMap = {}, npsMap = {};
+    labels.forEach(l => {
+      const ratings = byMonth[l];
+      csatMap[l] = ratings.length ? ratings.reduce((a,b)=>a+b,0)/ratings.length : null;
+      const prom  = ratings.filter(v=>v>=4).length;
+      const detr  = ratings.filter(v=>v<=2).length;
+      npsMap[l]   = ratings.length ? ((prom-detr)/ratings.length)*100 : null;
+    });
+
+    wrap.innerHTML = '<canvas id="chartCsatEvo"></canvas>';
+    if (_chartCsatEvo) { _chartCsatEvo.destroy(); _chartCsatEvo = null; }
+    _chartCsatEvo = new Chart(document.getElementById('chartCsatEvo'), {
+      type: 'bar',
+      data: {
+        labels: labels.map(_fmtDate),
+        datasets: [
+          { label: 'CSAT Médio', data: labels.map(l=>csatMap[l]??null),
+            backgroundColor:'rgba(13,128,64,.8)', borderColor:'#0D8040',
+            borderWidth:1, borderRadius:4, yAxisID:'y' },
+          { label: 'NPS %', data: labels.map(l=>npsMap[l]??null),
+            type:'line', borderColor:'#17AE55', backgroundColor:'rgba(23,174,85,.12)',
+            borderWidth:2.5, pointRadius:4, pointBackgroundColor:'#17AE55',
+            tension:0.3, fill:false, yAxisID:'y1' }
+        ]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins: {
+          legend:{ display:false },
+          datalabels:{ display:true,
+            anchor:(ctx)=>ctx.datasetIndex===0?'end':'top',
+            align:(ctx)=>ctx.datasetIndex===0?'top':'top',
+            color:(ctx)=>ctx.datasetIndex===0?'#FFFFFF':'#0D8040',
+            font:{ size:9, weight:700 },
+            formatter:(v,ctx)=>v==null?'':(ctx.datasetIndex===0?Number(v).toFixed(1):Number(v).toFixed(1)+'%')
+          }
+        },
+        scales: {
+          x:{ grid:{display:false}, ticks:{font:{size:10},maxTicksLimit:14} },
+          y:{ min:0, max:5.5, position:'left',  grid:{color:'#F3F4F6'}, ticks:{font:{size:10},callback:v=>v<=5?v.toFixed(1):''} },
+          y1:{ min:-100, max:110, position:'right', grid:{display:false}, ticks:{font:{size:10},callback:v=>v+'%'} }
+        }
+      },
+      plugins:[ChartDataLabels]
+    });
+    return;
+  }
+
   if (!_med.raw.avaliacaoPeriodo && !_med.raw.npsPeriodo) {
     wrap.innerHTML = '<div class="skel" style="width:100%;height:220px;border-radius:8px"></div>'; return;
   }
 
-  // CSAT (card 496) — period formato YYYY/MM
   const csatRows = _med.raw.avaliacaoPeriodo
     ? [...MetabaseService.rows(_med.raw.avaliacaoPeriodo)].sort((a,b) => String(a[0]).localeCompare(String(b[0])))
     : [];
@@ -2303,7 +2382,6 @@ function _renderCsatEvo() {
   const csatFil = _filterByMonth(csatRows, 0);
   const npsFil  = _filterByMonth(npsRows,  0);
 
-  // Unir labels de ambos
   const labelSet = new Set([...csatFil.map(r => String(r[0])), ...npsFil.map(r => String(r[0]))]);
   const labels   = [...labelSet].sort();
   if (!labels.length) { wrap.innerHTML = '<p style="color:#9CA3AF;font-size:13px;text-align:center;width:100%">Sem dados no período</p>'; return; }
