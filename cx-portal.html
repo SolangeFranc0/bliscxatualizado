@@ -1694,27 +1694,59 @@ async function _loadFromSupabase() {
   );
 }
 
+async function _loadPreloaded() {
+  return new Promise((resolve) => {
+    const s = document.createElement('script');
+    s.src = 'data/metabase_data.js?t=' + Date.now();
+    s.onload  = () => resolve(true);
+    s.onerror = () => resolve(false);
+    document.head.appendChild(s);
+  });
+}
+
 async function initMedicos() {
   if (_med.initialized || _med.loading) return;
   _med.loading = true;
   document.getElementById('mb-setup').style.display = 'none';
   document.getElementById('mb-dashboard').style.display = 'block';
 
+  // Tenta Supabase primeiro
   try {
     await _loadFromSupabase();
+    if (Object.keys(_med.raw).length > 0) {
+      _med.initialized = true;
+      _med.loading = false;
+      _populateFilters();
+      _renderAll();
+      const ts = document.getElementById('mb-last-update');
+      const d  = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
+      ts.textContent = 'Atualizado ' + d;
+      ts.style.display = '';
+      return;
+    }
+  } catch (err) {
+    console.warn('Supabase indisponível, tentando metabase_data.js:', err.message);
+  }
+
+  // Fallback: metabase_data.js estático
+  await _loadPreloaded();
+  if (window.MB_PRELOADED && Object.keys(window.MB_PRELOADED).length > 0) {
+    _med.raw = window.MB_PRELOADED;
     _med.initialized = true;
     _med.loading = false;
     _populateFilters();
     _renderAll();
     const ts = document.getElementById('mb-last-update');
-    const d  = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
-    ts.textContent = 'Atualizado ' + d;
+    ts.textContent = 'Dados do dia';
     ts.style.display = '';
-  } catch (err) {
-    console.error('Erro ao carregar Supabase:', err);
-    _med.loading = false;
-    document.getElementById('mb-setup').style.display = 'flex';
+    return;
   }
+
+  // Ambos falharam
+  _med.loading = false;
+  const setup = document.getElementById('mb-setup');
+  setup.innerHTML = '<div style="text-align:center;padding:40px;color:#6B7280"><p style="font-size:18px;font-weight:600;color:#374151">Erro ao carregar dados</p><p style="font-size:13px;margin-top:8px">Não foi possível conectar ao banco de dados.<br>Tente recarregar a página.</p><button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:#1B4D2E;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px">Recarregar</button></div>';
+  setup.style.display = 'flex';
 }
 
 function _populateFilters() {
