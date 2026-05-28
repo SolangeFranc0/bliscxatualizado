@@ -1698,10 +1698,10 @@ async function _loadFromSupabase() {
     conversaoRows.map(r => [r.cupom, r.tipo_cupom, r.tipo_desconto, r.total_consultas_com_cupom, r.consultas_com_pedido, r.taxa_conversao_pct, r.valor_cupom, r.receita_primeiro_pedido])
   );
   // Dados reais por médico por mês — card 143 filtrado por data via dashboard API
+  const _PM_COLS = ['periodo','nome_medico','consultas_criadas','consultas_finalizadas','consultas_canceladas',
+                    'quantidade_orders','receita','media_avaliacoes','nps','avg_steps'];
   if (perfMensalRows.length) {
-    _med.raw.performanceMedicosMes = _sbCard(
-      ['periodo','nome_medico','consultas_criadas','consultas_finalizadas','consultas_canceladas',
-       'quantidade_orders','receita','media_avaliacoes','nps','avg_steps'],
+    _med.raw.performanceMedicosMes = _sbCard(_PM_COLS,
       perfMensalRows.map(r => [
         r.periodo, r.nome_medico, r.consultas_criadas, r.consultas_finalizadas,
         r.consultas_canceladas, r.quantidade_orders, r.receita,
@@ -1709,7 +1709,23 @@ async function _loadFromSupabase() {
       ])
     );
     console.log(`[_loadFromSupabase] performanceMedicosMes: ${perfMensalRows.length} linhas`);
+  } else {
+    _mapPerformanceMensal();
   }
+}
+
+function _mapPerformanceMensal() {
+  // Mapeia window.MB_PRELOADED.performanceMedicosMensal → _med.raw.performanceMedicosMes
+  // Índices do updater.py: [0=periodo,1=nome_medico,2=doctor_id,3=status_doctor,
+  //   4=consultas_criadas,5=quantidade_orders,6=consultas_finalizadas,7=consultas_canceladas,
+  //   8=quantidade_nfs,9=R$ total consultas,10=média_de_avaliações,11=NPS,12=avg_steps]
+  const src = window.MB_PRELOADED?.performanceMedicosMensal;
+  if (!src) return;
+  const cols = ['periodo','nome_medico','consultas_criadas','consultas_finalizadas','consultas_canceladas',
+                'quantidade_orders','receita','media_avaliacoes','nps','avg_steps'];
+  const rows = (src.data?.rows || []).map(r => [r[0],r[1],r[4],r[6],r[7],r[5],r[9],r[10],r[11],r[12]]);
+  _med.raw.performanceMedicosMes = _sbCard(cols, rows);
+  console.log(`[_mapPerformanceMensal] ${rows.length} linhas mapeadas de MB_PRELOADED`);
 }
 
 async function _loadPreloaded() {
@@ -1750,6 +1766,7 @@ async function initMedicos() {
   await _loadPreloaded();
   if (window.MB_PRELOADED && Object.keys(window.MB_PRELOADED).length > 0) {
     _med.raw = window.MB_PRELOADED;
+    _mapPerformanceMensal();
     _med.initialized = true;
     _med.loading = false;
     _populateFilters();
