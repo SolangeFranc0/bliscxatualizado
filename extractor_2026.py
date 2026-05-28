@@ -13,6 +13,9 @@ Correções aplicadas:
   - log de auditoria em output/audit_log.txt
 """
 
+from dotenv import load_dotenv
+load_dotenv()
+
 import requests
 import base64
 import time
@@ -29,6 +32,7 @@ from config import (
     START_DATE, END_DATE,
     GRUPO_BLIS_SAUDE, GRUPO_BLIS_RESOLVE,
     GRUPO_CLOUD_HUMANS_ID,
+    GRUPO_BLIS_SAUDE_ID, GRUPO_BLIS_RESOLVE_ID,
     N2_TAGS, FCR_TAGS,
     MESES_2026,
     CAMPO_MOTIVO_PAI, CAMPO_PERFIL, CAMPOS_SUBMOTIVO,
@@ -318,15 +322,23 @@ def build_metrics(metrics_map: dict[int, dict]) -> pd.DataFrame:
 
 
 def build_csat(ratings: list[dict], df_tickets: pd.DataFrame) -> pd.DataFrame:
-    # FIX: usa created_at (momento da avaliação pelo cliente) em vez de updated_at
+    # Usa o group_id da própria avaliação (mesmo critério da Zendesk nativa),
+    # não o group atual do ticket (que pode ter mudado após a avaliação).
     score_num = {"good": 5, "bad": 1, "offered": None}
+
+    def _time_from_group(gid):
+        if gid == GRUPO_BLIS_SAUDE_ID:   return "Blis Saúde"
+        if gid == GRUPO_BLIS_RESOLVE_ID:  return "Blis Resolve"
+        if gid == GRUPO_CLOUD_HUMANS_ID:  return "IA"
+        return "Outros"
+
     rows = []
     for r in ratings:
         raw   = r.get("score")
         score = score_num.get(raw)
-        # FIX: created_at é quando o cliente respondeu; updated_at pode ser alterado internamente
         dt    = _dt(r.get("created_at") or r.get("updated_at"))
         dt_b  = _to_brt(dt)
+        gid   = r.get("group_id")
         rows.append({
             "csat_id":      r["id"],
             "ticket_id":    r.get("ticket_id"),
@@ -339,13 +351,13 @@ def build_csat(ratings: list[dict], df_tickets: pd.DataFrame) -> pd.DataFrame:
             "semana_iso":   _semana_iso(dt_b),
             "promotor":     score == 5,
             "detrator":     score == 1,
+            "group_id":     gid,
+            "nome_grupo":   _time_from_group(gid),
+            "time":         _time_from_group(gid),
         })
     df = pd.DataFrame(rows)
     if not df.empty:
         df["avaliado_em"] = pd.to_datetime(df["avaliado_em"], utc=True)
-        # FIX: enriquece com group_id e time do ticket para segmentação correta
-        ticket_info = df_tickets[["ticket_id", "group_id", "nome_grupo", "time"]].drop_duplicates("ticket_id")
-        df = df.merge(ticket_info, on="ticket_id", how="left")
     return df
 
 

@@ -1,0 +1,2811 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal CX | Appblis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="config/metabase.config.js?v=20260524"></script>
+<style>
+:root{
+  --sb-bg:#1B4D2E;
+  --sb-hover:#2D6A4F;
+  --sb-active-border:#52B788;
+  --sb-text:#FFFFFF;
+  --sb-icon:#A8D5B5;
+  --content-bg:#F7FAF8;
+  --card-bg:#FFFFFF;
+  --card-border:#D4EDDA;
+  --title:#1B4D2E;
+  --subtitle:#2D6A4F;
+  --body:#2C2C2C;
+  --badge-bg:#D4EDDA;
+  --badge-text:#1B4D2E;
+  --btn-bg:#1B4D2E;
+  --btn-hover:#2D6A4F;
+  --alert-bg:#D4EDDA;
+  --alert-border:#1B4D2E;
+  --scroll:#A8D5B5;
+  --sb-w:240px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Inter',system-ui,sans-serif;background:#FFFFFF;color:var(--body);font-size:14px;line-height:1.5}
+
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--subtitle)}
+
+/* Layout */
+.cx-layout{display:flex;height:100vh;overflow:hidden}
+
+/* Sidebar */
+.cx-sidebar{
+  width:var(--sb-w);flex-shrink:0;background:var(--sb-bg);
+  display:flex;flex-direction:column;height:100vh;
+  position:fixed;left:0;top:0;z-index:100;
+  transition:transform .2s ease;
+}
+.cx-logo{
+  display:flex;align-items:center;gap:12px;
+  padding:18px 16px 14px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+.cx-logo-mark{
+  width:38px;height:38px;background:#52B788;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:800;
+  color:#1B4D2E;flex-shrink:0;letter-spacing:-.3px;
+}
+.cx-logo-text{
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;
+  color:#FFFFFF;line-height:1.2;
+}
+.cx-logo-sub{font-size:10.5px;color:var(--sb-icon);display:block;font-weight:400;margin-top:1px}
+
+.cx-nav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:3px}
+.cx-nav-item{
+  display:flex;align-items:center;gap:11px;
+  padding:10px 11px;border-radius:8px;
+  border:none;border-left:3px solid transparent;
+  background:transparent;color:var(--sb-text);
+  font-family:'Inter',sans-serif;font-size:13.5px;font-weight:500;
+  cursor:pointer;text-align:left;width:100%;
+  transition:background .15s,color .15s,border-color .15s;
+}
+.cx-nav-item:hover{background:var(--sb-hover)}
+.cx-nav-item.active{
+  background:#FFFFFF;color:var(--title);
+  border-left-color:var(--sb-active-border);font-weight:600;
+}
+.nav-icon{font-size:17px;flex-shrink:0;line-height:1}
+
+.cx-sb-footer{
+  padding:14px 16px;border-top:1px solid rgba(255,255,255,.1);
+  font-size:11px;color:var(--sb-icon);
+}
+.cx-sb-footer strong{display:block;color:#FFFFFF;font-size:12px;margin-bottom:2px}
+
+/* Main */
+.cx-main{
+  margin-left:var(--sb-w);flex:1;height:100vh;
+  display:flex;flex-direction:column;
+  background:var(--content-bg);overflow:hidden;
+}
+
+/* Mobile header */
+.cx-mobile-hdr{
+  display:none;align-items:center;gap:12px;
+  padding:12px 16px;background:var(--sb-bg);
+  color:#FFFFFF;font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:700;font-size:15px;flex-shrink:0;
+}
+.cx-burger{background:transparent;border:none;color:#FFFFFF;cursor:pointer;padding:4px;display:flex;flex-direction:column;gap:4px}
+.cx-burger span{display:block;width:22px;height:2px;background:currentColor;border-radius:2px}
+
+/* Sections */
+.cx-section{display:none;flex:1;min-height:0}
+.cx-section.active{display:flex;flex-direction:column;animation:fade-in .22s ease-out}
+
+@keyframes fade-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* Dashboard: iframe fills all space */
+.cx-section--dash{overflow:hidden}
+.cx-section--dash iframe{flex:1;min-height:0;width:100%;border:none;display:block;background:#07090F}
+
+/* Content sections */
+.cx-section--content{overflow-y:auto;padding:32px 40px;gap:28px}
+
+/* Section header */
+.s-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;color:var(--title);line-height:1.2}
+.s-sub{font-size:14px;color:var(--subtitle);margin-top:5px}
+.s-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* Cards */
+.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;overflow:hidden}
+.card-hdr{padding:18px 22px 14px;border-bottom:1px solid var(--card-border)}
+.card-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;color:var(--title)}
+.card-body{padding:18px 22px}
+
+/* Badge */
+.badge{
+  display:inline-flex;align-items:center;
+  padding:3px 10px;border-radius:20px;
+  font-size:11.5px;font-weight:600;
+  background:var(--badge-bg);color:var(--badge-text);
+}
+.badge--yellow{background:#FEF3C7;color:#92400E}
+
+/* Search */
+.search-wrap{position:relative;max-width:480px}
+.search-input{
+  width:100%;padding:10px 14px 10px 40px;
+  border:1.5px solid var(--card-border);border-radius:10px;
+  font-family:'Inter',sans-serif;font-size:14px;color:var(--body);
+  background:var(--card-bg);outline:none;transition:border-color .2s;
+}
+.search-input:focus{border-color:#52B788}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--subtitle);pointer-events:none}
+
+/* Pills */
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{
+  padding:6px 16px;border-radius:20px;
+  border:1.5px solid var(--card-border);background:var(--card-bg);
+  color:var(--subtitle);font-size:13px;font-weight:500;cursor:pointer;
+  transition:all .15s;font-family:'Inter',sans-serif;
+}
+.pill:hover{background:var(--badge-bg);border-color:var(--badge-text);color:var(--badge-text)}
+.pill.active{background:var(--title);border-color:var(--title);color:#FFFFFF}
+
+/* Article grid */
+.article-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.article-card{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:12px;padding:20px;cursor:pointer;
+  transition:border-color .2s,box-shadow .2s,transform .15s;
+  display:flex;flex-direction:column;gap:10px;
+}
+.article-card:hover{border-color:#52B788;box-shadow:0 4px 16px rgba(27,77,46,.1);transform:translateY(-1px)}
+.article-meta{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.article-date{font-size:11.5px;color:#6B7280}
+.article-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;color:var(--title);line-height:1.3}
+.article-summary{font-size:13px;color:#4B5563;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.read-more{font-size:12.5px;font-weight:600;color:var(--subtitle);margin-top:2px}
+
+/* Article detail */
+.detail-view{display:none;flex-direction:column;gap:24px}
+.detail-view.active{display:flex}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--subtitle);flex-wrap:wrap}
+.breadcrumb button,.breadcrumb a{background:transparent;border:none;color:var(--subtitle);cursor:pointer;font-size:13px;padding:0;text-decoration:underline;text-underline-offset:2px;font-family:'Inter',sans-serif}
+.breadcrumb button:hover{color:var(--title)}
+.breadcrumb-sep{color:#9CA3AF}
+.back-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 16px;border:1.5px solid var(--card-border);
+  border-radius:8px;background:var(--card-bg);color:var(--title);
+  font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;
+  transition:all .15s;
+}
+.back-btn:hover{background:var(--badge-bg);border-color:var(--title)}
+.article-content{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:12px;padding:32px;color:var(--body);line-height:1.7;
+}
+.article-content h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:700;color:var(--title);margin:20px 0 8px}
+.article-content h3:first-child{margin-top:0}
+.article-content p{margin-bottom:12px}
+.article-content ul,.article-content ol{padding-left:20px;margin-bottom:12px}
+.article-content li{margin-bottom:5px}
+.article-content strong{color:var(--title)}
+
+/* No results */
+.no-results{text-align:center;padding:48px 24px;color:var(--subtitle)}
+.no-results p{font-size:15px;font-weight:500}
+.no-results small{font-size:13px;color:#9CA3AF}
+
+/* LGPD alert */
+.alert-box{
+  background:var(--alert-bg);border-left:4px solid var(--alert-border);
+  border-radius:0 8px 8px 0;padding:16px 20px;
+  display:flex;gap:14px;align-items:flex-start;
+}
+.alert-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.alert-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;color:var(--title);margin-bottom:4px}
+.alert-body{font-size:13px;color:#374151;line-height:1.55}
+.alert-body strong{color:var(--title)}
+
+/* Stat cards */
+.stat-card{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:6px;
+}
+.stat-icon{font-size:26px;margin-bottom:2px}
+.stat-value{font-family:'Plus Jakarta Sans',sans-serif;font-size:30px;font-weight:800;color:var(--title)}
+.stat-label{font-size:13px;color:var(--subtitle);font-weight:500}
+
+/* Toggle */
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding:13px 0;border-bottom:1px solid var(--card-border);
+}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:14px;font-weight:600;color:var(--body)}
+.toggle-desc{font-size:12px;color:#6B7280;margin-top:2px}
+.cx-toggle{position:relative;width:42px;height:24px;flex-shrink:0}
+.cx-toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-slider{
+  position:absolute;inset:0;background:#D1D5DB;
+  border-radius:24px;cursor:pointer;transition:background .2s;
+}
+.toggle-slider::after{
+  content:'';position:absolute;width:18px;height:18px;
+  left:3px;top:3px;background:#FFFFFF;border-radius:50%;
+  transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2);
+}
+.cx-toggle input:checked + .toggle-slider{background:#52B788}
+.cx-toggle input:checked + .toggle-slider::after{transform:translateX(18px)}
+
+/* Table */
+.cx-table{width:100%;border-collapse:collapse;font-size:13px}
+.cx-table th{
+  padding:10px 14px;text-align:left;font-size:11px;font-weight:700;
+  color:var(--subtitle);text-transform:uppercase;letter-spacing:.7px;
+  background:var(--content-bg);border-bottom:1px solid var(--card-border);
+}
+.cx-table td{padding:12px 14px;color:var(--body);border-bottom:1px solid var(--card-border)}
+.cx-table tr:nth-child(odd) td{background:#F7FAF8}
+.cx-table tr:nth-child(even) td{background:#FFFFFF}
+.cx-table tr:last-child td{border-bottom:none}
+
+/* Status */
+.status-ok{background:var(--badge-bg);color:var(--badge-text);padding:3px 10px;border-radius:12px;font-size:11.5px;font-weight:600}
+.status-warn{background:#FEF3C7;color:#92400E;padding:3px 10px;border-radius:12px;font-size:11.5px;font-weight:600}
+
+/* Grid */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+
+/* Rights list */
+.rights-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.rights-list li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--body)}
+.rights-check{color:#52B788;font-weight:700;flex-shrink:0}
+
+/* Obligations grid */
+.obl-item{display:flex;flex-direction:column;gap:6px}
+.obl-icon{font-size:22px}
+.obl-name{font-size:13.5px;font-weight:700;color:var(--title)}
+.obl-desc{font-size:12.5px;color:#6B7280}
+
+/* Overlay */
+.cx-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:90}
+.cx-overlay.active{display:block}
+
+/* ── Dash Médicos ────────────────────────────────────────── */
+
+/* Skeleton loader */
+.skel{border-radius:6px;background:#E8F4EC;overflow:hidden;position:relative}
+.skel::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);animation:skel-shine 1.3s infinite}
+@keyframes skel-shine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+
+/* Filter bar */
+.dash-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 20px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px}
+.period-group{display:flex;gap:4px;flex-wrap:wrap}
+.period-btn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--card-border);background:transparent;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:500;color:var(--subtitle);cursor:pointer;transition:all .15s}
+.period-btn:hover{background:var(--badge-bg);border-color:var(--subtitle)}
+.period-btn.active{background:var(--title);border-color:var(--title);color:#FFFFFF}
+.filter-sep{color:var(--card-border);font-size:18px;line-height:1;flex-shrink:0}
+.filter-sel{padding:6px 12px;border:1.5px solid var(--card-border);border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;color:var(--body);background:var(--card-bg);cursor:pointer;outline:none;max-width:180px}
+.filter-sel:focus{border-color:#52B788}
+.btn-refresh{margin-left:auto;display:inline-flex;align-items:center;gap:7px;padding:7px 16px;background:var(--title);color:#FFFFFF;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;flex-shrink:0}
+.btn-refresh:hover{background:var(--btn-hover)}
+.btn-refresh.loading svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* KPI grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.kpi-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:18px 20px}
+.kpi-icon{font-size:22px;margin-bottom:8px}
+.kpi-value{font-family:'Plus Jakarta Sans',sans-serif;font-size:26px;font-weight:800;color:var(--title);line-height:1.1}
+.kpi-label{font-size:12px;color:var(--subtitle);margin-top:4px;font-weight:500}
+.kpi-sub{font-size:11.5px;color:#6B7280;margin-top:3px}
+.kpi-skel .skel{height:28px;width:70%;margin-bottom:6px;border-radius:6px}
+.kpi-skel .skel-sm{height:12px;width:50%}
+
+/* Block headers */
+.block-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;color:var(--title)}
+.block-sub{font-size:12px;color:var(--subtitle);margin-top:2px}
+
+/* Chart containers */
+.chart-wrap{position:relative;padding:16px 4px 4px;min-height:220px;display:flex;align-items:center;justify-content:center}
+canvas.med-chart{max-height:240px}
+
+/* Error block */
+.block-err{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;gap:10px;text-align:center}
+.block-err p{font-size:13.5px;color:var(--subtitle)}
+.block-err button{padding:7px 16px;border:1.5px solid var(--title);border-radius:8px;background:transparent;color:var(--title);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.block-err button:hover{background:var(--badge-bg)}
+
+/* Performance table */
+.med-table-wrap{overflow-x:auto}
+.med-table{width:100%;border-collapse:collapse;font-size:13px}
+.med-table th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--subtitle);text-transform:uppercase;letter-spacing:.7px;background:var(--content-bg);border-bottom:1px solid var(--card-border);cursor:pointer;white-space:nowrap;user-select:none}
+.med-table th:hover{color:var(--title)}
+.med-table th .sort-arrow{margin-left:4px;opacity:.5;font-size:10px}
+.med-table th.sorted{color:var(--title)}
+.med-table th.sorted .sort-arrow{opacity:1}
+.med-table td{padding:11px 14px;color:var(--body);border-bottom:1px solid var(--card-border)}
+.med-table tr:nth-child(odd) td{background:#F7FAF8}
+.med-table tr:nth-child(even) td{background:#FFFFFF}
+.med-table tr:last-child td{border-bottom:none}
+.badge-star{background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin-left:6px}
+.badge-top{background:var(--badge-bg);color:var(--badge-text);padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin-left:6px}
+
+/* Stars rating */
+.stars{color:#F59E0B;letter-spacing:1px}
+
+/* Progress bar */
+.progress-wrap{margin-top:8px}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--subtitle);margin-bottom:4px}
+.progress-bar{height:8px;background:#E8F4EC;border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:var(--title);border-radius:4px;transition:width .5s}
+
+/* Coupon table */
+.coupon-table{width:100%;border-collapse:collapse;font-size:13px}
+.coupon-table th{padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--subtitle);text-transform:uppercase;letter-spacing:.6px;background:var(--content-bg);border-bottom:1px solid var(--card-border)}
+.coupon-table td{padding:10px 12px;color:var(--body);border-bottom:1px solid var(--card-border)}
+.coupon-table tr:nth-child(odd) td{background:#F7FAF8}
+.coupon-table tr:last-child td{border-bottom:none}
+.coupon-type{font-size:11px;padding:2px 7px;border-radius:8px;font-weight:600}
+.coupon-type.appointment{background:#D4EDDA;color:#1B4D2E}
+.coupon-type.order{background:#EDE9FE;color:#4C1D95}
+
+/* CSAT gauge score */
+.csat-score-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px}
+.csat-number{font-family:'Plus Jakarta Sans',sans-serif;font-size:52px;font-weight:800;color:var(--title);line-height:1}
+.csat-stars{font-size:22px;color:#F59E0B;letter-spacing:2px}
+.csat-nps{font-size:13px;color:var(--subtitle)}
+.csat-nps strong{color:var(--title)}
+
+/* Setup state */
+.mb-setup{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:48px 32px;text-align:center;background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px}
+.mb-setup h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:700;color:var(--title)}
+.mb-setup p{font-size:14px;color:var(--subtitle);max-width:420px}
+
+/* Responsive */
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:768px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.dash-filters{gap:8px}}
+
+/* Responsive */
+@media(max-width:768px){
+  .cx-sidebar{transform:translateX(-100%)}
+  .cx-sidebar.open{transform:translateX(0)}
+  .cx-main{margin-left:0}
+  .cx-mobile-hdr{display:flex}
+  .cx-section--content{padding:20px 16px}
+  .grid-2,.grid-3{grid-template-columns:1fr}
+  .article-grid{grid-template-columns:1fr}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DASH MÉDICOS — REDESIGN BLIS  (#17AE55 extraído de appblis.com.br)
+   Escopo: #section-medicos — não afeta nenhuma outra seção
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Variáveis e fundo */
+#section-medicos {
+  --blis-p:       #17AE55;
+  --blis-dark:    #0D8040;
+  --blis-light:   #4DC878;
+  --blis-bg:      #F0FAF3;
+  --blis-bg2:     #E2F7EB;
+  --blis-border:  #B8E4CA;
+  --blis-text:    #0A2E1A;
+  --blis-muted:   #2D7A52;
+  --blis-glow:    rgba(23,174,85,.13);
+  --blis-glow2:   rgba(23,174,85,.24);
+  background-image: radial-gradient(circle,rgba(23,174,85,.06) 1px,transparent 1px);
+  background-size: 22px 22px;
+  background-color: #FAFFFE;
+}
+
+/* Header da seção */
+#section-medicos .s-header {
+  padding-bottom: 20px;
+  border-bottom: 2px solid transparent;
+  border-image: linear-gradient(90deg,var(--blis-dark),var(--blis-p),transparent) 1;
+  margin-bottom: 6px;
+}
+#section-medicos .s-title {
+  color: var(--blis-text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#section-medicos .s-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 30px;
+  background: linear-gradient(180deg,var(--blis-dark),var(--blis-p));
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+#section-medicos .s-sub {
+  color: var(--blis-muted);
+  padding-left: 14px;
+}
+
+/* Barra de filtro ativo */
+#med-filter-bar {
+  display: none;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 0 12px;
+  font-family: 'Inter', sans-serif;
+}
+#med-filter-bar.active { display: flex; }
+.filter-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px 3px 12px; border-radius: 20px;
+  background: rgba(27,77,46,.09); border: 1px solid rgba(27,77,46,.22);
+  font-size: 11px; font-weight: 600; color: #1B4D2E;
+}
+.chip-x {
+  cursor: pointer; font-size: 15px; line-height: 1; color: #1B4D2E;
+  opacity: .55; transition: opacity .15s;
+}
+.chip-x:hover { opacity: 1; }
+.chip-clear-all {
+  padding: 3px 11px; border-radius: 20px;
+  background: transparent; border: 1px solid rgba(239,68,68,.5);
+  font-size: 11px; font-weight: 600; color: #EF4444; cursor: pointer;
+  font-family: 'Inter', sans-serif; transition: background .15s;
+}
+.chip-clear-all:hover { background: rgba(239,68,68,.07); }
+
+/* Cards */
+#section-medicos .card {
+  background: #FFFFFF;
+  border: 1px solid var(--blis-border);
+  border-top: 2.5px solid var(--blis-p);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px var(--blis-glow);
+  overflow: visible;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+#section-medicos .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px var(--blis-glow2);
+}
+#section-medicos .card-hdr {
+  border-bottom: 1px solid var(--blis-border);
+  border-radius: 14px 14px 0 0;
+  background: linear-gradient(135deg,var(--blis-bg) 0%,#FFFFFF 100%);
+  padding: 16px 22px 14px;
+}
+#section-medicos .block-title {
+  color: var(--blis-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14.5px;
+}
+#section-medicos .block-title::before {
+  content: '';
+  width: 3px;
+  height: 16px;
+  background: var(--blis-p);
+  border-radius: 2px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+#section-medicos .block-sub {
+  color: var(--blis-muted);
+  padding-left: 11px;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* Filtros */
+#section-medicos .dash-filters {
+  background: #FFFFFF;
+  border: 1px solid var(--blis-border);
+  border-radius: 14px;
+  box-shadow: 0 2px 12px var(--blis-glow);
+  padding: 12px 20px;
+}
+#section-medicos .filter-sel {
+  border: 1.5px solid var(--blis-border);
+  border-radius: 10px;
+  background: var(--blis-bg);
+  color: var(--blis-text);
+  padding: 7px 12px;
+  font-size: 13px;
+  transition: border-color .2s, box-shadow .2s;
+}
+#section-medicos .filter-sel:focus {
+  border-color: var(--blis-p);
+  box-shadow: 0 0 0 3px rgba(23,174,85,.12);
+  outline: none;
+}
+#section-medicos .filter-sep { color: var(--blis-border); }
+#section-medicos .btn-refresh {
+  background: linear-gradient(135deg,var(--blis-dark),var(--blis-p));
+  border-radius: 10px;
+  box-shadow: 0 2px 10px var(--blis-glow);
+  transition: all .2s;
+  font-weight: 600;
+}
+#section-medicos .btn-refresh:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 18px var(--blis-glow2);
+  background: linear-gradient(135deg,var(--blis-p),var(--blis-light));
+}
+
+/* KPI cards */
+#section-medicos .kpi-card {
+  background: #FFFFFF;
+  border: 1px solid var(--blis-border);
+  border-left: 3px solid var(--blis-p);
+  border-radius: 14px;
+  box-shadow: 0 2px 16px var(--blis-glow);
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
+}
+#section-medicos .kpi-card::after {
+  content: '';
+  position: absolute;
+  top: -24px; right: -24px;
+  width: 88px; height: 88px;
+  background: radial-gradient(circle,rgba(23,174,85,.09) 0%,transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+#section-medicos .kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px var(--blis-glow2);
+}
+#section-medicos .kpi-value {
+  font-size: 28px;
+  color: var(--blis-text);
+  font-weight: 800;
+  line-height: 1.1;
+}
+#section-medicos .kpi-label {
+  color: var(--blis-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-top: 4px;
+}
+#section-medicos .kpi-sub { color: #7AAE93; font-size: 11px; margin-top: 3px; }
+#section-medicos .kpi-icon { font-size: 22px; margin-bottom: 6px; }
+
+/* Skeleton shimmer Blis */
+#section-medicos .skel {
+  background: linear-gradient(90deg,#D9F2E4 0%,#F0FAF3 50%,#D9F2E4 100%);
+  background-size: 200% 100%;
+  animation: skel-blis 1.5s ease-in-out infinite;
+}
+#section-medicos .skel::after { display: none; }
+@keyframes skel-blis {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Badge */
+#section-medicos .badge {
+  background: var(--blis-bg);
+  color: var(--blis-dark);
+  border: 1px solid var(--blis-border);
+  font-weight: 600;
+}
+
+/* Performance table */
+#section-medicos .med-table th {
+  background: var(--blis-dark);
+  color: #FFFFFF;
+  font-size: 10.5px;
+  letter-spacing: .8px;
+  border-bottom: none;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+#section-medicos .med-table th:hover { color: #B8E4CA; }
+#section-medicos .med-table th.sorted { color: var(--blis-light); }
+#section-medicos .med-table th .sort-arrow { opacity: .7; }
+#section-medicos .med-table tr:nth-child(odd)  td { background: #FFFFFF; }
+#section-medicos .med-table tr:nth-child(even) td { background: var(--blis-bg); }
+#section-medicos .med-table tr:hover td { background: var(--blis-bg2) !important; transition: background .15s; }
+#section-medicos .med-table td { border-bottom: 1px solid var(--blis-border); color: var(--blis-text); }
+#section-medicos .med-table tr:last-child td { border-bottom: none; }
+#section-medicos .badge-top {
+  background: linear-gradient(135deg,var(--blis-dark),var(--blis-p));
+  color: #FFFFFF;
+  border-radius: 12px;
+  padding: 3px 9px;
+  font-size: 10.5px;
+}
+
+/* Coupon tables */
+#section-medicos .coupon-table th {
+  background: var(--blis-dark);
+  color: #FFFFFF;
+  font-size: 10.5px;
+  letter-spacing: .7px;
+  border-bottom: none;
+  padding: 11px 12px;
+}
+#section-medicos .coupon-table tr:nth-child(odd)  td { background: #FFFFFF; }
+#section-medicos .coupon-table tr:nth-child(even) td { background: var(--blis-bg); }
+#section-medicos .coupon-table tr:hover td { background: var(--blis-bg2) !important; transition: background .15s; }
+#section-medicos .coupon-table td { border-bottom: 1px solid var(--blis-border); color: var(--blis-text); }
+#section-medicos .coupon-table tr:last-child td { border-bottom: none; }
+
+/* CSAT */
+#section-medicos .csat-number { color: var(--blis-text); }
+#section-medicos .csat-nps { color: var(--blis-muted); }
+#section-medicos .progress-bar { background: var(--blis-bg); }
+#section-medicos .progress-fill { background: linear-gradient(90deg,var(--blis-dark),var(--blis-p)); }
+
+/* Scrollbar */
+#section-medicos::-webkit-scrollbar { width: 4px; height: 4px; }
+#section-medicos::-webkit-scrollbar-thumb { background: var(--blis-light); border-radius: 4px; }
+
+/* ── Review cards ── */
+#section-medicos .review-filter-tabs { display:flex; gap:8px; flex-wrap:wrap; }
+#section-medicos .review-tab {
+  padding:5px 14px; border-radius:20px; border:1.5px solid var(--blis-border);
+  background:var(--blis-bg); font-size:12px; font-weight:600; cursor:pointer;
+  color:var(--blis-muted); transition:all .15s; font-family:'Inter',sans-serif;
+}
+#section-medicos .review-tab.active {
+  background:var(--blis-dark); border-color:var(--blis-dark); color:#fff;
+}
+#section-medicos .review-tab:hover:not(.active) { border-color:var(--blis-p); color:var(--blis-dark); }
+#section-medicos .review-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px;
+}
+#section-medicos .review-card {
+  background:var(--blis-bg); border:1px solid var(--blis-border); border-radius:10px;
+  padding:14px 16px; display:flex; flex-direction:column; gap:6px;
+  transition:box-shadow .15s;
+}
+#section-medicos .review-card:hover { box-shadow:0 2px 12px rgba(0,0,0,.07); }
+#section-medicos .review-card.positive { border-left:3px solid #17AE55; }
+#section-medicos .review-card.negative { border-left:3px solid #EF4444; }
+#section-medicos .review-card.neutral  { border-left:3px solid #F59E0B; }
+#section-medicos .review-stars { letter-spacing:1px; font-size:14px; }
+#section-medicos .review-meta { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+#section-medicos .review-doc { font-size:13px; font-weight:700; color:var(--blis-text); }
+#section-medicos .review-date { font-size:11px; color:var(--blis-muted); white-space:nowrap; flex-shrink:0; }
+#section-medicos .review-patient { font-size:12px; color:var(--blis-muted); }
+#section-medicos .review-text {
+  font-size:13px; color:var(--blis-text); line-height:1.65;
+  font-style:italic; border-top:1px solid var(--blis-border); padding-top:8px; margin-top:2px;
+}
+#section-medicos .review-nocomment { font-size:12px; color:#9CA3AF; font-style:italic; }
+#section-medicos .review-empty { text-align:center; padding:32px 16px; color:var(--blis-muted); grid-column:1/-1; }
+#section-medicos .review-empty p { font-size:15px; font-weight:600; margin-bottom:4px; }
+#section-medicos .review-count-bar {
+  display:flex; gap:16px; margin-bottom:12px; font-size:12px; color:var(--blis-muted);
+}
+#section-medicos .review-count-pos { color:#17AE55; font-weight:700; }
+#section-medicos .review-count-neg { color:#EF4444; font-weight:700; }
+#section-medicos .review-count-neu { color:#F59E0B; font-weight:700; }
+
+/* mb-last-update */
+#section-medicos #mb-last-update {
+  background: var(--blis-bg);
+  color: var(--blis-muted);
+  border: 1px solid var(--blis-border);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+/* Separadores */
+#section-medicos .sec-divider {
+  height: 1px;
+  background: linear-gradient(90deg,transparent,var(--blis-light),transparent);
+  margin: 2px 0;
+  opacity: .5;
+}
+
+/* Animação de entrada dos valores KPI */
+@keyframes kpi-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#section-medicos .kpi-value { animation: kpi-enter .5s ease-out; }
+#section-medicos .kpi-card:nth-child(1) .kpi-value { animation-delay: .05s; }
+#section-medicos .kpi-card:nth-child(2) .kpi-value { animation-delay: .10s; }
+#section-medicos .kpi-card:nth-child(3) .kpi-value { animation-delay: .15s; }
+#section-medicos .kpi-card:nth-child(4) .kpi-value { animation-delay: .20s; }
+#section-medicos .kpi-card:nth-child(5) .kpi-value { animation-delay: .25s; }
+
+/* ── Edit mode ── */
+.edit-toggle-btn {
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 13px;border-radius:7px;border:1.5px solid var(--card-border);
+  background:var(--card-bg);color:var(--subtitle);font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .15s;white-space:nowrap;font-family:'Inter',sans-serif;
+}
+.edit-toggle-btn:hover{border-color:var(--sb-active-border);color:var(--title)}
+.edit-toggle-btn.active{background:var(--badge-bg);border-color:var(--sb-active-border);color:var(--title)}
+
+.kb-new-btn{
+  display:none;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:7px;border:none;
+  background:var(--btn-bg);color:#fff;font-size:12px;font-weight:600;
+  cursor:pointer;transition:background .15s;font-family:'Inter',sans-serif;
+}
+.kb-new-btn.visible{display:inline-flex}
+.kb-new-btn:hover{background:var(--btn-hover)}
+
+/* Article card wrapping for edit mode */
+.article-card-wrap{position:relative}
+.article-card-actions{
+  display:none;position:absolute;top:10px;right:10px;
+  gap:5px;z-index:2;
+}
+.edit-mode .article-card-actions{display:flex}
+.edit-mode .article-card{cursor:default !important}
+.edit-mode .read-more{display:none}
+.ac-btn{
+  padding:3px 10px;border-radius:5px;border:none;font-size:11px;font-weight:600;
+  cursor:pointer;transition:opacity .15s;font-family:'Inter',sans-serif;
+}
+.ac-btn-edit{background:var(--badge-bg);color:var(--title)}
+.ac-btn-del{background:#FEE2E2;color:#B91C1C}
+.ac-btn:hover{opacity:.75}
+
+/* KB modal */
+.cx-modal-bg{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;
+  align-items:center;justify-content:center;padding:20px;
+}
+.cx-modal-bg.open{display:flex}
+.cx-modal{
+  background:#fff;border-radius:14px;width:100%;max-width:700px;
+  max-height:92vh;display:flex;flex-direction:column;
+  box-shadow:0 20px 60px rgba(0,0,0,.22);
+}
+.cx-modal-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 24px 14px;border-bottom:1px solid var(--card-border);flex-shrink:0;
+}
+.cx-modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:800;color:var(--title)}
+.cx-modal-close{background:none;border:none;font-size:21px;cursor:pointer;color:#9CA3AF;line-height:1;padding:2px 6px;border-radius:4px}
+.cx-modal-close:hover{color:var(--body)}
+.cx-modal-body{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:14px}
+.cx-modal-footer{padding:14px 24px;border-top:1px solid var(--card-border);display:flex;gap:10px;justify-content:flex-end;flex-shrink:0}
+.cx-field{display:flex;flex-direction:column;gap:5px}
+.cx-label{font-size:11.5px;font-weight:700;color:var(--subtitle);text-transform:uppercase;letter-spacing:.5px}
+.cx-input,.cx-select,.cx-textarea{
+  border:1.5px solid var(--card-border);border-radius:7px;padding:8px 10px;
+  font-family:'Inter',sans-serif;font-size:13px;color:var(--body);background:#fff;
+  outline:none;transition:border-color .15s;width:100%;
+}
+.cx-input:focus,.cx-select:focus,.cx-textarea:focus{border-color:var(--sb-active-border)}
+.cx-textarea{resize:vertical;min-height:80px}
+.cx-textarea-code{font-family:'Courier New',monospace;font-size:11.5px;min-height:180px}
+.cx-field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-primary{
+  padding:8px 18px;border-radius:7px;border:none;
+  background:var(--btn-bg);color:#fff;font-size:13px;font-weight:600;
+  cursor:pointer;transition:background .15s;font-family:'Inter',sans-serif;
+}
+.btn-primary:hover{background:var(--btn-hover)}
+.btn-secondary{
+  padding:8px 18px;border-radius:7px;border:1.5px solid var(--card-border);
+  background:#fff;color:var(--subtitle);font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;
+}
+.btn-secondary:hover{border-color:var(--sb-active-border);color:var(--title)}
+
+/* LGPD inline editing */
+.lgpd-edit-active [contenteditable]{
+  outline:1.5px dashed var(--sb-active-border);border-radius:4px;
+  padding:1px 4px;cursor:text;min-width:4px;
+  transition:background .15s;
+}
+.lgpd-edit-active [contenteditable]:hover{background:rgba(82,183,136,.07)}
+.lgpd-edit-active [contenteditable]:focus{outline:2px solid var(--sb-active-border);background:rgba(82,183,136,.05)}
+.lgpd-row-del-cell{display:none;width:32px;padding:6px 4px !important;vertical-align:middle}
+.lgpd-edit-active .lgpd-row-del-cell{display:table-cell}
+.lgpd-th-del{display:none;width:32px}
+.lgpd-edit-active .lgpd-th-del{display:table-cell}
+.lgpd-del-row{
+  background:#FEE2E2;color:#B91C1C;border:none;border-radius:4px;
+  width:24px;height:24px;font-size:13px;cursor:pointer;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+}
+.lgpd-del-row:hover{background:#FECACA}
+.lgpd-add-row-wrap{display:none;padding:8px 0 4px}
+.lgpd-edit-active .lgpd-add-row-wrap{display:block}
+.lgpd-add-row-btn{
+  width:100%;padding:7px;border-radius:6px;
+  border:1.5px dashed var(--sb-active-border);background:transparent;
+  color:var(--subtitle);font-size:12px;font-weight:600;
+  cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s;
+}
+.lgpd-add-row-btn:hover{background:rgba(82,183,136,.07)}
+.lgpd-save-toast{
+  position:fixed;bottom:22px;right:22px;z-index:600;
+  padding:10px 18px;border-radius:9px;background:#052e16;color:#fff;
+  font-size:13px;font-weight:600;pointer-events:none;font-family:'Inter',sans-serif;
+  opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s;
+}
+.lgpd-save-toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="cx-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<div class="cx-layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="cx-sidebar" id="sidebar">
+    <div class="cx-logo">
+      <div class="cx-logo-mark">CX</div>
+      <div>
+        <span class="cx-logo-text">Portal CX</span>
+        <span class="cx-logo-sub">🟢 Appblis</span>
+      </div>
+    </div>
+
+    <nav class="cx-nav">
+      <button class="cx-nav-item active" id="nav-dashboard" onclick="show('dashboard',this)">
+        <span class="nav-icon">📊</span>
+        <span>Dashboard CX</span>
+      </button>
+      <button class="cx-nav-item" id="nav-knowledge" onclick="show('knowledge',this)">
+        <span class="nav-icon">📚</span>
+        <span>Base de Conhecimento</span>
+      </button>
+      <button class="cx-nav-item" id="nav-lgpd" onclick="show('lgpd',this)">
+        <span class="nav-icon">🔒</span>
+        <span>LGPD</span>
+      </button>
+      <button class="cx-nav-item" id="nav-medicos" onclick="show('medicos',this)">
+        <span class="nav-icon">🩺</span>
+        <span>Dash Médicos</span>
+      </button>
+    </nav>
+
+    <div class="cx-sb-footer">
+      <strong>Appblis CX Hub</strong>
+      Versão 2026.1
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="cx-main" id="main">
+
+    <!-- Mobile header -->
+    <div class="cx-mobile-hdr">
+      <button class="cx-burger" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <span id="mobileTitle">Dashboard CX</span>
+    </div>
+
+    <!-- ── SECTION 1: Dashboard ── -->
+    <section class="cx-section cx-section--dash active" id="section-dashboard">
+      <iframe
+        src="dashboard.html?v=20260526-4"
+        title="Dashboard CX Appblis"
+        allowfullscreen
+        id="dashFrame"
+      ></iframe>
+    </section>
+
+    <!-- ── SECTION 2: Base de Conhecimento ── -->
+    <section class="cx-section cx-section--content" id="section-knowledge">
+
+      <!-- List view -->
+      <div id="kb-list">
+        <div class="s-header">
+          <div>
+            <h1 class="s-title">Base de Conhecimento</h1>
+            <p class="s-sub">Consulte processos, scripts e orientações das equipes de CX da Appblis.</p>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button class="kb-new-btn" id="kb-new-btn" onclick="openArticleModal(null)">+ Novo artigo</button>
+            <button class="edit-toggle-btn" id="kb-edit-toggle" onclick="toggleKbEdit()">✏️ Editar</button>
+          </div>
+        </div>
+
+        <div class="search-wrap">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input class="search-input" id="kbSearch" type="text" placeholder="Pesquisar artigos, processos, scripts…" oninput="filterArticles()">
+        </div>
+
+        <div class="pills" id="kbPills">
+          <button class="pill active" onclick="setCat('Todos',this)">Todos</button>
+          <button class="pill" onclick="setCat('Atendimento',this)">Atendimento</button>
+          <button class="pill" onclick="setCat('Clínico',this)">Clínico</button>
+          <button class="pill" onclick="setCat('Regulatório',this)">Regulatório</button>
+          <button class="pill" onclick="setCat('Importação',this)">Importação</button>
+          <button class="pill" onclick="setCat('LGPD',this)">LGPD</button>
+        </div>
+
+        <div class="article-grid" id="kbGrid"></div>
+        <div class="no-results" id="kbEmpty" style="display:none">
+          <p>Nenhum artigo encontrado</p>
+          <small>Tente outro termo ou categoria</small>
+        </div>
+      </div>
+
+      <!-- Detail view -->
+      <div class="detail-view" id="kb-detail">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div class="breadcrumb" id="kb-bc"></div>
+          <button class="back-btn" onclick="closeArticle()">← Voltar à lista</button>
+        </div>
+        <div id="kb-article-body"></div>
+      </div>
+
+    </section>
+
+    <!-- ── SECTION 3: LGPD ── -->
+    <section class="cx-section cx-section--content" id="section-lgpd">
+
+      <div class="s-header">
+        <div>
+          <h1 class="s-title">LGPD &amp; Privacidade</h1>
+          <p class="s-sub">Compliance, consentimentos e controle de dados pessoais de saúde na Appblis.</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span class="badge">Art. 11 LGPD</span>
+          <button class="edit-toggle-btn" id="lgpd-edit-toggle" onclick="toggleLgpdEdit()">✏️ Editar</button>
+        </div>
+      </div>
+
+      <!-- Alert: dados sensíveis de saúde -->
+      <div class="alert-box">
+        <span class="alert-icon">⚠️</span>
+        <div style="flex:1">
+          <p class="alert-title" id="lgpd-alert-title" contenteditable="true" data-gramm="false">Atenção — Dados Sensíveis de Saúde (Art. 11 da LGPD)</p>
+          <p class="alert-body" id="lgpd-alert-body" contenteditable="true" data-gramm="false">
+            A Appblis coleta e processa dados de saúde dos pacientes, classificados como <strong>dados sensíveis</strong> pela Lei Geral de Proteção de Dados (Lei 13.709/2018). O tratamento dessas informações — incluindo prescrições médicas, diagnósticos e histórico de uso de cannabis medicinal — exige <strong>consentimento específico e destacado</strong> do titular ou base legal prevista no Art. 11. Toda operação de tratamento deve ser documentada e auditável.
+          </p>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid-3" id="lgpd-stats-grid">
+        <div class="stat-card">
+          <span class="stat-icon" contenteditable="true" data-gramm="false">✅</span>
+          <span class="stat-value" contenteditable="true" data-gramm="false">98%</span>
+          <span class="stat-label" contenteditable="true" data-gramm="false">Conformidade LGPD</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon" contenteditable="true" data-gramm="false">📋</span>
+          <span class="stat-value" contenteditable="true" data-gramm="false">3</span>
+          <span class="stat-label" contenteditable="true" data-gramm="false">Solicitações pendentes</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon" contenteditable="true" data-gramm="false">🔐</span>
+          <span class="stat-value" contenteditable="true" data-gramm="false">0</span>
+          <span class="stat-label" contenteditable="true" data-gramm="false">Incidentes em 2025</span>
+        </div>
+      </div>
+
+      <!-- Consentimentos + Direitos -->
+      <div class="grid-2">
+
+        <div class="card">
+          <div class="card-hdr"><div class="card-title" contenteditable="true" data-gramm="false">🔘 Consentimentos Ativos</div></div>
+          <div class="card-body" style="padding-top:8px;padding-bottom:8px" id="lgpd-consent-body">
+            <div class="toggle-row">
+              <div><div class="toggle-label" contenteditable="true" data-gramm="false">Dados Clínicos</div><div class="toggle-desc" contenteditable="true" data-gramm="false">Prescrições e histórico de tratamento</div></div>
+              <label class="cx-toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label" contenteditable="true" data-gramm="false">Dados de Contato</div><div class="toggle-desc" contenteditable="true" data-gramm="false">E-mail, telefone e endereço</div></div>
+              <label class="cx-toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label" contenteditable="true" data-gramm="false">Comunicações de Marketing</div><div class="toggle-desc" contenteditable="true" data-gramm="false">Newsletters e promoções</div></div>
+              <label class="cx-toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label" contenteditable="true" data-gramm="false">Compartilhamento com Parceiros</div><div class="toggle-desc" contenteditable="true" data-gramm="false">Laboratórios e prestadores de saúde</div></div>
+              <label class="cx-toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label" contenteditable="true" data-gramm="false">Analytics e Melhoria de Produto</div><div class="toggle-desc" contenteditable="true" data-gramm="false">Dados anonimizados de uso da plataforma</div></div>
+              <label class="cx-toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hdr"><div class="card-title" contenteditable="true" data-gramm="false">📋 Direitos do Titular (Art. 18)</div></div>
+          <div class="card-body">
+            <ul class="rights-list" id="lgpd-rights-list">
+              <li><span class="rights-check" contenteditable="true" data-gramm="false">✓</span><span contenteditable="true" data-gramm="false"><strong>Confirmação e Acesso</strong> — verificar se seus dados são tratados e solicitar cópia completa</span></li>
+              <li><span class="rights-check" contenteditable="true" data-gramm="false">✓</span><span contenteditable="true" data-gramm="false"><strong>Correção</strong> — atualizar dados incompletos, inexatos ou desatualizados</span></li>
+              <li><span class="rights-check" contenteditable="true" data-gramm="false">✓</span><span contenteditable="true" data-gramm="false"><strong>Eliminação</strong> — solicitar exclusão dos dados tratados com base no consentimento</span></li>
+              <li><span class="rights-check" contenteditable="true" data-gramm="false">✓</span><span contenteditable="true" data-gramm="false"><strong>Portabilidade</strong> — transferir dados a outro fornecedor de serviço</span></li>
+              <li><span class="rights-check" contenteditable="true" data-gramm="false">✓</span><span contenteditable="true" data-gramm="false"><strong>Revogação</strong> — retirar consentimento a qualquer momento sem ônus</span></li>
+              <li><span class="rights-check" contenteditable="true" data-gramm="false">✓</span><span contenteditable="true" data-gramm="false"><strong>Oposição</strong> — contestar tratamento sem base em consentimento legítimo</span></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Obrigações -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title" contenteditable="true" data-gramm="false">🏢 Obrigações da Appblis como Controladora</div>
+        </div>
+        <div class="card-body" id="lgpd-obl-body">
+          <div class="grid-3">
+            <div class="obl-item">
+              <span class="obl-icon" contenteditable="true" data-gramm="false">👤</span>
+              <div class="obl-name" contenteditable="true" data-gramm="false">DPO Nomeado</div>
+              <div class="obl-desc" contenteditable="true" data-gramm="false">Encarregado de dados designado e publicado no site institucional</div>
+              <span class="status-ok" contenteditable="true" data-gramm="false">Conforme</span>
+            </div>
+            <div class="obl-item">
+              <span class="obl-icon" contenteditable="true" data-gramm="false">📄</span>
+              <div class="obl-name" contenteditable="true" data-gramm="false">RIPD Elaborado</div>
+              <div class="obl-desc" contenteditable="true" data-gramm="false">Relatório de Impacto à Proteção de Dados documentado</div>
+              <span class="status-warn" contenteditable="true" data-gramm="false">Pendente atualização</span>
+            </div>
+            <div class="obl-item">
+              <span class="obl-icon" contenteditable="true" data-gramm="false">🔐</span>
+              <div class="obl-name" contenteditable="true" data-gramm="false">Segurança Técnica</div>
+              <div class="obl-desc" contenteditable="true" data-gramm="false">Criptografia, controle de acesso e monitoramento ativo</div>
+              <span class="status-ok" contenteditable="true" data-gramm="false">Conforme</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Log de acessos -->
+      <div class="card">
+        <div class="card-hdr">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div class="card-title" contenteditable="true" data-gramm="false">📋 Log de Acessos e Solicitações de Titulares</div>
+            <span class="badge" contenteditable="true" data-gramm="false">Últimos 30 dias</span>
+          </div>
+        </div>
+        <div style="overflow-x:auto" id="lgpd-log-wrap">
+          <table class="cx-table" id="lgpd-log-table">
+            <thead>
+              <tr>
+                <th contenteditable="true" data-gramm="false">Data</th>
+                <th contenteditable="true" data-gramm="false">Titular</th>
+                <th contenteditable="true" data-gramm="false">Tipo de Solicitação</th>
+                <th contenteditable="true" data-gramm="false">Responsável</th>
+                <th contenteditable="true" data-gramm="false">Status</th>
+                <th contenteditable="true" data-gramm="false">Prazo</th>
+                <th class="lgpd-th-del"></th>
+              </tr>
+            </thead>
+            <tbody id="lgpd-log-tbody">
+              <tr><td contenteditable="true" data-gramm="false">18 mai 2026</td><td contenteditable="true" data-gramm="false">M. A. S.</td><td contenteditable="true" data-gramm="false">Acesso a dados</td><td contenteditable="true" data-gramm="false">Ana Lima</td><td contenteditable="true" data-gramm="false">Conforme</td><td contenteditable="true" data-gramm="false">25 mai 2026</td><td class="lgpd-row-del-cell"><button class="lgpd-del-row" onclick="lgpdDelRow(this)" title="Excluir linha">✕</button></td></tr>
+              <tr><td contenteditable="true" data-gramm="false">15 mai 2026</td><td contenteditable="true" data-gramm="false">J. R. F.</td><td contenteditable="true" data-gramm="false">Eliminação de dados</td><td contenteditable="true" data-gramm="false">Bruno Costa</td><td contenteditable="true" data-gramm="false">Conforme</td><td contenteditable="true" data-gramm="false">22 mai 2026</td><td class="lgpd-row-del-cell"><button class="lgpd-del-row" onclick="lgpdDelRow(this)" title="Excluir linha">✕</button></td></tr>
+              <tr><td contenteditable="true" data-gramm="false">12 mai 2026</td><td contenteditable="true" data-gramm="false">C. P. M.</td><td contenteditable="true" data-gramm="false">Correção de dados</td><td contenteditable="true" data-gramm="false">Ana Lima</td><td contenteditable="true" data-gramm="false">Pendente</td><td contenteditable="true" data-gramm="false">19 mai 2026</td><td class="lgpd-row-del-cell"><button class="lgpd-del-row" onclick="lgpdDelRow(this)" title="Excluir linha">✕</button></td></tr>
+              <tr><td contenteditable="true" data-gramm="false">08 mai 2026</td><td contenteditable="true" data-gramm="false">T. V. O.</td><td contenteditable="true" data-gramm="false">Portabilidade</td><td contenteditable="true" data-gramm="false">Carlos Dias</td><td contenteditable="true" data-gramm="false">Conforme</td><td contenteditable="true" data-gramm="false">15 mai 2026</td><td class="lgpd-row-del-cell"><button class="lgpd-del-row" onclick="lgpdDelRow(this)" title="Excluir linha">✕</button></td></tr>
+              <tr><td contenteditable="true" data-gramm="false">05 mai 2026</td><td contenteditable="true" data-gramm="false">L. G. N.</td><td contenteditable="true" data-gramm="false">Revogação de consentimento</td><td contenteditable="true" data-gramm="false">Bruno Costa</td><td contenteditable="true" data-gramm="false">Conforme</td><td contenteditable="true" data-gramm="false">12 mai 2026</td><td class="lgpd-row-del-cell"><button class="lgpd-del-row" onclick="lgpdDelRow(this)" title="Excluir linha">✕</button></td></tr>
+              <tr><td contenteditable="true" data-gramm="false">02 mai 2026</td><td contenteditable="true" data-gramm="false">P. S. K.</td><td contenteditable="true" data-gramm="false">Acesso a dados</td><td contenteditable="true" data-gramm="false">Ana Lima</td><td contenteditable="true" data-gramm="false">Pendente</td><td contenteditable="true" data-gramm="false">09 mai 2026</td><td class="lgpd-row-del-cell"><button class="lgpd-del-row" onclick="lgpdDelRow(this)" title="Excluir linha">✕</button></td></tr>
+              <tr><td contenteditable="true" data-gramm="false">28 abr 2026</td><td contenteditable="true" data-gramm="false">R. C. B.</td><td contenteditable="true" data-gramm="false">Oposição ao tratamento</td><td contenteditable="true" data-gramm="false">Carlos Dias</td><td contenteditable="true" data-gramm="false">Conforme</td><td contenteditable="true" data-gramm="false">05 mai 2026</td><td class="lgpd-row-del-cell"><button class="lgpd-del-row" onclick="lgpdDelRow(this)" title="Excluir linha">✕</button></td></tr>
+            </tbody>
+          </table>
+          <div class="lgpd-add-row-wrap">
+            <button class="lgpd-add-row-btn" onclick="lgpdAddRow()">+ Adicionar linha</button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── SECTION 4: Dash Médicos ── -->
+    <section class="cx-section cx-section--content" id="section-medicos">
+
+      <!-- Header -->
+      <div class="s-header">
+        <div>
+          <h1 class="s-title">Dash Médicos</h1>
+          <p class="s-sub">Consultas, CSAT, cupons e performance dos médicos — dados em tempo real via Metabase.</p>
+        </div>
+        <span class="badge" id="mb-last-update" style="display:none">Atualizado agora</span>
+      </div>
+
+      <!-- Setup state: exibido se config ausente -->
+      <div class="mb-setup" id="mb-setup" style="display:none">
+        <span style="font-size:40px">⚙️</span>
+        <h2>Configuração necessária</h2>
+        <p>O arquivo <code>config/metabase.config.js</code> não foi carregado ou está com campos vazios. Preencha a URL, email e senha do Metabase e recarregue a página.</p>
+      </div>
+
+      <!-- Dashboard (oculto durante loading inicial) -->
+      <div id="mb-dashboard" style="display:none">
+
+        <!-- Filtros -->
+        <div class="dash-filters">
+          <select class="filter-sel" id="filter-mes" onchange="applyFilters()" style="min-width:130px">
+            <option value="">Todos os meses</option>
+          </select>
+          <span class="filter-sep">|</span>
+          <select class="filter-sel" id="filter-medico" onchange="applyFilters()">
+            <option value="">Todos os médicos</option>
+          </select>
+          <span class="filter-sep">|</span>
+          <select class="filter-sel" id="filter-cupom" onchange="applyFilters()" style="max-width:200px">
+            <option value="">Todos os cupons</option>
+          </select>
+          <button class="btn-refresh" onclick="refreshMedicos()" id="btn-refresh">
+            <svg id="refresh-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+            </svg>
+            Atualizar
+          </button>
+        </div>
+        <div id="med-filter-bar"></div>
+
+        <!-- Bloco 1: KPIs -->
+        <div class="kpi-grid" id="kpi-grid">
+          <div class="kpi-card kpi-skel" id="kpi-0"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
+          <div class="kpi-card kpi-skel" id="kpi-1"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
+          <div class="kpi-card kpi-skel" id="kpi-2"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
+          <div class="kpi-card kpi-skel" id="kpi-3"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
+          <div class="kpi-card kpi-skel" id="kpi-4"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
+        </div>
+
+        <!-- Bloco 2+6: Status (donnut) + CSAT (score) -->
+        <div class="grid-2">
+          <div class="card" id="block-status">
+            <div class="card-hdr"><div class="block-title">Consultas por Status</div><div class="block-sub">Distribuição total no período</div></div>
+            <div class="card-body chart-wrap"><div class="skel" style="width:180px;height:180px;border-radius:50%"></div></div>
+          </div>
+          <div class="card" id="block-csat">
+            <div class="card-hdr"><div class="block-title">CSAT Global dos Médicos</div><div class="block-sub">Média de avaliações e NPS</div></div>
+            <div class="card-body" style="display:flex;align-items:stretch;gap:0">
+              <div class="csat-score-wrap" id="csat-score" style="flex:0 0 160px;border-right:1px solid var(--card-border)">
+                <div class="skel" style="width:80px;height:60px;border-radius:8px"></div>
+              </div>
+              <div style="flex:1;padding:16px 0 8px 16px">
+                <div class="block-sub" style="margin-bottom:12px">Distribuição das notas</div>
+                <div class="chart-wrap" style="min-height:160px;padding:0"><div class="skel" style="width:100%;height:160px;border-radius:8px"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloco 3: Performance por médico -->
+        <div class="card" id="block-performance">
+          <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">
+            <div><div class="block-title">Performance por Médico</div><div class="block-sub">Clique no cabeçalho para ordenar</div></div>
+            <span class="badge" id="med-count" style="display:none">0 médicos</span>
+          </div>
+          <div class="med-table-wrap">
+            <table class="med-table" id="perf-table">
+              <thead>
+                <tr>
+                  <th onclick="sortTable('name',this)">Médico <span class="sort-arrow">↕</span></th>
+                  <th onclick="sortTable('consultas_finalizadas',this)">Consultas <span class="sort-arrow">↕</span></th>
+                  <th onclick="sortTable('media',this)">CSAT <span class="sort-arrow">↕</span></th>
+                  <th onclick="sortTable('nps',this)">NPS <span class="sort-arrow">↕</span></th>
+                  <th onclick="sortTable('orders',this)">Pedidos gerados <span class="sort-arrow">↕</span></th>
+                </tr>
+              </thead>
+              <tbody id="perf-tbody">
+                <tr><td colspan="5"><div class="skel" style="height:14px;width:80%;margin:4px 0"></div></td></tr>
+                <tr><td colspan="5"><div class="skel" style="height:14px;width:65%;margin:4px 0"></div></td></tr>
+                <tr><td colspan="5"><div class="skel" style="height:14px;width:75%;margin:4px 0"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Bloco 4: Evolução temporal -->
+        <div class="card" id="block-evolucao">
+          <div class="card-hdr"><div class="block-title">Evolução de Consultas no Período</div><div class="block-sub">Finalizadas e canceladas por dia</div></div>
+          <div class="card-body chart-wrap" style="min-height:260px">
+            <div class="skel" style="width:100%;height:240px;border-radius:8px"></div>
+          </div>
+        </div>
+
+        <!-- Bloco 4b: Cancelamentos -->
+        <div class="card" id="block-cancelamentos">
+          <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">
+            <div><div class="block-title">Taxa de Cancelamentos</div><div class="block-sub">Consultas criadas × canceladas por mês (card 494)</div></div>
+            <span class="badge" id="cancel-rate-badge" style="display:none">—</span>
+          </div>
+          <div class="card-body chart-wrap" style="min-height:230px">
+            <div class="skel" style="width:100%;height:210px;border-radius:8px"></div>
+          </div>
+        </div>
+
+        <!-- Bloco 5: Cupons de consulta -->
+        <div class="card" id="block-cupons">
+          <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">
+            <div><div class="block-title">Cupons de Consulta</div><div class="block-sub">Conversão e receita gerada por cupom</div></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+              <span class="badge" id="custo-badge" style="display:none">–</span>
+              <span class="badge" id="ganho-badge" style="display:none;background:#D1FAE5;color:#065F46">–</span>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="coupon-table" id="coupon-table">
+              <thead>
+                <tr>
+                  <th>Cupom</th>
+                  <th>Tipo</th>
+                  <th>Consultas com cupom</th>
+                  <th>Converteram em pedido</th>
+                  <th>Taxa de conversão</th>
+                  <th>Custo do desconto</th>
+                  <th>Receita gerada</th>
+                </tr>
+              </thead>
+              <tbody id="coupon-tbody">
+                <tr><td colspan="7"><div class="skel" style="height:13px;width:80%;margin:4px 0"></div></td></tr>
+                <tr><td colspan="7"><div class="skel" style="height:13px;width:60%;margin:4px 0"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Bloco 5b: Cupons de Pedido -->
+        <div class="card" id="block-cupons-pedido">
+          <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">
+            <div><div class="block-title">Cupons de Pedido</div><div class="block-sub">Todos os cupons de desconto em pedidos (farmácia / produtos)</div></div>
+            <span class="badge" id="custo-pedido-badge" style="display:none">–</span>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="coupon-table" id="coupon-pedido-table">
+              <thead>
+                <tr>
+                  <th>Cupom</th>
+                  <th>Tipo desconto</th>
+                  <th>Valor</th>
+                  <th>Usos</th>
+                  <th>Custo total desconto</th>
+                  <th>Gasto total pelo cliente</th>
+                  <th>Ticket médio</th>
+                </tr>
+              </thead>
+              <tbody id="coupon-pedido-tbody">
+                <tr><td colspan="7"><div class="skel" style="height:13px;width:80%;margin:4px 0"></div></td></tr>
+                <tr><td colspan="7"><div class="skel" style="height:13px;width:60%;margin:4px 0"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Bloco 6: CSAT evolução temporal -->
+        <!-- Bloco 6b: CSAT + NPS mensal combinados -->
+        <div class="card" id="block-csat-evo">
+          <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">
+            <div><div class="block-title">CSAT Médio &amp; NPS — Evolução Mensal</div><div class="block-sub">Média de avaliações (barras, esc. esq.) e NPS % (linha, esc. dir.)</div></div>
+            <div style="display:flex;gap:14px;font-size:11px;color:var(--subtitle)">
+              <span><span style="display:inline-block;width:10px;height:10px;background:#52B788;border-radius:2px;margin-right:4px"></span>CSAT</span>
+              <span><span style="display:inline-block;width:10px;height:2px;background:#6366F1;vertical-align:middle;margin-right:4px"></span>NPS %</span>
+            </div>
+          </div>
+          <div class="card-body chart-wrap" style="min-height:240px">
+            <div class="skel" style="width:100%;height:220px;border-radius:8px"></div>
+          </div>
+        </div>
+
+        <!-- Bloco 7: Tempo médio de consulta mensal -->
+        <div class="card" id="block-tempo">
+          <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">
+            <div><div class="block-title">Tempo Médio de Consulta</div><div class="block-sub">Minutos médios por mês (finalizadas)</div></div>
+            <span class="badge" id="tempo-atual-badge" style="display:none">— min hoje</span>
+          </div>
+          <div class="card-body chart-wrap" style="min-height:220px">
+            <div class="skel" style="width:100%;height:200px;border-radius:8px"></div>
+          </div>
+        </div>
+
+        <!-- Bloco 8: Comentários dos Pacientes -->
+        <div class="card" id="block-reviews">
+          <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+            <div>
+              <div class="block-title">Comentários dos Pacientes</div>
+              <div class="block-sub">Avaliações escritas após consultas — ordenadas por data</div>
+            </div>
+            <div class="review-filter-tabs" id="review-tabs">
+              <button class="review-tab active" onclick="setReviewFilter('all',this)">Todos</button>
+              <button class="review-tab" onclick="setReviewFilter('positive',this)">⭐ Positivos (4-5)</button>
+              <button class="review-tab" onclick="setReviewFilter('negative',this)">⚠️ Negativos (1-3)</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding-top:12px">
+            <div class="review-count-bar" id="review-count-bar" style="display:none">
+              <span><span class="review-count-pos" id="rv-pos">0</span> positivos</span>
+              <span><span class="review-count-neg" id="rv-neg">0</span> negativos</span>
+              <span><span class="review-count-neu" id="rv-neu">0</span> neutros</span>
+            </div>
+            <div id="review-grid" class="review-grid">
+              <div class="skel" style="height:100px;border-radius:8px"></div>
+              <div class="skel" style="height:100px;border-radius:8px"></div>
+              <div class="skel" style="height:100px;border-radius:8px"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /mb-dashboard -->
+
+    </section>
+
+  </div><!-- /cx-main -->
+</div><!-- /cx-layout -->
+
+<!-- KB article modal -->
+<div class="cx-modal-bg" id="kb-modal">
+  <div class="cx-modal">
+    <div class="cx-modal-hdr">
+      <span class="cx-modal-title" id="kb-modal-title">Novo artigo</span>
+      <button class="cx-modal-close" onclick="closeArticleModal()">×</button>
+    </div>
+    <div class="cx-modal-body">
+      <div class="cx-field-row">
+        <div class="cx-field">
+          <label class="cx-label">Categoria</label>
+          <select class="cx-select" id="kb-f-cat">
+            <option>Atendimento</option>
+            <option>Clínico</option>
+            <option>Regulatório</option>
+            <option>Importação</option>
+            <option>LGPD</option>
+          </select>
+        </div>
+        <div class="cx-field">
+          <label class="cx-label">Data</label>
+          <input class="cx-input" id="kb-f-date" type="text" placeholder="ex: 25 mai 2026">
+        </div>
+      </div>
+      <div class="cx-field">
+        <label class="cx-label">Título</label>
+        <input class="cx-input" id="kb-f-title" type="text" placeholder="Título do artigo">
+      </div>
+      <div class="cx-field">
+        <label class="cx-label">Resumo</label>
+        <textarea class="cx-textarea" id="kb-f-summary" rows="3" placeholder="Breve descrição exibida no card"></textarea>
+      </div>
+      <div class="cx-field">
+        <label class="cx-label">Conteúdo (HTML)</label>
+        <textarea class="cx-textarea cx-textarea-code" id="kb-f-body" placeholder="<h3>Seção</h3><p>Texto...</p>"></textarea>
+      </div>
+      <input type="hidden" id="kb-f-id">
+    </div>
+    <div class="cx-modal-footer">
+      <button class="btn-secondary" onclick="closeArticleModal()">Cancelar</button>
+      <button class="btn-primary" onclick="saveArticle()">Salvar artigo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="lgpd-save-toast" id="lgpd-toast"></div>
+
+<script src="services/metabase.js"></script>
+<script>
+/* ── Articles data ─────────────────────────────── */
+const ARTICLES = [
+  {id:1,cat:'Atendimento',title:'Script de Boas-Vindas ao Paciente',date:'10 mai 2026',
+   summary:'Roteiro completo para receber novos pacientes com empatia, clareza e eficiência no primeiro contato com o time CX.',
+   body:`<h3>Objetivo</h3><p>Garantir que cada novo paciente se sinta acolhido e bem informado desde o primeiro contato com a Appblis.</p>
+<h3>Script de Abertura</h3><p>"Olá, <em>[nome do paciente]</em>! Bem-vindo(a) à Appblis. Meu nome é <em>[atendente]</em> e estou aqui para te ajudar. Como posso te auxiliar hoje?"</p>
+<h3>Coleta de Informações</h3><ul><li>Confirmar CPF ou e-mail cadastrado</li><li>Verificar se há pedido ativo no sistema</li><li>Checar autorização ANVISA vigente</li><li>Identificar a necessidade principal do contato</li></ul>
+<h3>Pontos de Atenção</h3><ul><li><strong>Nunca</strong> forneça informações clínicas — redirecione para o time clínico</li><li>Use linguagem acessível e evite jargão técnico</li><li>Registre todos os dados no sistema antes de finalizar</li><li>Ofereça pesquisa de NPS ao final de cada atendimento resolvido</li></ul>
+<h3>Encerramento</h3><p>"Ficou alguma dúvida? Ótimo! Caso precise de mais alguma coisa, pode nos chamar a qualquer momento. Tenha um excelente dia!"</p>`},
+
+  {id:2,cat:'Atendimento',title:'Protocolo de Escalonamento de Chamados',date:'08 mai 2026',
+   summary:'Quando e como escalar chamados para outros times, com definição de prioridades e SLAs de resposta.',
+   body:`<h3>Níveis de Escalonamento</h3><ul><li><strong>Nível 1 – CX Geral:</strong> Rastreamento, status de pedido, informações gerais</li><li><strong>Nível 2 – CX Especialista:</strong> Cancelamentos, reembolsos, problemas de importação</li><li><strong>Nível 3 – Time Clínico:</strong> Dúvidas sobre dosagem, efeitos colaterais, interações</li><li><strong>Nível 4 – Regulatório:</strong> Problemas com ANVISA, documentação, receita médica</li><li><strong>Nível 5 – Gestão:</strong> Reclamações graves, situações de risco ao paciente</li></ul>
+<h3>Escalonamento Imediato quando:</h3><ul><li>Paciente relata efeito adverso grave ou reação alérgica</li><li>Produto correto não entregue há mais de 10 dias</li><li>Risco de falta de medicamento em uso contínuo</li><li>Reclamação formal em órgão externo (PROCON, ANPD)</li></ul>
+<h3>SLAs por Nível</h3><ul><li>Nível 1: resposta em até 2 horas</li><li>Nível 2: resposta em até 4 horas</li><li>Nível 3: resposta em até 1 dia útil</li><li>Nível 4: resposta em até 2 dias úteis</li><li>Nível 5: gestora de plantão imediatamente</li></ul>
+<h3>Procedimento</h3><p>1. Registre no Zendesk com a tag do nível correto.<br>2. Notifique o time via Slack em #cx-escalamentos.<br>3. Informe o paciente do prazo de retorno.<br>4. Acompanhe até a resolução e registre o desfecho.</p>`},
+
+  {id:3,cat:'Atendimento',title:'Tratamento de Reclamações e Insatisfações',date:'05 mai 2026',
+   summary:'Como lidar com pacientes insatisfeitos transformando experiências negativas em oportunidades de fidelização.',
+   body:`<h3>Princípios Fundamentais</h3><p>Toda reclamação é uma oportunidade de melhoria. Aborde sempre com <strong>empatia genuína</strong>, sem defensividade.</p>
+<h3>Método HEARD</h3><ul><li><strong>H</strong>ear – Ouça sem interromper</li><li><strong>E</strong>mpathize – Valide o sentimento do paciente</li><li><strong>A</strong>pologize – Peça desculpas pela experiência negativa</li><li><strong>R</strong>esolve – Apresente uma solução concreta</li><li><strong>D</strong>elight – Supere a expectativa com algo a mais</li></ul>
+<h3>Frases Proibidas</h3><ul><li>"Isso não é minha responsabilidade"</li><li>"Você deveria ter lido os termos"</li><li>"Não podemos fazer nada"</li><li>"Não sei" — sem complementar com "mas vou descobrir"</li></ul>
+<h3>Frases Recomendadas</h3><ul><li>"Entendo completamente sua frustração…"</li><li>"Peço desculpas pelo transtorno que isso causou…"</li><li>"Vou fazer o possível para resolver isso agora…"</li><li>"O que posso fazer para deixar sua situação mais confortável?"</li></ul>`},
+
+  {id:4,cat:'Clínico',title:'CBD vs THC — Diferenças Clínicas para Atendimento',date:'12 mai 2026',
+   summary:'Guia rápido sobre as diferenças entre CBD e THC para saber quando redirecionar dúvidas ao time clínico.',
+   body:`<h3>⚠️ Atenção</h3><p>Este guia orienta o atendente a identificar <strong>quando redirecionar</strong> ao time clínico. Nunca forneça orientação médica diretamente ao paciente.</p>
+<h3>CBD (Canabidiol)</h3><ul><li>Sem efeito psicoativo</li><li>Usos: epilepsia, ansiedade, dor crônica, inflamação</li><li>Não causa sensação de euforia ou alteração de consciência</li><li>Aprovado pela ANVISA para uso medicinal (RDC 327/2019)</li></ul>
+<h3>THC (Tetrahidrocanabinol)</h3><ul><li>Principal composto psicoativo da cannabis</li><li>Usos médicos: dor neuropática, náuseas oncológicas, espasticidade</li><li>Acima de 0,2% exige receita tipo B (azul) e autorização ANVISA</li></ul>
+<h3>Redirecione ao Time Clínico quando:</h3><ul><li>Paciente relata efeito não esperado após início do uso</li><li>Dúvidas sobre dosagem ou forma de administração</li><li>Suspeita de interação com outros medicamentos</li><li>Paciente gestante, lactante ou menor de 18 anos</li></ul>`},
+
+  {id:5,cat:'Clínico',title:'Interações Medicamentosas — Principais Alertas',date:'09 mai 2026',
+   summary:'Lista das interações mais comuns com produtos de cannabis e como agir ao identificar risco no atendimento.',
+   body:`<h3>Medicamentos com Interação Relevante</h3><ul><li><strong>Anticoagulantes (Warfarina):</strong> CBD pode aumentar o efeito — risco de sangramento</li><li><strong>Antiepilépticos (Clobazam, Valproato):</strong> CBD pode alterar níveis séricos — monitoramento obrigatório</li><li><strong>Antidepressivos (ISRS):</strong> Possível potencialização dos efeitos</li><li><strong>Imunossupressores:</strong> CBD inibe CYP3A4 — pode elevar nível de outros medicamentos</li></ul>
+<h3>Procedimento ao Identificar Risco</h3><ol><li>Não ofereça nenhuma orientação clínica</li><li>Escale imediatamente para o Nível 3 (Time Clínico)</li><li>Registre com tag <strong>#interacao-medicamentosa</strong></li><li>Oriente o paciente a não alterar nenhum medicamento sem consulta médica</li></ol>
+<h3>Lembre-se</h3><p>Toda suspeita de interação medicamentosa é <strong>urgente</strong>. O time clínico tem prioridade máxima de atendimento nesses casos.</p>`},
+
+  {id:6,cat:'Clínico',title:'Posologia — Limites do Atendente',date:'03 mai 2026',
+   summary:'O que o atendente pode e não pode esclarecer sobre posologia e administração dos produtos Appblis.',
+   body:`<h3>O Atendente PODE Explicar</h3><ul><li>Forma de armazenamento (temperatura, luz, prazo de validade)</li><li>Como verificar o prazo de validade no rótulo</li><li>Diferença entre vias de administração — sem recomendar</li><li>Como funciona o acompanhamento clínico da Appblis</li></ul>
+<h3>O Atendente NÃO PODE Fazer</h3><ul><li>Sugerir dose ou horário de administração</li><li>Indicar quando aumentar ou reduzir a dose</li><li>Comparar produtos ou recomendar troca de formulação</li><li>Interpretar sintomas relatados pelo paciente</li><li>Comentar sobre eficácia ou ineficácia do tratamento</li></ul>
+<h3>Frase Padrão</h3><p>"A dosagem do seu tratamento é determinada exclusivamente pelo seu médico prescritor. Posso conectar você com nossa equipe clínica especializada. Tudo bem?"</p>`},
+
+  {id:7,cat:'Regulatório',title:'Autorização ANVISA — Passo a Passo',date:'14 mai 2026',
+   summary:'Fluxo completo do processo de autorização de importação de produtos de cannabis pela ANVISA para pacientes.',
+   body:`<h3>Quem Precisa</h3><p>Pacientes que utilizam produtos com THC acima de 0,2% ou não registrados no Brasil precisam de autorização específica da ANVISA para importação pessoal.</p>
+<h3>Documentos Necessários</h3><ul><li>Prescrição médica válida (CRM ativo do prescritor)</li><li>Laudo médico com diagnóstico e necessidade do produto</li><li>Documento de identidade (RG + CPF)</li><li>Invoice do produto a ser importado</li><li>Bula ou especificações técnicas do produto</li></ul>
+<h3>Processo de Solicitação</h3><ol><li>Acesse o portal e-ANVISA (anvisa.gov.br)</li><li>Crie ou acesse sua conta Gov.br</li><li>Localize "Autorização de Importação de Cannabis"</li><li>Preencha o formulário e anexe os documentos</li><li>Aguarde análise: prazo médio de 10 a 15 dias úteis</li><li>Receba a autorização por e-mail em PDF</li></ol>
+<h3>Validade e Renovação</h3><p>Validade de <strong>1 ano</strong>, renovável com os mesmos documentos atualizados. Recomendamos iniciar a renovação 30 dias antes do vencimento.</p>`},
+
+  {id:8,cat:'Regulatório',title:'Tipos de Receita Médica',date:'07 mai 2026',
+   summary:'Diferença entre receitas tipo A, B e simples — quando cada uma é obrigatória para os produtos Appblis.',
+   body:`<h3>Receita Simples (Branca)</h3><ul><li>Produtos com CBD predominante e THC ≤ 0,2%</li><li>Sem retenção na farmácia</li><li>Validade: 30 dias</li><li>Pode ser digital com assinatura eletrônica</li></ul>
+<h3>Receita de Controle Especial Tipo B (Azul)</h3><ul><li>Obrigatória para produtos com THC acima de 0,2%</li><li>Retida na farmácia (2 vias)</li><li>Validade: 30 dias a partir da emissão</li><li>Deve conter CRM, inscrição e UF do prescritor</li></ul>
+<h3>O que Verificar ao Receber a Receita</h3><ul><li>Nome legível do médico e CRM</li><li>Nome completo do paciente</li><li>Nome do produto e concentração</li><li>Posologia e duração do tratamento</li><li>Data e assinatura</li><li>Se digital: QR code ou código de verificação</li></ul>`},
+
+  {id:9,cat:'Regulatório',title:'Renovação de Autorizações — Checklist',date:'01 mai 2026',
+   summary:'Checklist completo para apoiar pacientes na renovação de autorizações ANVISA antes do vencimento.',
+   body:`<h3>Quando Iniciar</h3><p>Oriente o paciente a iniciar a renovação <strong>30 dias antes</strong> do vencimento. Pacientes em uso contínuo não podem ficar sem autorização vigente.</p>
+<h3>Checklist</h3><ul><li>✅ Prescrição médica atualizada (máximo 30 dias)</li><li>✅ Laudo médico (pode ser o mesmo se condição não mudou)</li><li>✅ Documento de identidade (somente se expirado)</li><li>✅ Comprovante da autorização anterior</li><li>✅ Invoice atualizado (se houver mudança de produto)</li></ul>
+<h3>Casos Especiais</h3><ul><li><strong>Mudança de produto:</strong> nova solicitação completa, não renovação</li><li><strong>Mudança de prescritor:</strong> nova receita com dados do novo médico</li><li><strong>Aumento de dose:</strong> nova receita com posologia atualizada</li></ul>
+<h3>Suporte Appblis</h3><p>O time regulatório pode auxiliar na revisão dos documentos antes do envio. Escale com tag <strong>#renovacao-anvisa</strong>.</p>`},
+
+  {id:10,cat:'Importação',title:'Documentação para Importação',date:'13 mai 2026',
+   summary:'Todos os documentos necessários para importação de produtos de cannabis, com orientações sobre validade e formatos aceitos.',
+   body:`<h3>Documentos Obrigatórios</h3><ul><li><strong>Autorização ANVISA:</strong> PDF emitido pelo portal e-ANVISA, dentro do prazo</li><li><strong>Receita Médica:</strong> conforme tipo exigido para o produto</li><li><strong>Invoice do Fornecedor:</strong> com descrição, quantidade e valor em USD/EUR</li><li><strong>Packing List:</strong> lista de volumes e conteúdo</li><li><strong>Documento do Paciente:</strong> CPF e RG (ou CNH)</li></ul>
+<h3>Formatos Aceitos</h3><ul><li>PDF para todos os documentos eletrônicos</li><li>JPEG/PNG para documentos de identidade</li><li>Tradução juramentada para documentos em idioma estrangeiro quando exigido</li></ul>
+<h3>Envio para a Appblis</h3><p>Via portal do paciente (meu.appblis.com) ou e-mail documentos@appblis.com. Confirmação de recebimento em até 2 horas úteis.</p>`},
+
+  {id:11,cat:'Importação',title:'Rastreamento de Pedidos Internacionais',date:'11 mai 2026',
+   summary:'Como acompanhar pedidos internacionais, interpretar status de rastreamento e informar prazos corretamente.',
+   body:`<h3>Plataformas</h3><ul><li><strong>Correios:</strong> correios.com.br (envios via postal)</li><li><strong>DHL / FedEx / UPS:</strong> envios expressos internacionais</li><li><strong>Portal Appblis:</strong> integração centralizada com atualização automática</li></ul>
+<h3>Status e Significados</h3><ul><li><strong>Processing:</strong> pedido confirmado, aguardando preparação</li><li><strong>Dispatched:</strong> saiu do fornecedor, em trânsito internacional</li><li><strong>In Customs:</strong> aguardando inspeção aduaneira</li><li><strong>Released:</strong> desembaraço aprovado, em trânsito para entrega</li><li><strong>Out for Delivery:</strong> entregador a caminho</li><li><strong>Delivered:</strong> entrega confirmada</li></ul>
+<h3>Prazos Médios</h3><ul><li>Envio expresso: 5 a 10 dias úteis</li><li>Envio padrão: 15 a 30 dias corridos</li><li>Alfândega: 3 a 7 dias úteis adicionais</li></ul>`},
+
+  {id:12,cat:'Importação',title:'Problemas na Alfândega — Como Atender',date:'06 mai 2026',
+   summary:'Principais motivos de retenção aduaneira e como a Appblis apoia o paciente para liberar o produto.',
+   body:`<h3>Principais Motivos de Retenção</h3><ul><li><strong>Documentação incompleta:</strong> falta de autorização ANVISA ou receita</li><li><strong>Divergência de dados:</strong> nome do produto diferente na autorização e no pacote</li><li><strong>Valor declarado incorreto:</strong> invoice com valor diferente do declarado</li><li><strong>Excesso de quantidade:</strong> volume acima do autorizado na licença</li></ul>
+<h3>Como o Time de Importação Appblis Atua</h3><ol><li>Recebe notificação automática de retenção</li><li>Analisa o motivo em até 4 horas úteis</li><li>Entra em contato com a Receita Federal ou transportadora</li><li>Prepara documentação complementar necessária</li><li>Informa o paciente do status e prazo estimado</li></ol>
+<h3>O que Dizer ao Paciente</h3><p>"Identificamos que seu pedido está sendo verificado pela alfândega — isso é parte do processo normal para medicamentos importados. Nossa equipe especializada já está acompanhando e você receberá uma atualização em breve."</p>`},
+
+  {id:13,cat:'LGPD',title:'Atendendo Solicitações de Titulares de Dados',date:'16 mai 2026',
+   summary:'Fluxo completo para atender solicitações de pacientes sobre seus dados pessoais conforme Art. 18 da LGPD.',
+   body:`<h3>Prazo Legal</h3><p>A LGPD determina resposta em até <strong>15 dias</strong>. Internamente trabalhamos com prazo de 7 dias para margem de revisão.</p>
+<h3>Fluxo de Atendimento</h3><ol><li><strong>Recebimento:</strong> registre no sistema com tag #lgpd-solicitacao</li><li><strong>Verificação de identidade:</strong> confirme CPF + e-mail antes de qualquer ação</li><li><strong>Análise:</strong> encaminhe ao DPO (dpo@appblis.com)</li><li><strong>Resposta:</strong> em até 7 dias úteis pelo canal informado pelo paciente</li><li><strong>Registro:</strong> documente solicitação e desfecho no log de conformidade</li></ol>
+<h3>Verificação de Identidade — Obrigatória</h3><p>Nunca execute ações sem confirmar a identidade do solicitante. Solicite: CPF completo, e-mail cadastrado. Para dados sensíveis: documento com foto via portal seguro.</p>`},
+
+  {id:14,cat:'LGPD',title:'Notificação de Incidentes de Segurança',date:'04 mai 2026',
+   summary:'Protocolo de resposta a incidentes envolvendo dados pessoais de pacientes — prazos e responsabilidades.',
+   body:`<h3>O que Configura um Incidente</h3><ul><li>Acesso não autorizado a dados de pacientes</li><li>Vazamento acidental (e-mail enviado para destinatário errado)</li><li>Perda ou roubo de dispositivo com dados de pacientes</li><li>Ataque ransomware ou invasão ao sistema</li></ul>
+<h3>Prazo de Notificação (LGPD)</h3><p>ANPD e titulares afetados devem ser notificados em até <strong>72 horas</strong> após confirmação do incidente.</p>
+<h3>Protocolo Interno</h3><ol><li><strong>0–2h:</strong> comunicar ao DPO e TI</li><li><strong>Até 4h:</strong> conter o incidente e preservar evidências</li><li><strong>Até 24h:</strong> avaliar impacto — quais dados, quantos titulares</li><li><strong>Até 48h:</strong> preparar notificação para ANPD</li><li><strong>Até 72h:</strong> notificar formalmente ANPD e titulares afetados</li></ol>
+<h3>Contato de Emergência</h3><p>DPO Appblis: dpo@appblis.com — disponível 24h para incidentes críticos.</p>`},
+
+  {id:15,cat:'LGPD',title:'Política de Retenção de Dados',date:'29 abr 2026',
+   summary:'Por quanto tempo a Appblis retém cada tipo de dado dos pacientes e qual a base legal de cada período.',
+   body:`<h3>Prazos por Tipo de Dado</h3><ul><li><strong>Dados de saúde (prescrições, laudos):</strong> 20 anos — conforme CFM e legislação sanitária</li><li><strong>Dados cadastrais:</strong> 5 anos após encerramento do contrato</li><li><strong>Dados financeiros (NF, pagamentos):</strong> 5 anos — Código Tributário Nacional</li><li><strong>Registros de acesso (logs de sistema):</strong> 6 meses — Marco Civil da Internet</li><li><strong>Dados de marketing:</strong> até revogação do consentimento</li><li><strong>Gravações de atendimento:</strong> 90 dias</li></ul>
+<h3>Eliminação de Dados</h3><p>Após o prazo, os dados são eliminados com sobrescrita segura (múltiplos passes) ou destruição física de mídias. A eliminação é registrada no log de conformidade.</p>
+<h3>Exceções</h3><p>Dados podem ser retidos além do prazo em caso de investigação regulatória, processo judicial, determinação de autoridade competente ou obrigação legal específica.</p>`}
+];
+
+/* ── State ─────────────────────────────────────── */
+let activeCat = 'Todos';
+
+/* ── Navigation ────────────────────────────────── */
+function show(name, btn) {
+  document.querySelectorAll('.cx-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.cx-nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + name).classList.add('active');
+  btn.classList.add('active');
+  const labels = {dashboard:'Dashboard CX', knowledge:'Base de Conhecimento', lgpd:'LGPD', medicos:'Dash Médicos'};
+  document.getElementById('mobileTitle').textContent = labels[name] || name;
+  if (name === 'medicos') initMedicos();
+  if (window.innerWidth <= 768) closeSidebar();
+}
+
+/* ── Mobile sidebar ────────────────────────────── */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
+}
+
+/* ── Knowledge Base ────────────────────────────── */
+function setCat(cat, btn) {
+  activeCat = cat;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  filterArticles();
+}
+
+function filterArticles() {
+  const q = (document.getElementById('kbSearch').value || '').toLowerCase();
+  const filtered = ARTICLES.filter(a => {
+    const matchCat = activeCat === 'Todos' || a.cat === activeCat;
+    const matchQ = !q || a.title.toLowerCase().includes(q) || a.summary.toLowerCase().includes(q) || a.cat.toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+  const grid = document.getElementById('kbGrid');
+  const empty = document.getElementById('kbEmpty');
+  if (!filtered.length) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    grid.innerHTML = filtered.map(a => `
+      <div class="article-card-wrap">
+        <div class="article-card" onclick="_kbEditMode ? null : openArticle(${a.id})" style="${_kbEditMode ? 'cursor:default' : ''}">
+          <div class="article-meta">
+            <span class="badge">${a.cat}</span>
+            <span class="article-date">${a.date}</span>
+          </div>
+          <div class="article-title">${a.title}</div>
+          <div class="article-summary">${a.summary}</div>
+          <div class="read-more">Ler artigo completo →</div>
+        </div>
+        <div class="article-card-actions">
+          <button class="ac-btn ac-btn-edit" onclick="openArticleModal(${a.id})">✏️ Editar</button>
+          <button class="ac-btn ac-btn-del" onclick="deleteArticle(${a.id})">🗑 Excluir</button>
+        </div>
+      </div>`).join('');
+  }
+}
+
+function openArticle(id) {
+  const a = ARTICLES.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('kb-bc').innerHTML =
+    `<button onclick="closeArticle()">Base de Conhecimento</button>
+     <span class="breadcrumb-sep">/</span>
+     <span>${a.cat}</span>
+     <span class="breadcrumb-sep">/</span>
+     <span style="color:var(--body)">${a.title}</span>`;
+  document.getElementById('kb-article-body').innerHTML = `
+    <div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span class="badge">${a.cat}</span>
+        <span style="font-size:12px;color:#6B7280">${a.date}</span>
+      </div>
+      <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;color:var(--title);margin-bottom:8px">${a.title}</h1>
+      <p style="font-size:14px;color:var(--subtitle)">${a.summary}</p>
+    </div>
+    <div class="article-content">${a.body}</div>`;
+  document.getElementById('kb-list').style.display = 'none';
+  document.getElementById('kb-detail').classList.add('active');
+  document.getElementById('section-knowledge').scrollTop = 0;
+}
+
+function closeArticle() {
+  document.getElementById('kb-detail').classList.remove('active');
+  document.getElementById('kb-list').style.display = '';
+}
+
+/* ── Dash Médicos ──────────────────────────────── */
+const _med = {
+  initialized: false,
+  loading: false,
+  month: '',      // 'YYYY-MM' ou '' para todos
+  medico: '',
+  cupom: '',
+  reviewFilter: 'all', // 'all' | 'positive' | 'negative'
+  sortCol: 'consultas_finalizadas',
+  sortDir: -1,    // -1=desc  1=asc
+  raw: {},
+  perfRows: []
+};
+let _chartStatus = null, _chartEvo = null, _chartCsatBar = null, _chartCsatEvo = null;
+
+function _filterByMonth(rows, dateColIdx) {
+  if (!_med.month) return rows;
+  // Normaliza YYYY/MM (cards 496,497,498) e YYYY-MM-DD (card 515) para YYYY-MM
+  return rows.filter(r => String(r[dateColIdx] || '').slice(0, 7).replace('/', '-') === _med.month);
+}
+
+const _SB_URL = 'https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1';
+const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1enFqbmJ0eHVmaGtvenljbHFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4OTY4NzMsImV4cCI6MjA5NTQ3Mjg3M30.LbMlUGOTEKtbKVdkSiPHdUi1FsacfoiFbPDCFynYPv0';
+
+async function _sbGet(table, params) {
+  const url = _SB_URL + '/' + table + (params ? '?' + params : '');
+  const res = await fetch(url, { headers: { 'apikey': _SB_KEY, 'Authorization': 'Bearer ' + _SB_KEY } });
+  if (!res.ok) throw new Error('Supabase ' + table + ': ' + res.status);
+  return res.json();
+}
+
+function _sbCard(colNames, dataRows) {
+  return { data: { cols: colNames.map(n => ({ name: n })), rows: dataRows } };
+}
+
+async function _loadFromSupabase() {
+  const [perfDate, totais, statusDate, coupDate, convDate] = await Promise.all([
+    _sbGet('mb_performance_medicos', 'select=data_carga&order=data_carga.desc&limit=1'),
+    _sbGet('mb_totais_diarios',      'select=*&order=data_carga.desc&limit=1'),
+    _sbGet('mb_consultas_status',    'select=data_carga&order=data_carga.desc&limit=1'),
+    _sbGet('mb_coupons',             'select=data_carga&order=data_carga.desc&limit=1'),
+    _sbGet('mb_conversao_coupons',   'select=data_carga&order=data_carga.desc&limit=1'),
+  ]);
+
+  const latest = totais[0] || {};
+  const pd  = perfDate[0]?.data_carga;
+  const sd  = statusDate[0]?.data_carga;
+  const cd  = coupDate[0]?.data_carga;
+  const cvd = convDate[0]?.data_carga;
+
+  const [
+    statusRows, statusTempRows, perfRows, reviewsRows,
+    cancelRows, npsRows, tempoRows, couponsRows, conversaoRows,
+  ] = await Promise.all([
+    sd  ? _sbGet('mb_consultas_status',    'select=status_consulta,qtd_consultas&data_carga=eq.' + sd)             : Promise.resolve([]),
+    _sbGet('mb_status_temporal',           'select=periodo,status_consulta,qtd_consultas&order=periodo.asc'),
+    pd  ? _sbGet('mb_performance_medicos', 'select=*&data_carga=eq.' + pd + '&order=consultas_finalizadas.desc')   : Promise.resolve([]),
+    _sbGet('mb_reviews_medicos',           'select=*&order=data_avaliacao.desc&limit=2000'),
+    _sbGet('mb_cancelamentos_periodo',     'select=periodo,consultas_criadas,consultas_canceladas,percentual_canceladas&order=periodo.asc'),
+    _sbGet('mb_nps_periodo',               'select=periodo,consultas_criadas,media_avaliacoes,nps&order=periodo.asc'),
+    _sbGet('mb_tempo_consulta',            'select=periodo,avg_steps_minutos&order=periodo.asc'),
+    cd  ? _sbGet('mb_coupons',             'select=*&data_carga=eq.' + cd  + '&order=uses.desc')                   : Promise.resolve([]),
+    cvd ? _sbGet('mb_conversao_coupons',   'select=*&data_carga=eq.' + cvd + '&order=total_consultas_com_cupom.desc') : Promise.resolve([]),
+  ]);
+
+  _med.raw.totalConsultas      = _sbCard(['total_consultas'], [[latest.total_consultas ?? 0]]);
+  _med.raw.consultasPorStatus  = _sbCard(['status_consulta','qtd_consultas'], statusRows.map(r => [r.status_consulta, r.qtd_consultas]));
+  _med.raw.statusTemporal      = _sbCard(['periodo','status_consulta','qtd_consultas'], statusTempRows.map(r => [r.periodo, r.status_consulta, r.qtd_consultas]));
+  _med.raw.csatGlobal          = _sbCard(['periodo','csat_media','nps'], [[latest.periodo, latest.csat_media, latest.nps]]);
+  _med.raw.avaliacaoPeriodo    = _sbCard(['periodo','consultas_criadas','media_avaliacoes'], npsRows.map(r => [r.periodo, r.consultas_criadas, r.media_avaliacoes]));
+  _med.raw.npsPeriodo          = _sbCard(['periodo','consultas_criadas','nps'], npsRows.map(r => [r.periodo, r.consultas_criadas, r.nps]));
+  _med.raw.tempoMensal         = _sbCard(['periodo','consultas_criadas','avg_steps_minutos'], tempoRows.map(r => [r.periodo, null, r.avg_steps_minutos]));
+  _med.raw.tempoAtual          = _sbCard(['tempo_medio_min'], [[latest.tempo_medio_min]]);
+  _med.raw.cancelamentosPeriodo = _sbCard(['periodo','consultas_criadas','consultas_canceladas','percentual_canceladas'], cancelRows.map(r => [r.periodo, r.consultas_criadas, r.consultas_canceladas, r.percentual_canceladas]));
+  _med.raw.performanceMedicos  = _sbCard(
+    ['name','status_doctor','created_at','consultas_finalizadas','quantidade_orders','quantidade_nfs','R$ total consultas','média_de_avaliações','NPS'],
+    perfRows.map(r => [r.nome, r.status_doctor, r.created_at, r.consultas_finalizadas, r.quantidade_orders, r.quantidade_nfs, r.receita_total_consultas, r.media_avaliacoes, r.nps])
+  );
+  _med.raw.reviewsMedicos      = _sbCard(
+    ['data da avaliação','nome do doutor','avaliação','comentario','nome_paciente'],
+    reviewsRows.map(r => [r.data_avaliacao, r.nome_doutor, r.avaliacao, r.comentarios, r.nome_paciente])
+  );
+  _med.raw.couponsAtivos       = _sbCard(['code','type','value_type','value','max_uses','uses','description','active'], couponsRows.map(r => [r.code, r.type, r.value_type, r.value, r.max_uses, r.uses, r.description, r.active]));
+  _med.raw.couponsReceita      = _sbCard(['code','type','value_type','value','receita_total','ticket_medio'], couponsRows.map(r => [r.code, r.type, r.value_type, r.value, r.receita_total, r.ticket_medio]));
+  _med.raw.couponsGasto        = _sbCard(['code','receita_total','uses','ticket_medio'], couponsRows.map(r => [r.code, r.receita_total, r.uses, r.ticket_medio]));
+  const custoTotal = couponsRows.filter(r => r.value_type === 'value').reduce((a, r) => a + (Number(r.value)||0)*(Number(r.uses)||0), 0);
+  const totalUsos  = couponsRows.reduce((a, r) => a + (Number(r.uses)||0), 0);
+  _med.raw.custoCupomConsulta  = _sbCard(['label','custo_total','total_usos'], [['Custo total', custoTotal, totalUsos]]);
+  _med.raw.conversaoCoupons    = _sbCard(
+    ['cupom','tipo_cupom','tipo_de_desconto','total_consultas_com_cupom','consultas_com_pedido','taxa_conversao_pct','valor_cupom','receita_primeiro_pedido'],
+    conversaoRows.map(r => [r.cupom, r.tipo_cupom, r.tipo_desconto, r.total_consultas_com_cupom, r.consultas_com_pedido, r.taxa_conversao_pct, r.valor_cupom, r.receita_primeiro_pedido])
+  );
+}
+
+async function initMedicos() {
+  if (_med.initialized || _med.loading) return;
+  _med.loading = true;
+  document.getElementById('mb-setup').style.display = 'none';
+  document.getElementById('mb-dashboard').style.display = 'block';
+
+  try {
+    await _loadFromSupabase();
+    _med.initialized = true;
+    _med.loading = false;
+    _populateFilters();
+    _renderAll();
+    const ts = document.getElementById('mb-last-update');
+    const d  = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
+    ts.textContent = 'Atualizado ' + d;
+    ts.style.display = '';
+  } catch (err) {
+    console.error('Erro ao carregar Supabase:', err);
+    _med.loading = false;
+    document.getElementById('mb-setup').style.display = 'flex';
+  }
+}
+
+function _populateFilters() {
+  const MONTHS_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+  // Médicos
+  if (_med.raw.performanceMedicos) {
+    const rows = MetabaseService.toObjects(_med.raw.performanceMedicos);
+    const names = [...new Set(rows.map(r => r.name).filter(Boolean))].sort();
+    document.getElementById('filter-medico').innerHTML =
+      '<option value="">Todos os médicos</option>' +
+      names.map(n => `<option value="${n}">${n}</option>`).join('');
+  }
+
+  // Meses — gerados estaticamente de Jan/2026 até o mês atual
+  {
+    const now = new Date();
+    const opts = [];
+    for (let y = 2026, m = 1; ; m++) {
+      if (m > 12) { y++; m = 1; }
+      opts.push(`<option value="${y}-${String(m).padStart(2,'0')}">${MONTHS_PT[m-1]}/${y}</option>`);
+      if (y === now.getFullYear() && m === now.getMonth() + 1) break;
+    }
+    document.getElementById('filter-mes').innerHTML =
+      '<option value="">Todos os meses</option>' + opts.join('');
+  }
+
+  // Cupons — extraídos de conversaoCoupons
+  if (_med.raw.conversaoCoupons) {
+    const rows = MetabaseService.toObjects(_med.raw.conversaoCoupons);
+    const cupons = [...new Set(rows.map(r => r.cupom).filter(Boolean))].sort();
+    document.getElementById('filter-cupom').innerHTML =
+      '<option value="">Todos os cupons</option>' +
+      cupons.map(c => `<option value="${c}">${c}</option>`).join('');
+  }
+}
+
+let _chartTempo = null;
+
+function _renderAll() {
+  _renderKPIs();
+  _renderStatus();
+  _renderPerformance();
+  _renderEvolucao();
+  _renderCancelamentos();
+  _renderCupons();
+  _renderCuponsPedido();
+  _renderCsat();
+  _renderCsatEvo();
+  _renderTempo();
+  _renderReviews();
+}
+
+function _kpiCard(k, i) {
+  return `<div class="kpi-card" id="kpi-${i}"><div class="kpi-icon">${k.icon}</div><div class="kpi-value">${k.val}</div><div class="kpi-label">${k.label}</div><div class="kpi-sub">${k.sub}</div></div>`;
+}
+
+function _reviewStats(docName, month) {
+  if (!_med.raw.reviewsMedicos) return null;
+  let rows = MetabaseService.toObjects(_med.raw.reviewsMedicos);
+  if (docName) rows = rows.filter(r => (r['nome do doutor'] || '').trim() === docName.trim());
+  if (month)   rows = rows.filter(r => {
+    const d = String(r['data da avaliação'] || '');
+    return d.slice(0, 7) === month || d.slice(0, 7).replace('/', '-') === month;
+  });
+  const ratings    = rows.map(r => Number(r['avaliação'] || r.avaliacao || 0)).filter(v => v > 0);
+  const total      = ratings.length;
+  const avg        = total ? ratings.reduce((a, b) => a + b, 0) / total : 0;
+  const promotores = ratings.filter(v => v >= 4).length;
+  const detratores = ratings.filter(v => v <= 2).length;
+  const nps        = total ? ((promotores - detratores) / total * 100) : 0;
+  return { total, avg, promotores, detratores, nps };
+}
+
+function _renderKPIs() {
+  const grid = document.getElementById('kpi-grid');
+  const MONTHS_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+  // Médico + Mês: usar reviewsMedicos (única fonte com dimensão médico×mês)
+  if (_med.medico && _med.month) {
+    const rv  = _reviewStats(_med.medico, _med.month) || { total: 0, avg: 0, promotores: 0, detratores: 0, nps: 0 };
+    const [y, m] = _med.month.split('-');
+    const sub = `${MONTHS_PT[+m - 1]}/${y}`;
+    const allPerf    = _med.raw.performanceMedicos ? MetabaseService.toObjects(_med.raw.performanceMedicos) : [];
+    const totalHist  = allPerf.filter(r => r.name === _med.medico)
+      .reduce((acc, r) => acc + (Number(r.consultas_finalizadas) || 0), 0);
+    const kpis = [
+      { icon: '📝', val: _fmt(rv.total),                               label: 'Avaliações no Mês',    sub },
+      { icon: '⭐', val: rv.total ? rv.avg.toFixed(2) + ' / 5' : '—', label: 'CSAT do Mês',          sub },
+      { icon: '📈', val: rv.total ? rv.nps.toFixed(1) + '%' : '—',    label: 'NPS do Mês',           sub },
+      { icon: '✅', val: _fmt(rv.promotores),                          label: 'Promotores (4-5★)',    sub },
+      { icon: '📋', val: _fmt(totalHist),                              label: 'Consultas Históricas', sub: 'total geral do médico' },
+    ];
+    grid.innerHTML = kpis.map(_kpiCard).join('');
+    return;
+  }
+
+  // Apenas Médico (sem mês): totais históricos via performanceMedicos
+  if (_med.medico && _med.raw.performanceMedicos) {
+    const allPerf = MetabaseService.toObjects(_med.raw.performanceMedicos);
+    const docRows = allPerf.filter(r => r.name === _med.medico);
+    if (docRows.length) {
+      const tot = docRows.reduce((acc, r) => {
+        acc.finalizadas += Number(r.consultas_finalizadas)  || 0;
+        acc.orders      += Number(r.quantidade_orders)       || 0;
+        acc.receita     += Number(r['R$ total consultas'])   || 0;
+        return acc;
+      }, { finalizadas: 0, orders: 0, receita: 0 });
+      let csatNum = 0, npsNum = 0, totalW = 0;
+      docRows.forEach(r => {
+        const w = Number(r.consultas_finalizadas) || 1;
+        csatNum += (Number(r['média_de_avaliações']) || 0) * w;
+        npsNum  += (Number(r.NPS) || 0) * w;
+        totalW  += w;
+      });
+      const csatMedia = totalW ? (csatNum / totalW).toFixed(2) : '—';
+      const npsMedia  = totalW ? ((npsNum / totalW) * 100).toFixed(1) + '%' : '—';
+      const kpis = [
+        { icon: '📋', val: _fmt(tot.finalizadas),           label: 'Consultas Finalizadas', sub: 'total histórico' },
+        { icon: '🛒', val: _fmt(tot.orders),                label: 'Pedidos Gerados',       sub: 'total histórico' },
+        { icon: '💰', val: 'R$ ' + _fmtMoney(tot.receita), label: 'Receita Total',          sub: 'total histórico' },
+        { icon: '⭐', val: csatMedia + ' / 5',              label: 'CSAT Médio',            sub: 'avaliações recebidas' },
+        { icon: '📈', val: npsMedia,                        label: 'NPS',                   sub: 'do médico' },
+      ];
+      grid.innerHTML = kpis.map(_kpiCard).join('');
+      return;
+    }
+  }
+
+  let totalConsultas, finalizadas = 0, canceladas = 0;
+  if (_med.raw.statusTemporal) {
+    const filtered = _filterByMonth(MetabaseService.rows(_med.raw.statusTemporal), 0);
+    let soma = 0;
+    filtered.forEach(r => {
+      const s = r[1], q = Number(r[2]) || 0;
+      soma += q;
+      if (s === 'Finalizado') finalizadas += q;
+      else if (s === 'Cancelado') canceladas += q;
+    });
+    totalConsultas = _med.month ? soma : (MetabaseService.rows(_med.raw.totalConsultas)[0]?.[0] ?? soma);
+  } else {
+    totalConsultas = MetabaseService.rows(_med.raw.totalConsultas)[0]?.[0] ?? '—';
+  }
+
+  let csatMedia = '—', npsVal = '—';
+  if (_med.month) {
+    if (_med.raw.avaliacaoPeriodo) {
+      const r = _filterByMonth(MetabaseService.rows(_med.raw.avaliacaoPeriodo), 0)[0];
+      if (r?.[2] != null) csatMedia = Number(r[2]).toFixed(2);
+    }
+    if (_med.raw.npsPeriodo) {
+      const r = _filterByMonth(MetabaseService.rows(_med.raw.npsPeriodo), 0)[0];
+      if (r?.[2] != null) npsVal = (Number(r[2]) * 100).toFixed(1) + '%';
+    }
+  } else {
+    const csatRow = MetabaseService.rows(_med.raw.csatGlobal)[0] || [];
+    if (csatRow[1] != null) csatMedia = Number(csatRow[1]).toFixed(2);
+    if (csatRow[2] != null) npsVal   = (Number(csatRow[2]) * 100).toFixed(1) + '%';
+  }
+
+  const sub = _med.month
+    ? (() => { const [y,m] = _med.month.split('-'); return `${MONTHS_PT[+m-1]}/${y}`; })()
+    : 'todos os meses';
+
+  const kpis = [
+    { icon:'📋', val:_fmt(totalConsultas),    label:'Total de Consultas',  sub },
+    { icon:'✅', val:_fmt(finalizadas),        label:'Finalizadas',         sub },
+    { icon:'❌', val:_fmt(canceladas),         label:'Canceladas',          sub },
+    { icon:'⭐', val:csatMedia + ' / 5',       label:'CSAT Médio',          sub },
+    { icon:'📈', val:npsVal,                   label:'NPS',                 sub },
+  ];
+  grid.innerHTML = kpis.map((k, i) => `
+    <div class="kpi-card" id="kpi-${i}">
+      <div class="kpi-icon">${k.icon}</div>
+      <div class="kpi-value">${k.val}</div>
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+}
+
+function _globalNote() {
+  if (!_med.medico) return '';
+  return `<div style="font-size:11px;color:var(--blis-muted);text-align:center;padding:3px 0 8px;background:rgba(245,158,11,.07);border-radius:6px;margin-bottom:8px">Dados gerais — Metabase não filtra este gráfico por médico</div>`;
+}
+
+function _renderStatus() {
+  const wrap = document.querySelector('#block-status .card-body');
+  const data = { Finalizado: 0, Cancelado: 0, Criado: 0 };
+  if (_med.raw.statusTemporal) {
+    _filterByMonth(MetabaseService.rows(_med.raw.statusTemporal), 0).forEach(r => {
+      const s = r[1], q = Number(r[2]) || 0;
+      if (s in data) data[s] += q;
+    });
+  } else if (_med.raw.consultasPorStatus) {
+    MetabaseService.rows(_med.raw.consultasPorStatus).forEach(r => {
+      if (r[0] in data) data[r[0]] = Number(r[1]) || 0;
+    });
+  }
+  const total = data.Finalizado + data.Cancelado + data.Criado;
+  if (!total) { wrap.innerHTML = '<p style="color:#9CA3AF;font-size:13px;text-align:center;width:100%">Sem dados no período</p>'; return; }
+  wrap.innerHTML = _globalNote() + '<canvas id="chartStatus" style="max-height:220px"></canvas>';
+  if (_chartStatus) { _chartStatus.destroy(); _chartStatus = null; }
+  _chartStatus = new Chart(document.getElementById('chartStatus'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Finalizado', 'Cancelado', 'Criado'],
+      datasets: [{ data: [data.Finalizado, data.Cancelado, data.Criado],
+        backgroundColor: ['#17AE55','#EF4444','#4DC878'], borderWidth: 0, hoverOffset: 4 }]
+    },
+    options: {
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${_fmt(ctx.raw)} (${(ctx.raw/total*100).toFixed(1)}%)` } },
+        datalabels: {
+          color: '#fff', font: { size: 11, weight: 700 },
+          formatter: (v) => v > 0 ? (v/total*100).toFixed(0) + '%' : '',
+        }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+function _renderPerformance() {
+  if (!_med.raw.performanceMedicos) return;
+  const raw = MetabaseService.toObjects(_med.raw.performanceMedicos);
+  const map = new Map();
+  raw.forEach(r => {
+    const existing = map.get(r.name);
+    if (!existing || Number(r.consultas_finalizadas) > Number(existing.consultas_finalizadas)) map.set(r.name, r);
+  });
+  _med.perfRows = [...map.values()].map(r => ({
+    name: r.name || '—',
+    consultas_finalizadas: Number(r.consultas_finalizadas) || 0,
+    media: Number(r['média_de_avaliações']) || 0,
+    nps:   Number(r.NPS) || 0,
+    orders: Number(r.quantidade_orders) || 0,
+    receita: Number(r['R$ total consultas']) || 0,
+    nfs: Number(r.quantidade_nfs) || 0,
+  }));
+  if (_med.medico) _med.perfRows = _med.perfRows.filter(r => r.name === _med.medico);
+  _sortPerfTable();
+}
+
+function _sortPerfTable() {
+  _med.perfRows.sort((a, b) => {
+    const va = a[_med.sortCol], vb = b[_med.sortCol];
+    const cmp = typeof va === 'string' ? va.localeCompare(vb) : (va - vb);
+    return _med.sortDir * cmp;
+  });
+  const tbody = document.getElementById('perf-tbody');
+  const countEl = document.getElementById('med-count');
+  countEl.textContent = `${_med.perfRows.length} médico${_med.perfRows.length !== 1 ? 's' : ''}`;
+  countEl.style.display = '';
+  tbody.innerHTML = _med.perfRows.length
+    ? _med.perfRows.map(r => `
+        <tr>
+          <td>${r.name}</td>
+          <td>${_fmt(r.consultas_finalizadas)}</td>
+          <td>
+            <span class="stars">★</span> ${r.media.toFixed(2)}
+            <div class="progress-bar" style="margin-top:4px"><div class="progress-fill" style="width:${(r.media/5*100).toFixed(0)}%"></div></div>
+          </td>
+          <td>${(r.nps * 100).toFixed(1)}%</td>
+          <td>${_fmt(r.orders)}</td>
+        </tr>`).join('')
+    : '<tr><td colspan="5" style="text-align:center;color:#9CA3AF;font-size:13px;padding:20px">Sem dados</td></tr>';
+}
+
+function sortTable(col, th) {
+  if (_med.sortCol === col) _med.sortDir *= -1;
+  else { _med.sortCol = col; _med.sortDir = -1; }
+  document.querySelectorAll('#perf-table th').forEach(t => t.classList.remove('sorted'));
+  document.querySelectorAll('#perf-table th .sort-arrow').forEach(a => a.textContent = '↕');
+  th.classList.add('sorted');
+  th.querySelector('.sort-arrow').textContent = _med.sortDir === -1 ? '↓' : '↑';
+  _sortPerfTable();
+}
+
+function _renderEvolucao() {
+  const wrap = document.querySelector('#block-evolucao .card-body');
+  if (!_med.raw.statusTemporal) { wrap.innerHTML = '<div class="skel" style="width:100%;height:240px;border-radius:8px"></div>'; return; }
+  const rows = MetabaseService.rows(_med.raw.statusTemporal);
+  const filtered = _filterByMonth(rows, 0);
+  const byDate = new Map();
+  filtered.forEach(r => {
+    const d = String(r[0] || '').slice(0, 10);
+    if (!byDate.has(d)) byDate.set(d, { Finalizado: 0, Cancelado: 0 });
+    if (r[1] === 'Finalizado') byDate.get(d).Finalizado += Number(r[2]) || 0;
+    else if (r[1] === 'Cancelado') byDate.get(d).Cancelado += Number(r[2]) || 0;
+  });
+  const dates = [...byDate.keys()].sort();
+  if (!dates.length) { wrap.innerHTML = '<p style="color:#9CA3AF;font-size:13px;text-align:center;width:100%">Sem dados no período</p>'; return; }
+  wrap.innerHTML = _globalNote() + '<canvas id="chartEvo"></canvas>';
+  if (_chartEvo) { _chartEvo.destroy(); _chartEvo = null; }
+  _chartEvo = new Chart(document.getElementById('chartEvo'), {
+    type: 'line',
+    data: {
+      labels: dates.map(_fmtDate),
+      datasets: [
+        { label: 'Finalizadas', data: dates.map(d => byDate.get(d).Finalizado),
+          borderColor: '#17AE55', backgroundColor: 'rgba(23,174,85,.15)', tension: 0.3, fill: true, pointRadius: 2 },
+        { label: 'Canceladas',  data: dates.map(d => byDate.get(d).Cancelado),
+          borderColor: '#EF4444', backgroundColor: 'rgba(239,68,68,.08)',  tension: 0.3, fill: true, pointRadius: 2 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 11 } } },
+        datalabels: {
+          display: (ctx) => {
+            // Mostra label apenas quando mês filtrado (poucos pontos) ou no valor máximo
+            const data = ctx.dataset.data;
+            const max  = Math.max(...data);
+            return _med.month || ctx.parsed.y === max;
+          },
+          anchor: 'end', align: 'top',
+          color: (ctx) => ctx.datasetIndex === 0 ? '#1B4D2E' : '#EF4444',
+          font: { size: 9, weight: 700 },
+          formatter: v => _fmt(v),
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxTicksLimit: 14 } },
+        y: { beginAtZero: true, grid: { color: '#F3F4F6' }, ticks: { font: { size: 10 } } }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+function _renderCupons() {
+  const card  = document.getElementById('block-cupons');
+  const tbody = document.getElementById('coupon-tbody');
+
+  // Badge de custo total (card 531 — global, independente do filtro)
+  if (_med.raw.custoCupomConsulta) {
+    const r = MetabaseService.rows(_med.raw.custoCupomConsulta)[0];
+    if (r?.[1] != null) {
+      const badge = document.getElementById('custo-badge');
+      badge.textContent = 'Custo descontos: R$ ' + _fmtMoney(r[1]) + ' (' + _fmt(r[2]) + ' usos)';
+      badge.style.display = '';
+    }
+  }
+
+  if (!_med.raw.conversaoCoupons) { tbody.innerHTML = '<tr><td colspan="7" style="padding:16px"><div class="skel" style="height:13px;width:80%"></div></td></tr>'; return; }
+
+  const allRows = MetabaseService.toObjects(_med.raw.conversaoCoupons);
+  let rows = _med.cupom ? allRows.filter(r => r.cupom === _med.cupom) : allRows;
+
+  // Badge de ganho total (soma de receita_primeiro_pedido das linhas visíveis)
+  {
+    const ganhoTotal = rows.reduce((acc, r) => acc + (Number(r.receita_primeiro_pedido) || 0), 0);
+    const ganhoBadge = document.getElementById('ganho-badge');
+    ganhoBadge.textContent = 'Receita total: R$ ' + _fmtMoney(ganhoTotal);
+    ganhoBadge.style.display = '';
+  }
+
+  // Destaque visual quando cupom selecionado
+  const summaryEl = document.getElementById('coupon-summary');
+  if (_med.cupom && rows.length) {
+    const r = rows[0];
+    const summaryHtml = `
+      <div id="coupon-summary" style="display:flex;flex-wrap:wrap;gap:12px;padding:14px 16px;background:var(--badge-bg);border-radius:8px;margin-bottom:12px;border-left:3px solid #52B788">
+        <div style="font-size:13px"><strong style="color:var(--title);font-size:15px">${r.cupom}</strong> <span class="badge" style="margin-left:4px">${r.tipo_cupom || '—'}</span></div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;font-size:12px;color:var(--subtitle)">
+          <span>Consultas com cupom: <strong style="color:var(--title)">${_fmt(r.total_consultas_com_cupom)}</strong></span>
+          <span>Converteram: <strong style="color:var(--title)">${_fmt(r.consultas_com_pedido)}</strong></span>
+          <span>Taxa: <strong style="color:#52B788">${(Number(r.taxa_conversao_pct || 0) * 100).toFixed(1)}%</strong></span>
+          <span>Custo desconto: <strong style="color:var(--title)">R$ ${_fmtMoney(Number(r.valor_cupom || 0) * Number(r.total_consultas_com_cupom || 0))}</strong></span>
+          <span>Receita: <strong style="color:var(--title)">R$ ${_fmtMoney(r.receita_primeiro_pedido)}</strong></span>
+          <span>Desconto/uso: <strong style="color:var(--title)">${r.tipo_de_desconto || '—'} — R$ ${_fmtMoney(r.valor_cupom)}</strong></span>
+        </div>
+      </div>`;
+    const existing = document.getElementById('coupon-summary');
+    if (existing) existing.outerHTML = summaryHtml;
+    else card.querySelector('.med-table-wrap') && card.querySelector('.med-table-wrap').insertAdjacentHTML('beforebegin', summaryHtml);
+  } else {
+    const existing = document.getElementById('coupon-summary');
+    if (existing) existing.remove();
+  }
+
+  if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#9CA3AF;font-size:13px;padding:20px">Sem dados</td></tr>'; return; }
+
+  tbody.innerHTML = rows.map(r => {
+    const taxa = Number(r.taxa_conversao_pct || 0);
+    const custo = Number(r.valor_cupom || 0) * Number(r.total_consultas_com_cupom || 0);
+    return `
+    <tr${_med.cupom ? ' style="background:rgba(82,183,136,.05)"' : ''}>
+      <td><strong>${r.cupom || '—'}</strong></td>
+      <td><span class="badge">${r.tipo_cupom || r.tipo_de_desconto || '—'}</span></td>
+      <td>${_fmt(r.total_consultas_com_cupom)}</td>
+      <td>${_fmt(r.consultas_com_pedido)}</td>
+      <td style="font-weight:700;color:${taxa>=0.4?'#52B788':'#F59E0B'}">${(taxa * 100).toFixed(1)}%</td>
+      <td>R$ ${_fmtMoney(custo)}</td>
+      <td>R$ ${_fmtMoney(r.receita_primeiro_pedido)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function _renderCuponsPedido() {
+  const tbody = document.getElementById('coupon-pedido-tbody');
+  if (!_med.raw.couponsAtivos) {
+    tbody.innerHTML = '<tr><td colspan="7" style="padding:16px"><div class="skel" style="height:13px;width:80%"></div></td></tr>';
+    return;
+  }
+
+  // card 96 cols: [code, type, value_type, value, max_uses, uses, description, active, created_at]
+  const base96 = MetabaseService.rows(_med.raw.couponsAtivos)
+    .filter(r => r[1] === 'order' && Number(r[5]) > 0)
+    .sort((a, b) => (b[5] || 0) - (a[5] || 0));
+
+  // card 108 cols: [coupon, valor_total_desc, qtd_usos, val_medio, receita_total, ticket_medio, ...]
+  // card couponsGasto cols: [code, receita_total, usos, ticket_medio] — agregado de todos os pedidos
+  // prioridade: card 108 (dados de repasse) → couponsGasto (agregado do card 448)
+  const receita108 = {};
+  if (_med.raw.couponsReceita) {
+    MetabaseService.rows(_med.raw.couponsReceita).forEach(r => {
+      receita108[(r[0] || '').toLowerCase()] = { receita: Number(r[4]), ticket: Number(r[5]) };
+    });
+  }
+  const gasto448 = {};
+  if (_med.raw.couponsGasto) {
+    MetabaseService.rows(_med.raw.couponsGasto).forEach(r => {
+      gasto448[(r[0] || '').toLowerCase()] = { receita: Number(r[1]), ticket: Number(r[3]) };
+    });
+  }
+
+  if (!base96.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#9CA3AF;font-size:13px;padding:20px">Sem dados</td></tr>';
+    return;
+  }
+
+  // Badge custo total
+  const custoTotal = base96.reduce((acc, r) => {
+    return r[2] === 'value' ? acc + (Number(r[3]) || 0) * (Number(r[5]) || 0) : acc;
+  }, 0);
+  const badge = document.getElementById('custo-pedido-badge');
+  badge.textContent = 'Custo total descontos: R$ ' + _fmtMoney(custoTotal);
+  badge.style.display = '';
+
+  tbody.innerHTML = base96.map(r => {
+    const code      = r[0] || '—';
+    const valueType = r[2];
+    const value     = Number(r[3]);
+    const uses      = Number(r[5]);
+    const valorFmt  = valueType === 'percentage' ? `${value}%` : `R$ ${_fmtMoney(value)}`;
+    const custo     = valueType === 'value' ? value * uses : null;
+
+    const key     = code.toLowerCase();
+    const match   = receita108[key] || gasto448[key];
+    const receita = match ? match.receita : null;
+    const ticket  = match ? match.ticket  : null;
+
+    return `<tr>
+      <td><strong>${code}</strong></td>
+      <td><span class="badge">${valueType === 'percentage' ? 'Percentual' : 'Valor fixo'}</span></td>
+      <td>${valorFmt}</td>
+      <td>${_fmt(uses)}</td>
+      <td>${custo != null ? 'R$ ' + _fmtMoney(custo) : '—'}</td>
+      <td>${receita != null ? 'R$ ' + _fmtMoney(receita) : '—'}</td>
+      <td>${ticket != null ? 'R$ ' + _fmtMoney(ticket) : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function _renderCsat() {
+  // Score/NPS: período específico quando mês selecionado, global caso contrário
+  let media = '—', npsVal = null;
+  if (_med.month) {
+    if (_med.raw.avaliacaoPeriodo) {
+      const r = _filterByMonth(MetabaseService.rows(_med.raw.avaliacaoPeriodo), 0)[0];
+      if (r?.[2] != null) media = Number(r[2]).toFixed(2);
+    }
+    if (_med.raw.npsPeriodo) {
+      const r = _filterByMonth(MetabaseService.rows(_med.raw.npsPeriodo), 0)[0];
+      if (r?.[2] != null) npsVal = Number(r[2]);
+    }
+  } else if (_med.raw.csatGlobal) {
+    const row = MetabaseService.rows(_med.raw.csatGlobal)[0] || [];
+    if (row[1] != null) media = Number(row[1]).toFixed(2);
+    if (row[2] != null) npsVal = Number(row[2]);
+  }
+  const stars = '★'.repeat(Math.min(5, Math.round(Number(media))));
+  document.getElementById('csat-score').innerHTML = `
+    <div class="csat-number">${media}</div>
+    <div class="csat-stars">${stars}</div>
+    <div class="csat-nps">de 5.0</div>
+    ${npsVal !== null ? `<div style="margin-top:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;color:var(--title)">${(npsVal*100).toFixed(1)}%</div><div class="csat-nps">NPS</div>` : ''}`;
+  if (!_med.raw.reviewsMedicos) return;
+  let reviews = MetabaseService.toObjects(_med.raw.reviewsMedicos);
+  // Aplica filtro de mês e médico na distribuição de notas
+  if (_med.month) {
+    reviews = reviews.filter(r => {
+      const d = String(r['data da avaliação'] || '');
+      return d.slice(0, 7) === _med.month || d.slice(0, 7).replace('/', '-') === _med.month;
+    });
+  }
+  if (_med.medico) {
+    reviews = reviews.filter(r => (r['nome do doutor'] || '').trim() === _med.medico.trim());
+  }
+  const dist = [0, 0, 0, 0, 0];
+  reviews.forEach(r => {
+    const v = Math.round(Number(r['avaliação'] || r.avaliacao || 0));
+    if (v >= 1 && v <= 5) dist[v - 1]++;
+  });
+  const chartWrap = document.querySelector('#block-csat .chart-wrap');
+  chartWrap.innerHTML = '<canvas id="chartCsatBar" style="height:180px"></canvas>';
+  if (_chartCsatBar) { _chartCsatBar.destroy(); _chartCsatBar = null; }
+  _chartCsatBar = new Chart(document.getElementById('chartCsatBar'), {
+    type: 'bar',
+    data: {
+      labels: ['1 ★', '2 ★', '3 ★', '4 ★', '5 ★'],
+      datasets: [{ data: dist,
+        backgroundColor: ['#EF4444','#F97316','#FACC15','#4DC878','#17AE55'],
+        borderRadius: 4, borderSkipped: false }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.raw} avaliações` } },
+        datalabels: {
+          anchor: 'end', align: 'end',
+          color: '#374151', font: { size: 10, weight: 700 },
+          formatter: v => v > 0 ? _fmt(v) : '',
+        }
+      },
+      scales: {
+        x: { beginAtZero: true, grid: { color: '#F3F4F6' }, ticks: { font: { size: 10 } } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+function _renderCsatEvo() {
+  const wrap = document.querySelector('#block-csat-evo .card-body');
+  if (!_med.raw.avaliacaoPeriodo && !_med.raw.npsPeriodo) {
+    wrap.innerHTML = '<div class="skel" style="width:100%;height:220px;border-radius:8px"></div>'; return;
+  }
+
+  // CSAT (card 496) — period formato YYYY/MM
+  const csatRows = _med.raw.avaliacaoPeriodo
+    ? [...MetabaseService.rows(_med.raw.avaliacaoPeriodo)].sort((a,b) => String(a[0]).localeCompare(String(b[0])))
+    : [];
+  const npsRows  = _med.raw.npsPeriodo
+    ? [...MetabaseService.rows(_med.raw.npsPeriodo)].sort((a,b) => String(a[0]).localeCompare(String(b[0])))
+    : [];
+
+  const csatFil = _filterByMonth(csatRows, 0);
+  const npsFil  = _filterByMonth(npsRows,  0);
+
+  // Unir labels de ambos
+  const labelSet = new Set([...csatFil.map(r => String(r[0])), ...npsFil.map(r => String(r[0]))]);
+  const labels   = [...labelSet].sort();
+  if (!labels.length) { wrap.innerHTML = '<p style="color:#9CA3AF;font-size:13px;text-align:center;width:100%">Sem dados no período</p>'; return; }
+
+  const csatMap = Object.fromEntries(csatFil.map(r => [String(r[0]), r[2] != null ? Number(r[2]) : null]));
+  const npsMap  = Object.fromEntries(npsFil.map(r =>  [String(r[0]), r[2] != null ? Number(r[2]) * 100 : null]));
+
+  wrap.innerHTML = '<canvas id="chartCsatEvo"></canvas>';
+  if (_chartCsatEvo) { _chartCsatEvo.destroy(); _chartCsatEvo = null; }
+  _chartCsatEvo = new Chart(document.getElementById('chartCsatEvo'), {
+    type: 'bar',
+    data: {
+      labels: labels.map(_fmtDate),
+      datasets: [
+        {
+          label: 'CSAT Médio',
+          data: labels.map(l => csatMap[l] ?? null),
+          backgroundColor: 'rgba(13,128,64,.8)', borderColor: '#0D8040',
+          borderWidth: 1, borderRadius: 4, yAxisID: 'y',
+        },
+        {
+          label: 'NPS %',
+          data: labels.map(l => npsMap[l] ?? null),
+          type: 'line', borderColor: '#17AE55', backgroundColor: 'rgba(23,174,85,.12)',
+          borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#17AE55',
+          tension: 0.3, fill: false, yAxisID: 'y1',
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        datalabels: {
+          display: true,
+          anchor: (ctx) => ctx.datasetIndex === 0 ? 'end' : 'top',
+          align:  (ctx) => ctx.datasetIndex === 0 ? 'top' : 'top',
+          color:  (ctx) => ctx.datasetIndex === 0 ? '#FFFFFF' : '#0D8040',
+          font:   { size: 9, weight: 700 },
+          formatter: (v, ctx) => {
+            if (v == null) return '';
+            return ctx.datasetIndex === 0 ? Number(v).toFixed(1) : Number(v).toFixed(1) + '%';
+          },
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxTicksLimit: 14 } },
+        y:  { min: 0, max: 5.5, position: 'left',  grid: { color: '#F3F4F6' }, ticks: { font: { size: 10 }, callback: v => v <= 5 ? v.toFixed(1) : '' } },
+        y1: { min: 0, max: 110, position: 'right', grid: { display: false },   ticks: { font: { size: 10 }, callback: v => v + '%' } }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+function _renderTempo() {
+  const wrap = document.querySelector('#block-tempo .card-body');
+  if (!_med.raw.tempoMensal) { wrap.innerHTML = '<div class="skel" style="width:100%;height:200px;border-radius:8px"></div>'; return; }
+
+  // Tempo atual badge (card 503)
+  if (_med.raw.tempoAtual) {
+    const val = MetabaseService.rows(_med.raw.tempoAtual)[0]?.[0];
+    if (val != null) {
+      const badge = document.getElementById('tempo-atual-badge');
+      badge.textContent = `Média hoje: ${Number(val).toFixed(1)} min`;
+      badge.style.display = '';
+    }
+  }
+
+  // Card 498: [periodo(YYYY/MM), consultas_criadas, avg_steps_minutos]
+  const rows    = [...MetabaseService.rows(_med.raw.tempoMensal)].sort((a,b) => String(a[0]).localeCompare(String(b[0])));
+  const filtered = _filterByMonth(rows, 0);
+  const labels  = filtered.map(r => _fmtDate(r[0]));
+  const vals    = filtered.map(r => r[2] != null ? Math.round(Number(r[2]) * 10) / 10 : null);
+
+  if (!labels.length) { wrap.innerHTML = '<p style="color:#9CA3AF;font-size:13px;text-align:center;width:100%">Sem dados no período</p>'; return; }
+
+  const notaDoc = _med.medico
+    ? `<div style="font-size:11px;color:var(--blis-muted);text-align:center;padding:4px 0 6px;background:rgba(245,158,11,.07);border-radius:6px;margin-bottom:8px">Metabase não fornece tempo médio por médico — exibindo média geral</div>`
+    : '';
+  wrap.innerHTML = notaDoc + '<canvas id="chartTempo"></canvas>';
+  if (_chartTempo) { _chartTempo.destroy(); _chartTempo = null; }
+  _chartTempo = new Chart(document.getElementById('chartTempo'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Tempo Médio (min)',
+        data: vals,
+        backgroundColor: 'rgba(13,128,64,.85)', borderColor: '#0D8040',
+        borderWidth: 1, borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 20 } },
+      plugins: {
+        legend: { display: false },
+        datalabels: {
+          anchor: 'end', align: 'top',
+          color: '#0D8040', font: { size: 9, weight: 700 },
+          formatter: v => v != null ? v + ' min' : '',
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxTicksLimit: 14 } },
+        y: { beginAtZero: false, grace: '10%', grid: { color: '#E2F7EB' }, ticks: { font: { size: 10 }, callback: v => v + ' min' } }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+function applyFilters() {
+  _med.month  = document.getElementById('filter-mes').value;
+  _med.medico = document.getElementById('filter-medico').value;
+  _med.cupom  = document.getElementById('filter-cupom').value;
+  const hasFilter = _med.month || _med.medico || _med.cupom;
+  const bar = document.getElementById('med-filter-bar');
+  if (bar) {
+    bar.classList.toggle('active', !!hasFilter);
+    if (hasFilter) {
+      const MONTHS_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+      const chips = [];
+      if (_med.month) {
+        const [y, m] = _med.month.split('-');
+        chips.push(`<span class="filter-chip">${MONTHS_PT[+m-1]}/${y} <span class="chip-x" onclick="clearFilter('mes')">×</span></span>`);
+      }
+      if (_med.medico) {
+        chips.push(`<span class="filter-chip">${_med.medico} <span class="chip-x" onclick="clearFilter('medico')">×</span></span>`);
+      }
+      if (_med.cupom) {
+        chips.push(`<span class="filter-chip">${_med.cupom} <span class="chip-x" onclick="clearFilter('cupom')">×</span></span>`);
+      }
+      bar.innerHTML = `<span style="font-size:11px;color:var(--blis-muted);margin-right:2px">Filtros ativos:</span>${chips.join('')}<button class="chip-clear-all" onclick="clearAllFilters()">Limpar tudo</button>`;
+    } else {
+      bar.innerHTML = '';
+    }
+  }
+  if (!_med.initialized) return;
+  _renderKPIs();
+  _renderStatus();
+  _renderPerformance();
+  _renderEvolucao();
+  _renderCancelamentos();
+  _renderCupons();
+  _renderCuponsPedido();
+  _renderCsat();
+  _renderCsatEvo();
+  _renderTempo();
+  _renderReviews();
+}
+
+function clearFilter(key) {
+  if (key === 'mes')    document.getElementById('filter-mes').value    = '';
+  if (key === 'medico') document.getElementById('filter-medico').value = '';
+  if (key === 'cupom')  document.getElementById('filter-cupom').value  = '';
+  applyFilters();
+}
+
+function clearAllFilters() {
+  document.getElementById('filter-mes').value    = '';
+  document.getElementById('filter-medico').value = '';
+  document.getElementById('filter-cupom').value  = '';
+  applyFilters();
+}
+
+function refreshMedicos() {
+  const btn = document.getElementById('btn-refresh');
+  btn.classList.add('loading'); btn.disabled = true;
+  _med.initialized = false; _med.raw = {};
+  window.MB_PRELOADED = null;
+  [_chartStatus, _chartEvo, _chartCsatBar, _chartCsatEvo, _chartTempo, _chartCancelamentos].forEach(c => c && c.destroy());
+  _chartStatus = _chartEvo = _chartCsatBar = _chartCsatEvo = _chartTempo = _chartCancelamentos = null;
+  initMedicos().finally(() => { btn.classList.remove('loading'); btn.disabled = false; });
+}
+
+function _fmt(n) {
+  const num = Number(n);
+  return isNaN(num) ? (n != null ? String(n) : '—') : num.toLocaleString('pt-BR');
+}
+function _fmtMoney(n) {
+  const num = Number(n);
+  return isNaN(num) ? '—' : num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function _fmtDate(s) {
+  if (!s) return '';
+  const p = String(s).slice(0, 10).split('-');
+  if (p.length === 3) return `${p[2]}/${p[1]}/${p[0].slice(2)}`;
+  if (p.length === 2) return `${p[1]}/${p[0].slice(2)}`;
+  return String(s).slice(0, 7);
+}
+
+/* ── Cancelamentos ─────────────────────────────── */
+let _chartCancelamentos = null;
+
+function _renderCancelamentos() {
+  const wrap = document.querySelector('#block-cancelamentos .card-body');
+  if (!wrap) return;
+  if (!_med.raw.cancelamentosPeriodo) {
+    wrap.innerHTML = '<div class="skel" style="width:100%;height:210px;border-radius:8px"></div>';
+    return;
+  }
+
+  const rows = [...MetabaseService.rows(_med.raw.cancelamentosPeriodo)]
+    .sort((a,b) => String(a[0]).localeCompare(String(b[0])));
+  const filtered = _filterByMonth(rows, 0);
+
+  if (!filtered.length) {
+    wrap.innerHTML = '<p style="color:#9CA3AF;font-size:13px;text-align:center;width:100%">Sem dados no período</p>';
+    return;
+  }
+
+  // Badge com taxa média do período visível
+  const badge = document.getElementById('cancel-rate-badge');
+  const pcts  = filtered.map(r => r[3] != null ? Number(r[3]) : null).filter(v => v != null);
+  if (pcts.length && badge) {
+    const avg = (pcts.reduce((a,b) => a+b, 0) / pcts.length * 100).toFixed(1);
+    badge.textContent = `Taxa média: ${avg}%`;
+    badge.style.display = '';
+  }
+
+  const labels     = filtered.map(r => _fmtDate(r[0]));
+  const criadas    = filtered.map(r => Number(r[1]) || 0);
+  const canceladas = filtered.map(r => Number(r[2]) || 0);
+  const pctVals    = filtered.map(r => r[3] != null ? Math.round(Number(r[3]) * 100 * 10) / 10 : null);
+
+  wrap.innerHTML = '<canvas id="chartCancelamentos"></canvas>';
+  if (_chartCancelamentos) { _chartCancelamentos.destroy(); _chartCancelamentos = null; }
+  _chartCancelamentos = new Chart(document.getElementById('chartCancelamentos'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Criadas', data: criadas,
+          backgroundColor: 'rgba(82,183,136,.85)', borderColor: '#52B788',
+          borderWidth: 1, borderRadius: 4, yAxisID: 'y',
+        },
+        {
+          label: 'Canceladas', data: canceladas,
+          backgroundColor: 'rgba(239,68,68,.78)', borderColor: '#EF4444',
+          borderWidth: 1, borderRadius: 4, yAxisID: 'y',
+        },
+        {
+          label: '% Cancelamento', data: pctVals,
+          type: 'line', borderColor: '#F59E0B', backgroundColor: 'rgba(245,158,11,.1)',
+          borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#F59E0B',
+          tension: 0.3, fill: false, yAxisID: 'y1',
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 11 } } },
+        datalabels: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              if (ctx.dataset.label === '% Cancelamento') return ` Taxa: ${ctx.raw}%`;
+              return ` ${ctx.dataset.label}: ${_fmt(ctx.raw)}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxTicksLimit: 14 } },
+        y:  { beginAtZero: true, grid: { color: '#F3F4F6' }, ticks: { font: { size: 10 } } },
+        y1: {
+          beginAtZero: true, max: 100, position: 'right', grid: { display: false },
+          ticks: { font: { size: 10 }, callback: v => v + '%' }
+        }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+/* ── Reviews / Comentários ─────────────────────── */
+function setReviewFilter(filter, btn) {
+  _med.reviewFilter = filter;
+  document.querySelectorAll('#review-tabs .review-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  _renderReviews();
+}
+
+function _renderReviews() {
+  const grid = document.getElementById('review-grid');
+  if (!grid) return;
+
+  if (!_med.raw.reviewsMedicos) {
+    grid.innerHTML = `<div class="skel" style="height:100px;border-radius:8px"></div>
+      <div class="skel" style="height:100px;border-radius:8px"></div>
+      <div class="skel" style="height:100px;border-radius:8px"></div>`;
+    return;
+  }
+
+  let rows = MetabaseService.toObjects(_med.raw.reviewsMedicos);
+
+  // Filtro de mês
+  if (_med.month) {
+    rows = rows.filter(r => {
+      const d = String(r['data da avaliação'] || '');
+      return d.slice(0, 7) === _med.month || d.slice(0, 7).replace('/', '-') === _med.month;
+    });
+  }
+
+  // Filtro de médico
+  if (_med.medico) rows = rows.filter(r => (r['nome do doutor'] || '').trim() === _med.medico.trim());
+
+  // Contagem geral antes do filtro de sentimento
+  const posAll = rows.filter(r => Number(r['avaliação'] || r.avaliacao || 0) >= 4).length;
+  const negAll = rows.filter(r => Number(r['avaliação'] || r.avaliacao || 0) < 4 && Number(r['avaliação'] || r.avaliacao || 0) > 0).length;
+  const neuAll = rows.filter(r => Number(r['avaliação'] || r.avaliacao || 0) === 3).length;
+
+  const countBar = document.getElementById('review-count-bar');
+  if (countBar && rows.length > 0) {
+    document.getElementById('rv-pos').textContent = posAll;
+    document.getElementById('rv-neg').textContent = negAll;
+    document.getElementById('rv-neu').textContent = neuAll;
+    countBar.style.display = 'flex';
+  } else if (countBar) {
+    countBar.style.display = 'none';
+  }
+
+  // Filtro de sentimento
+  const rf = _med.reviewFilter || 'all';
+  if (rf === 'positive') rows = rows.filter(r => Number(r['avaliação'] || r.avaliacao || 0) >= 4);
+  else if (rf === 'negative') rows = rows.filter(r => {
+    const v = Number(r['avaliação'] || r.avaliacao || 0);
+    return v > 0 && v < 4;
+  });
+
+  // Ordenar por data decrescente
+  rows.sort((a, b) => String(b['data da avaliação'] || '').localeCompare(String(a['data da avaliação'] || '')));
+
+  if (!rows.length) {
+    grid.innerHTML = `<div class="review-empty"><p>Nenhuma avaliação encontrada</p><small>Tente outro filtro ou período</small></div>`;
+    return;
+  }
+
+  grid.innerHTML = rows.map(r => {
+    const rating  = Math.max(0, Math.min(5, Math.round(Number(r['avaliação'] || r.avaliacao || 0))));
+    const stars   = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+    const comment = String(r['comentários'] || r.comentarios || '').trim();
+    const hasComment = comment && comment !== 'null' && comment !== '-';
+    const cls     = rating >= 4 ? 'positive' : rating === 3 ? 'neutral' : 'negative';
+    const ratingColor = rating >= 4 ? '#17AE55' : rating === 3 ? '#F59E0B' : '#EF4444';
+    const doc     = String(r['nome do doutor'] || '').trim() || '—';
+    const patient = String(r['nome do paciente'] || '').trim();
+    const date    = _fmtDate(String(r['data da avaliação'] || '').slice(0, 10));
+
+    return `<div class="review-card ${cls}">
+      <div class="review-meta">
+        <div>
+          <span class="review-stars" style="color:${rating >= 4 ? '#F59E0B' : rating === 3 ? '#F59E0B' : '#9CA3AF'}">${stars}</span>
+          <span style="font-size:12px;font-weight:800;color:${ratingColor};margin-left:4px">${rating > 0 ? rating + '.0' : '—'}</span>
+        </div>
+        <span class="review-date">${date}</span>
+      </div>
+      <div class="review-doc">${doc}</div>
+      ${patient ? `<div class="review-patient">👤 ${patient}</div>` : ''}
+      ${hasComment
+        ? `<div class="review-text">"${comment}"</div>`
+        : `<div class="review-nocomment">Sem comentário escrito</div>`}
+    </div>`;
+  }).join('');
+}
+
+/* ── KB Edit Mode ──────────────────────────────── */
+let _kbEditMode = false;
+let _kbNextId   = 100;
+
+function _loadKbArticles() {
+  try {
+    const saved = localStorage.getItem('cx_kb_articles');
+    if (saved) {
+      const arr = JSON.parse(saved);
+      if (Array.isArray(arr) && arr.length) {
+        ARTICLES.length = 0;
+        arr.forEach(a => ARTICLES.push(a));
+      }
+    }
+  } catch(e) {}
+  _kbNextId = Math.max(99, ...ARTICLES.map(a => a.id || 0)) + 1;
+}
+
+function _saveKbArticles() {
+  localStorage.setItem('cx_kb_articles', JSON.stringify(ARTICLES));
+}
+
+function toggleKbEdit() {
+  _kbEditMode = !_kbEditMode;
+  const toggle = document.getElementById('kb-edit-toggle');
+  const newBtn = document.getElementById('kb-new-btn');
+  const list   = document.getElementById('kb-list');
+  toggle.textContent = _kbEditMode ? '✅ Concluir edição' : '✏️ Editar';
+  toggle.classList.toggle('active', _kbEditMode);
+  newBtn.classList.toggle('visible', _kbEditMode);
+  list.classList.toggle('edit-mode', _kbEditMode);
+  filterArticles();
+}
+
+function openArticleModal(id) {
+  const a = id != null ? ARTICLES.find(x => x.id === id) : null;
+  document.getElementById('kb-modal-title').textContent = a ? 'Editar artigo' : 'Novo artigo';
+  document.getElementById('kb-f-id').value      = a ? a.id : '';
+  document.getElementById('kb-f-title').value   = a ? a.title   : '';
+  document.getElementById('kb-f-date').value    = a ? a.date    : _todayPt();
+  document.getElementById('kb-f-summary').value = a ? a.summary : '';
+  document.getElementById('kb-f-body').value    = a ? a.body    : '';
+  const sel = document.getElementById('kb-f-cat');
+  if (a) sel.value = a.cat;
+  document.getElementById('kb-modal').classList.add('open');
+}
+
+function closeArticleModal() {
+  document.getElementById('kb-modal').classList.remove('open');
+}
+
+function saveArticle() {
+  const id      = document.getElementById('kb-f-id').value;
+  const title   = document.getElementById('kb-f-title').value.trim();
+  const cat     = document.getElementById('kb-f-cat').value;
+  const date    = document.getElementById('kb-f-date').value.trim();
+  const summary = document.getElementById('kb-f-summary').value.trim();
+  const body    = document.getElementById('kb-f-body').value.trim();
+  if (!title) { alert('O título é obrigatório.'); return; }
+  if (id) {
+    const a = ARTICLES.find(x => x.id === Number(id));
+    if (a) { a.title = title; a.cat = cat; a.date = date; a.summary = summary; a.body = body; }
+  } else {
+    ARTICLES.unshift({ id: _kbNextId++, cat, title, date, summary, body });
+  }
+  _saveKbArticles();
+  closeArticleModal();
+  filterArticles();
+  _showToast('Artigo salvo ✓');
+}
+
+function deleteArticle(id) {
+  if (!confirm('Excluir este artigo?')) return;
+  const idx = ARTICLES.findIndex(x => x.id === id);
+  if (idx !== -1) ARTICLES.splice(idx, 1);
+  _saveKbArticles();
+  filterArticles();
+}
+
+function _todayPt() {
+  const d = new Date();
+  const months = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+/* close modal on background click */
+document.addEventListener('click', e => {
+  if (e.target.id === 'kb-modal') closeArticleModal();
+});
+
+/* ── LGPD Edit Mode ────────────────────────────── */
+let _lgpdEditMode = false;
+
+const _LGPD_IDS = [
+  'lgpd-alert-title','lgpd-alert-body',
+  'lgpd-stats-grid','lgpd-consent-body',
+  'lgpd-rights-list','lgpd-obl-body','lgpd-log-tbody',
+];
+
+function toggleLgpdEdit() {
+  _lgpdEditMode = !_lgpdEditMode;
+  const section = document.getElementById('section-lgpd');
+  const toggle  = document.getElementById('lgpd-edit-toggle');
+  section.classList.toggle('lgpd-edit-active', _lgpdEditMode);
+  if (_lgpdEditMode) {
+    toggle.textContent = '💾 Salvar alterações';
+    toggle.classList.add('active');
+  } else {
+    toggle.textContent = '✏️ Editar';
+    toggle.classList.remove('active');
+    _saveLgpdData();
+    _showToast('LGPD salvo ✓');
+  }
+}
+
+function _saveLgpdData() {
+  const data = {};
+  _LGPD_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data[id] = el.innerHTML;
+  });
+  localStorage.setItem('cx_lgpd_data', JSON.stringify(data));
+}
+
+function _loadLgpdData() {
+  try {
+    const raw = localStorage.getItem('cx_lgpd_data');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    _LGPD_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && data[id] != null) el.innerHTML = data[id];
+    });
+  } catch(e) {}
+}
+
+function lgpdDelRow(btn) {
+  btn.closest('tr').remove();
+}
+
+function lgpdAddRow() {
+  const tbody = document.getElementById('lgpd-log-tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td contenteditable="true" data-gramm="false">${_todayPt()}</td><td contenteditable="true" data-gramm="false">—</td><td contenteditable="true" data-gramm="false">—</td><td contenteditable="true" data-gramm="false">—</td><td contenteditable="true" data-gramm="false">—</td><td contenteditable="true" data-gramm="false">—</td><td class="lgpd-row-del-cell"><button class="lgpd-del-row" onclick="lgpdDelRow(this)" title="Excluir linha">✕</button></td>`;
+  tbody.prepend(tr);
+  tr.querySelector('td').focus();
+}
+
+/* ── Toast helper ──────────────────────────────── */
+let _toastTimer = null;
+function _showToast(msg) {
+  const t = document.getElementById('lgpd-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ── Init ──────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  _loadKbArticles();
+  _loadLgpdData();
+  filterArticles();
+});
+</script>
+</body>
+</html>

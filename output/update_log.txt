@@ -352,3 +352,394 @@ PermissionError: [WinError 5] Acesso negado: 'output'
 2026-05-19 10:33:54,654 INFO FTP: dashboard enviado para Hostinger com sucesso.
 [19/05/2026 10:24] OK_COM_AVISOS(3)  |  SEMANAS ia: tickets=8072 semanas=7862 diff=-210  |  SEMANAS saude: tickets=6325 semanas=6261 diff=-64  |  SEMANAS resolve: tickets=10658 semanas=10523 diff=-135
 2026-05-19 10:33:54,655 INFO === Concluido: 19/05/2026 10:24 — OK_COM_AVISOS(3) ===
+2026-05-20 16:41:03,145 INFO === Atualizacao iniciada: 20/05/2026 16:41 ===
+2026-05-20 16:41:03,146 INFO Rodando extractor_2026.py...
+2026-05-20 16:41:20,082 ERROR Extractor saiu com erro:
+/Users/sol/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+2026-05-20 16:41:03,845 INFO === Extração Zendesk 2026 ===
+2026-05-20 16:41:04,178 ERROR Erro tentativa 1: 401 Client Error: Unauthorized for url: https://appblis.zendesk.com/api/v2/groups.json
+2026-05-20 16:41:05,439 ERROR Erro tentativa 2: 401 Client Error: Unauthorized for url: https://appblis.zendesk.com/api/v2/groups.json
+2026-05-20 16:41:07,725 ERROR Erro tentativa 3: 401 Client Error: Unauthorized for url: https://appblis.zendesk.com/api/v2/groups.json
+2026-05-20 16:41:12,022 ERROR Erro tentativa 4: 401 Client Error: Unauthorized for url: https://appblis.zendesk.com/api/v2/groups.json
+Traceback (most recent call last):
+  File "/Users/sol/Downloads/projetos/dash-blis-cx/extractor_2026.py", line 473, in <module>
+    run()
+  File "/Users/sol/Downloads/projetos/dash-blis-cx/extractor_2026.py", line 409, in run
+    groups               = fetch_groups()
+  File "/Users/sol/Downloads/projetos/dash-blis-cx/extractor_2026.py", line 72, in fetch_groups
+    data = _get(f"{BASE_URL}/groups.json")
+  File "/Users/sol/Downloads/projetos/dash-blis-cx/extractor_2026.py", line 67, in _get
+    raise RuntimeError(f"Falha após 4 tentativas: {url}")
+RuntimeError: Falha após 4 tentativas: https://appblis.zendesk.com/api/v2/groups.json
+
+2026-05-20 16:41:20,087 ERROR Extractor falhou — dataset mantido.
+[20/05/2026 16:41] ERRO  |  Extractor falhou
+2026-05-20 16:45:55,485 INFO === Atualizacao iniciada: 20/05/2026 16:45 ===
+2026-05-20 16:45:55,486 INFO Rodando extractor_2026.py...
+2026-05-20 16:52:49,012 INFO Extracao OK.
+2026-05-20 16:52:49,144 INFO tickets=43457  csat=16513
+2026-05-20 16:52:49,165 INFO Filtro CRM Blis Saude: 17965 sem assignee removidos -> 0 restantes
+2026-05-20 16:52:51,825 INFO campo_opcoes: 157 tags carregadas
+2026-05-20 16:52:52,052 INFO Perfis encontrados: ['Não Baixou App', 'Fez Login', 'Fez Cadastro', 'Fez Anamnese', 'Fez Consulta', '1ª Compra <30d', '1ª Compra >30d', '2ª+ Recompra', 'Médicos', 'Pergunta']
+2026-05-20 16:52:52,053 WARNING CROSS: SEMANAS ia: tickets=8275 semanas=7862 diff=-413
+2026-05-20 16:52:52,053 WARNING CROSS: SEMANAS saude: tickets=6384 semanas=6261 diff=-123
+2026-05-20 16:52:52,053 WARNING CROSS: SEMANAS resolve: tickets=10832 semanas=10519 diff=-313
+2026-05-20 16:52:52,053 INFO   ia: tickets=8275  status=8275  channels=8275
+2026-05-20 16:52:52,053 INFO   saude: tickets=6384  status=6384  channels=6384
+2026-05-20 16:52:52,053 INFO   resolve: tickets=10832  status=10832  channels=10832
+2026-05-20 16:52:52,053 INFO   tempos: TMA Resolve=[3.9, 4.3, 4.3, 3.4, 2.3, 4.0, 1.6, 4.7, 10.4, 8.0, 4.7, 11.2, 15.5, 7.6, 10.9, 1.4, 1.1, 1.2, 0.8, 0.7]  TMA Saude=[4.0, 3.0, 2.5, 2.0, 1.6, 2.3, 2.8, 1.7, 3.0, 2.4, 1.6, 2.0, 2.3, 2.2, 2.2, 1.4, 1.7, 1.6, 1.5, 1.4]
+2026-05-20 16:52:52,053 INFO   motivos: 9 categorias  perfis: 10
+2026-05-20 16:52:52,055 INFO Dashboard atualizado com sucesso.
+2026-05-20 16:52:52,057 ERROR FTP: falha no envio — [Errno 61] Connection refused
+[20/05/2026 16:45] OK_COM_AVISOS(3)_FTP_FALHOU  |  SEMANAS ia: tickets=8275 semanas=7862 diff=-413  |  SEMANAS saude: tickets=6384 semanas=6261 diff=-123  |  SEMANAS resolve: tickets=10832 semanas=10519 diff=-313
+2026-05-20 16:52:52,057 INFO === Concluido: 20/05/2026 16:45 — OK_COM_AVISOS(3)_FTP_FALHOU ===
+2026-05-20 17:27:58,436 INFO === Atualizacao iniciada: 20/05/2026 17:27 ===
+2026-05-20 17:27:58,436 INFO Rodando extractor_2026.py...
+2026-05-20 17:34:15,460 INFO Extracao OK.
+2026-05-20 17:34:15,599 INFO tickets=43477  csat=16546
+2026-05-20 17:34:15,618 INFO Filtro CRM Blis Saude: 17965 sem assignee removidos -> 0 restantes
+2026-05-20 17:34:18,347 INFO campo_opcoes: 157 tags carregadas
+2026-05-20 17:34:18,588 INFO Perfis encontrados: ['Não Baixou App', 'Fez Login', 'Fez Cadastro', 'Fez Anamnese', 'Fez Consulta', '1ª Compra <30d', '1ª Compra >30d', '2ª+ Recompra', 'Médicos', 'Pergunta']
+2026-05-20 17:34:18,589 WARNING CROSS: SEMANAS ia: tickets=8283 semanas=7862 diff=-421
+2026-05-20 17:34:18,589 WARNING CROSS: SEMANAS saude: tickets=6388 semanas=6261 diff=-127
+2026-05-20 17:34:18,589 WARNING CROSS: SEMANAS resolve: tickets=10840 semanas=10519 diff=-321
+2026-05-20 17:34:18,589 INFO   ia: tickets=8283  status=8283  channels=8283
+2026-05-20 17:34:18,589 INFO   saude: tickets=6388  status=6388  channels=6388
+2026-05-20 17:34:18,589 INFO   resolve: tickets=10840  status=10840  channels=10840
+2026-05-20 17:34:18,589 INFO   tempos: TMA Resolve=[3.9, 4.3, 4.3, 3.4, 2.3, 4.0, 1.6, 4.7, 10.4, 8.0, 4.7, 11.2, 15.5, 7.6, 10.9, 1.4, 1.1, 1.2, 0.8, 0.7]  TMA Saude=[4.0, 3.0, 2.5, 2.0, 1.6, 2.3, 2.8, 1.7, 3.0, 2.4, 1.6, 2.0, 2.3, 2.2, 2.2, 1.4, 1.7, 1.6, 1.5, 1.4]
+2026-05-20 17:34:18,589 INFO   motivos: 9 categorias  perfis: 10
+2026-05-20 17:34:18,590 INFO Dashboard atualizado com sucesso.
+2026-05-20 17:34:18,593 ERROR FTP: falha no envio — [Errno 61] Connection refused
+[20/05/2026 17:27] OK_COM_AVISOS(3)_FTP_FALHOU  |  SEMANAS ia: tickets=8283 semanas=7862 diff=-421  |  SEMANAS saude: tickets=6388 semanas=6261 diff=-127  |  SEMANAS resolve: tickets=10840 semanas=10519 diff=-321
+2026-05-20 17:34:18,593 INFO === Concluido: 20/05/2026 17:27 — OK_COM_AVISOS(3)_FTP_FALHOU ===
+2026-05-21 17:28:02,071 INFO === Atualizacao iniciada: 21/05/2026 17:28 ===
+2026-05-21 17:28:02,072 INFO Rodando extractor_2026.py...
+2026-05-21 17:34:51,044 INFO Extracao OK.
+2026-05-21 17:34:51,182 INFO tickets=43762  csat=16910
+2026-05-21 17:34:51,201 INFO Filtro CRM Blis Saude: 17965 sem assignee removidos -> 0 restantes
+2026-05-21 17:34:53,950 INFO campo_opcoes: 157 tags carregadas
+2026-05-21 17:34:54,185 INFO Perfis encontrados: ['Não Baixou App', 'Fez Login', 'Fez Cadastro', 'Fez Anamnese', 'Fez Consulta', '1ª Compra <30d', '1ª Compra >30d', '2ª+ Recompra', 'Médicos', 'Pergunta']
+2026-05-21 17:34:54,186 WARNING CROSS: SEMANAS ia: tickets=8422 semanas=7862 diff=-560
+2026-05-21 17:34:54,186 WARNING CROSS: SEMANAS saude: tickets=6426 semanas=6260 diff=-166
+2026-05-21 17:34:54,186 WARNING CROSS: SEMANAS resolve: tickets=10948 semanas=10519 diff=-429
+2026-05-21 17:34:54,186 INFO   ia: tickets=8422  status=8422  channels=8422
+2026-05-21 17:34:54,186 INFO   saude: tickets=6426  status=6426  channels=6426
+2026-05-21 17:34:54,186 INFO   resolve: tickets=10948  status=10948  channels=10948
+2026-05-21 17:34:54,186 INFO   tempos: TMA Resolve=[3.9, 4.3, 4.3, 3.4, 2.3, 4.0, 1.6, 4.7, 10.4, 8.0, 4.7, 11.2, 15.5, 7.6, 10.9, 1.4, 1.1, 1.2, 0.8, 0.7]  TMA Saude=[4.0, 3.0, 2.5, 2.0, 1.6, 2.3, 2.8, 1.7, 3.0, 2.4, 1.6, 2.0, 2.3, 2.2, 2.2, 1.4, 1.7, 1.6, 1.5, 1.4]
+2026-05-21 17:34:54,186 INFO   motivos: 9 categorias  perfis: 10
+2026-05-21 17:34:54,188 INFO Dashboard atualizado com sucesso.
+2026-05-21 17:34:54,190 ERROR FTP: falha no envio — [Errno 61] Connection refused
+[21/05/2026 17:28] OK_COM_AVISOS(3)_FTP_FALHOU  |  SEMANAS ia: tickets=8422 semanas=7862 diff=-560  |  SEMANAS saude: tickets=6426 semanas=6260 diff=-166  |  SEMANAS resolve: tickets=10948 semanas=10519 diff=-429
+2026-05-21 17:34:54,190 INFO === Concluido: 21/05/2026 17:28 — OK_COM_AVISOS(3)_FTP_FALHOU ===
+2026-05-21 18:05:54,689 INFO === Reprocessando (sem extractor): 21/05/2026 18:05 ===
+2026-05-21 18:05:54,820 INFO tickets=43762  csat=16910
+2026-05-21 18:05:54,840 INFO Filtro CRM: 17965 removidos
+2026-05-21 18:05:57,598 INFO campo_opcoes: 157 tags carregadas
+2026-05-21 18:05:57,827 INFO Perfis encontrados: ['Não Baixou App', 'Fez Login', 'Fez Cadastro', 'Fez Anamnese', 'Fez Consulta', '1ª Compra <30d', '1ª Compra >30d', '2ª+ Recompra', 'Médicos', 'Pergunta']
+2026-05-21 18:05:57,828 INFO   ia: tickets=8422  semanas=8422
+2026-05-21 18:05:57,828 INFO   saude: tickets=6426  semanas=6426
+2026-05-21 18:05:57,828 INFO   resolve: tickets=10948  semanas=10948
+2026-05-21 18:05:57,828 INFO   Semanas labels: ['S01', 'S02', 'S03', 'S04', 'S05', 'S06', 'S07', 'S08', 'S09', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15', 'S16', 'S17', 'S18', 'S19', 'S20', 'S21']
+2026-05-21 18:05:57,829 INFO Dashboard atualizado com S21.
+2026-05-21 18:05:57,830 ERROR FTP: falha no envio — [Errno 61] Connection refused
+2026-05-21 18:05:57,830 WARNING FTP falhou — verifique credenciais de host.
+2026-05-22 10:27:18,742 INFO === Atualizacao iniciada: 22/05/2026 10:27 ===
+2026-05-22 10:27:18,743 INFO Rodando extractor_2026.py...
+2026-05-22 10:34:10,201 INFO Extracao OK.
+2026-05-22 10:34:10,346 INFO tickets=43889  csat=17056
+2026-05-22 10:34:10,368 INFO Filtro CRM Blis Saude: 17964 sem assignee removidos -> 0 restantes
+2026-05-22 10:34:13,215 INFO campo_opcoes: 157 tags carregadas
+2026-05-22 10:34:13,452 INFO Perfis encontrados: ['Não Baixou App', 'Fez Login', 'Fez Cadastro', 'Fez Anamnese', 'Fez Consulta', '1ª Compra <30d', '1ª Compra >30d', '2ª+ Recompra', 'Médicos', 'Pergunta']
+2026-05-22 10:34:13,454 INFO   ia: tickets=8514  status=8514  channels=8514
+2026-05-22 10:34:13,454 INFO   saude: tickets=6440  status=6440  channels=6440
+2026-05-22 10:34:13,454 INFO   resolve: tickets=10970  status=10970  channels=10970
+2026-05-22 10:34:13,454 INFO   tempos: TMA Resolve=[3.9, 4.3, 4.3, 3.4, 2.3, 4.0, 1.6, 4.7, 10.4, 8.0, 4.7, 11.2, 15.5, 7.6, 10.9, 1.4, 1.1, 1.2, 0.8, 0.7, 0.9]  TMA Saude=[4.0, 3.0, 2.5, 2.0, 1.6, 2.3, 2.8, 1.7, 3.0, 2.4, 1.6, 2.0, 2.3, 2.2, 2.2, 1.4, 1.7, 1.6, 1.5, 1.4, 1.3]
+2026-05-22 10:34:13,454 INFO   motivos: 9 categorias  perfis: 10
+2026-05-22 10:34:13,455 INFO Dashboard atualizado com sucesso.
+2026-05-22 10:34:13,618 INFO FTP: dashboard enviado para Hostinger com sucesso.
+[22/05/2026 10:27] OK
+2026-05-22 10:34:13,618 INFO === Concluido: 22/05/2026 10:27 — OK ===
+2026-05-22 10:43:11,867 INFO === Atualizacao iniciada: 22/05/2026 10:43 ===
+2026-05-22 10:43:11,868 INFO Rodando extractor_2026.py...
+2026-05-22 10:49:33,320 INFO Extracao OK.
+2026-05-22 10:49:33,461 INFO tickets=43892  csat=17070
+2026-05-22 10:49:33,483 INFO Filtro CRM Blis Saude: 17964 sem assignee removidos -> 0 restantes
+2026-05-22 10:49:36,294 INFO campo_opcoes: 157 tags carregadas
+2026-05-22 10:49:36,534 INFO Perfis encontrados: ['Não Baixou App', 'Fez Login', 'Fez Cadastro', 'Fez Anamnese', 'Fez Consulta', '1ª Compra <30d', '1ª Compra >30d', '2ª+ Recompra', 'Médicos', 'Pergunta']
+2026-05-22 10:49:36,535 INFO   ia: tickets=8513  status=8513  channels=8513
+2026-05-22 10:49:36,535 INFO   saude: tickets=6440  status=6440  channels=6440
+2026-05-22 10:49:36,535 INFO   resolve: tickets=10974  status=10974  channels=10974
+2026-05-22 10:49:36,535 INFO   tempos: TMA Resolve=[3.9, 4.3, 4.3, 3.4, 2.3, 4.0, 1.6, 4.7, 10.4, 8.0, 4.7, 11.2, 15.5, 7.6, 10.9, 1.4, 1.1, 1.2, 0.8, 0.7, 0.9]  TMA Saude=[4.0, 3.0, 2.5, 2.0, 1.6, 2.3, 2.8, 1.7, 3.0, 2.4, 1.6, 2.0, 2.3, 2.2, 2.2, 1.4, 1.7, 1.6, 1.5, 1.4, 1.3]
+2026-05-22 10:49:36,535 INFO   motivos: 9 categorias  perfis: 10
+2026-05-22 10:49:36,536 INFO Dashboard atualizado com sucesso.
+2026-05-22 10:49:36,722 INFO FTP: dashboard enviado para Hostinger com sucesso.
+[22/05/2026 10:43] OK
+2026-05-22 10:49:36,722 INFO === Concluido: 22/05/2026 10:43 — OK ===
+2026-05-22 15:02:24,841 INFO === Atualizacao iniciada: 22/05/2026 15:02 ===
+2026-05-22 15:02:24,842 INFO Rodando extractor_2026.py...
+2026-05-22 15:09:20,098 INFO Extracao OK.
+2026-05-22 15:09:20,231 INFO tickets=44009  csat=17184
+2026-05-22 15:09:20,252 INFO Filtro CRM Blis Saude: 17964 sem assignee removidos -> 0 restantes
+2026-05-22 15:09:23,052 INFO campo_opcoes: 158 tags carregadas
+2026-05-22 15:09:23,291 INFO Perfis encontrados: ['Não Baixou App', 'Fez Login', 'Fez Cadastro', 'Fez Anamnese', 'Fez Consulta', '1ª Compra <30d', '1ª Compra >30d', '2ª+ Recompra', 'Médicos', 'Pergunta']
+2026-05-22 15:09:23,292 INFO   ia: tickets=8567  status=8567  channels=8567
+2026-05-22 15:09:23,292 INFO   saude: tickets=6456  status=6456  channels=6456
+2026-05-22 15:09:23,292 INFO   resolve: tickets=11021  status=11021  channels=11021
+2026-05-22 15:09:23,292 INFO   tempos: TMA Resolve=[3.9, 4.3, 4.3, 3.4, 2.3, 4.0, 1.6, 4.7, 10.4, 8.0, 4.7, 11.2, 15.5, 7.6, 10.9, 1.4, 1.1, 1.2, 0.8, 0.7, 0.9]  TMA Saude=[4.0, 3.0, 2.5, 2.0, 1.6, 2.3, 2.8, 1.7, 3.0, 2.4, 1.6, 2.0, 2.3, 2.2, 2.2, 1.4, 1.7, 1.6, 1.5, 1.4, 1.3]
+2026-05-22 15:09:23,292 INFO   motivos: 9 categorias  perfis: 10
+2026-05-22 15:09:23,293 INFO Dashboard atualizado com sucesso.
+2026-05-22 15:09:23,460 INFO FTP: dashboard enviado para Hostinger com sucesso.
+[22/05/2026 15:02] OK
+2026-05-22 15:09:23,461 INFO === Concluido: 22/05/2026 15:02 — OK ===
+2026-05-26 10:30:33,018 INFO === Atualizacao iniciada: 26/05/2026 10:30 ===
+2026-05-26 10:30:33,019 INFO Rodando extractor_2026.py...
+2026-05-26 10:38:21,900 INFO Extracao OK.
+2026-05-26 10:38:22,034 INFO tickets=44774  csat=18057
+2026-05-26 10:38:22,053 INFO Filtro CRM Blis Saude: 17965 sem assignee removidos -> 0 restantes
+2026-05-26 10:38:24,862 INFO campo_opcoes: 158 tags carregadas
+2026-05-26 10:38:25,098 INFO Perfis encontrados: ['Não Baixou App', 'Fez Login', 'Fez Cadastro', 'Fez Anamnese', 'Fez Consulta', '1ª Compra <30d', '1ª Compra >30d', '2ª+ Recompra', 'Médicos', 'Pergunta']
+2026-05-26 10:38:25,099 WARNING CROSS: SEMANAS ia: tickets=9034 semanas=8853 diff=-181
+2026-05-26 10:38:25,099 WARNING CROSS: SEMANAS saude: tickets=6576 semanas=6514 diff=-62
+2026-05-26 10:38:25,099 WARNING CROSS: SEMANAS resolve: tickets=11198 semanas=11068 diff=-130
+2026-05-26 10:38:25,099 INFO   ia: tickets=9034  status=9034  channels=9034
+2026-05-26 10:38:25,099 INFO   saude: tickets=6576  status=6576  channels=6576
+2026-05-26 10:38:25,099 INFO   resolve: tickets=11198  status=11198  channels=11198
+2026-05-26 10:38:25,099 INFO   tempos: TMA Resolve=[3.9, 4.3, 4.3, 3.4, 2.3, 4.0, 1.6, 4.7, 10.4, 8.0, 4.7, 11.2, 15.5, 7.6, 10.9, 1.4, 1.1, 1.2, 0.8, 0.7, 0.9]  TMA Saude=[4.0, 3.0, 2.5, 2.0, 1.6, 2.3, 2.8, 1.7, 3.0, 2.4, 1.6, 2.0, 2.3, 2.2, 2.2, 1.4, 1.7, 1.6, 1.5, 1.4, 1.3]
+2026-05-26 10:38:25,099 INFO   motivos: 9 categorias  perfis: 10
+2026-05-26 10:38:25,102 INFO Dashboard atualizado com sucesso.
+2026-05-26 10:38:27,494 INFO Metabase card 33 (totalConsultas): OK (1 linhas)
+2026-05-26 10:38:28,145 INFO Metabase card 130 (consultasPorStatus): OK (9 linhas)
+2026-05-26 10:38:28,975 INFO Metabase card 515 (statusTemporal): OK (600 linhas)
+2026-05-26 10:38:30,376 INFO Metabase card 95 (csatGlobal): OK (1 linhas)
+2026-05-26 10:38:32,767 INFO Metabase card 84 (performanceMedicos): OK (54 linhas)
+2026-05-26 10:38:34,708 INFO Metabase card 85 (reviewsMedicos): OK (2000 linhas)
+2026-05-26 10:38:34,992 INFO Metabase card 96 (couponsAtivos): OK (365 linhas)
+2026-05-26 10:38:35,357 INFO Metabase card 108 (couponsReceita): OK (14 linhas)
+2026-05-26 10:38:36,979 INFO Metabase card 398 (conversaoCoupons): OK (88 linhas)
+2026-05-26 10:38:37,640 INFO Metabase card 531 (custoCupomConsulta): OK (1 linhas)
+2026-05-26 10:38:39,537 INFO Metabase card 494 (cancelamentosPeriodo): OK (29 linhas)
+2026-05-26 10:38:41,976 INFO Metabase card 496 (avaliacaoPeriodo): OK (29 linhas)
+2026-05-26 10:38:44,453 INFO Metabase card 497 (npsPeriodo): OK (29 linhas)
+2026-05-26 10:38:45,662 INFO Metabase card 402 (consultasPorMedico): OK (91 linhas)
+2026-05-26 10:38:56,320 INFO Metabase card 498 (tempoMensal): OK (25 linhas)
+2026-05-26 10:39:01,185 INFO Metabase card 503 (tempoAtual): OK (1 linhas)
+2026-05-26 10:39:08,618 INFO Metabase couponsGasto: OK (27238 pedidos, 224 cupons)
+2026-05-26 10:39:08,624 INFO Metabase: /Users/sol/Downloads/projetos/dash-blis-cx/output/metabase_data.js salvo (291,342 bytes)
+2026-05-26 10:39:08,988 INFO FTP: dashboard.html enviado.
+2026-05-26 10:39:09,225 INFO FTP: cx-portal.html (index.html) enviado.
+2026-05-26 10:39:09,383 INFO FTP: services/metabase.js enviado.
+2026-05-26 10:39:09,691 INFO FTP: data/metabase_data.js enviado.
+2026-05-26 10:39:09,720 INFO FTP: todos os arquivos enviados para Hostinger com sucesso.
+[26/05/2026 10:30] OK_COM_AVISOS(3)  |  SEMANAS ia: tickets=9034 semanas=8853 diff=-181  |  SEMANAS saude: tickets=6576 semanas=6514 diff=-62  |  SEMANAS resolve: tickets=11198 semanas=11068 diff=-130
+2026-05-26 10:39:09,720 INFO === Concluido: 26/05/2026 10:30 — OK_COM_AVISOS(3) ===
+2026-05-26 11:02:56,487 INFO === Atualizacao iniciada: 26/05/2026 11:02 ===
+2026-05-26 11:02:56,488 INFO Rodando extractor_2026.py...
+2026-05-26 11:09:56,583 INFO Extracao OK.
+2026-05-26 11:09:56,743 INFO tickets=44783  csat=18079
+2026-05-26 11:09:56,766 INFO Filtro CRM Blis Saude: 17965 sem assignee removidos -> 0 restantes
+2026-05-26 11:09:59,970 INFO campo_opcoes: 158 tags carregadas
+2026-05-26 11:10:00,242 INFO Perfis encontrados: ['Não Baixou App', 'Fez Login', 'Fez Cadastro', 'Fez Anamnese', 'Fez Consulta', '1ª Compra <30d', '1ª Compra >30d', '2ª+ Recompra', 'Médicos', 'Pergunta']
+2026-05-26 11:10:00,243 WARNING CROSS: SEMANAS ia: tickets=9035 semanas=8853 diff=-182
+2026-05-26 11:10:00,243 WARNING CROSS: SEMANAS saude: tickets=6577 semanas=6514 diff=-63
+2026-05-26 11:10:00,243 WARNING CROSS: SEMANAS resolve: tickets=11205 semanas=11070 diff=-135
+2026-05-26 11:10:00,243 INFO   ia: tickets=9035  status=9035  channels=9035
+2026-05-26 11:10:00,243 INFO   saude: tickets=6577  status=6577  channels=6577
+2026-05-26 11:10:00,244 INFO   resolve: tickets=11205  status=11205  channels=11205
+2026-05-26 11:10:00,244 INFO   tempos: TMA Resolve=[3.9, 4.3, 4.3, 3.4, 2.3, 4.0, 1.6, 4.7, 10.4, 8.0, 4.7, 11.2, 15.5, 7.6, 10.9, 1.4, 1.1, 1.2, 0.8, 0.7, 0.9]  TMA Saude=[4.0, 3.0, 2.5, 2.0, 1.6, 2.3, 2.8, 1.7, 3.0, 2.4, 1.6, 2.0, 2.3, 2.2, 2.2, 1.4, 1.7, 1.6, 1.5, 1.4, 1.3]
+2026-05-26 11:10:00,244 INFO   motivos: 9 categorias  perfis: 10
+2026-05-26 11:10:00,246 INFO Dashboard atualizado com sucesso.
+2026-05-26 11:10:00,908 INFO Metabase card 33 (totalConsultas): OK (1 linhas)
+2026-05-26 11:10:01,492 INFO Metabase card 130 (consultasPorStatus): OK (10 linhas)
+2026-05-26 11:10:02,199 INFO Metabase card 515 (statusTemporal): OK (600 linhas)
+2026-05-26 11:10:03,312 INFO Metabase card 95 (csatGlobal): OK (1 linhas)
+2026-05-26 11:10:05,687 INFO Metabase card 84 (performanceMedicos): OK (54 linhas)
+2026-05-26 11:10:07,405 INFO Metabase card 85 (reviewsMedicos): OK (2000 linhas)
+2026-05-26 11:10:07,637 INFO Metabase card 96 (couponsAtivos): OK (365 linhas)
+2026-05-26 11:10:07,875 INFO Metabase card 108 (couponsReceita): OK (14 linhas)
+2026-05-26 11:10:09,231 INFO Metabase card 398 (conversaoCoupons): OK (88 linhas)
+2026-05-26 11:10:09,867 INFO Metabase card 531 (custoCupomConsulta): OK (1 linhas)
+2026-05-26 11:10:11,711 INFO Metabase card 494 (cancelamentosPeriodo): OK (29 linhas)
+2026-05-26 11:10:14,101 INFO Metabase card 496 (avaliacaoPeriodo): OK (29 linhas)
+2026-05-26 11:10:16,431 INFO Metabase card 497 (npsPeriodo): OK (29 linhas)
+2026-05-26 11:10:17,589 INFO Metabase card 402 (consultasPorMedico): OK (91 linhas)
+2026-05-26 11:10:28,215 INFO Metabase card 498 (tempoMensal): OK (25 linhas)
+2026-05-26 11:10:32,956 INFO Metabase card 503 (tempoAtual): OK (1 linhas)
+2026-05-26 11:10:40,365 INFO Metabase couponsGasto: OK (27239 pedidos, 224 cupons)
+2026-05-26 11:10:40,372 INFO Metabase: /Users/sol/Downloads/projetos/dash-blis-cx/output/metabase_data.js salvo (291,404 bytes)
+2026-05-26 11:10:40,733 INFO FTP: dashboard.html enviado.
+2026-05-26 11:10:40,887 INFO FTP: cx-portal.html (index.html) enviado.
+2026-05-26 11:10:40,958 INFO FTP: services/metabase.js enviado.
+2026-05-26 11:10:41,130 INFO FTP: data/metabase_data.js enviado.
+2026-05-26 11:10:41,151 INFO FTP: todos os arquivos enviados para Hostinger com sucesso.
+[26/05/2026 11:02] OK_COM_AVISOS(3)  |  SEMANAS ia: tickets=9035 semanas=8853 diff=-182  |  SEMANAS saude: tickets=6577 semanas=6514 diff=-63  |  SEMANAS resolve: tickets=11205 semanas=11070 diff=-135
+2026-05-26 11:10:41,152 INFO === Concluido: 26/05/2026 11:02 — OK_COM_AVISOS(3) ===
+2026-05-26 12:14:18,256 INFO === Atualizacao iniciada: 26/05/2026 12:14 ===
+2026-05-26 12:14:18,257 INFO Rodando extractor_2026.py...
+2026-05-26 12:21:34,432 INFO Extracao OK.
+2026-05-26 12:21:34,567 INFO tickets=44804  csat=18118
+2026-05-26 12:21:34,587 INFO Filtro CRM Blis Saude: 17965 sem assignee removidos -> 0 restantes
+2026-05-26 12:21:37,443 INFO campo_opcoes: 158 tags carregadas
+2026-05-26 12:21:37,685 INFO Perfis encontrados: ['Não Baixou App', 'Fez Login', 'Fez Cadastro', 'Fez Anamnese', 'Fez Consulta', '1ª Compra <30d', '1ª Compra >30d', '2ª+ Recompra', 'Médicos', 'Pergunta']
+2026-05-26 12:21:37,686 WARNING CROSS: SEMANAS ia: tickets=9041 semanas=8853 diff=-188
+2026-05-26 12:21:37,686 WARNING CROSS: SEMANAS saude: tickets=6580 semanas=6513 diff=-67
+2026-05-26 12:21:37,686 WARNING CROSS: SEMANAS resolve: tickets=11217 semanas=11068 diff=-149
+2026-05-26 12:21:37,687 INFO   ia: tickets=9041  status=9041  channels=9041
+2026-05-26 12:21:37,687 INFO   saude: tickets=6580  status=6580  channels=6580
+2026-05-26 12:21:37,687 INFO   resolve: tickets=11217  status=11217  channels=11217
+2026-05-26 12:21:37,687 INFO   tempos: TMA Resolve=[3.9, 4.3, 4.3, 3.4, 2.3, 4.0, 1.6, 4.7, 10.4, 8.0, 4.7, 11.2, 15.5, 7.6, 10.9, 1.4, 1.1, 1.2, 0.8, 0.7, 0.9]  TMA Saude=[4.0, 3.0, 2.5, 2.0, 1.6, 2.3, 2.8, 1.7, 3.0, 2.4, 1.6, 2.0, 2.3, 2.2, 2.2, 1.4, 1.7, 1.6, 1.5, 1.4, 1.3]
+2026-05-26 12:21:37,687 INFO   motivos: 9 categorias  perfis: 10
+2026-05-26 12:21:37,707 WARNING Padrão OFFENDERS não encontrado — bloco não substituído
+2026-05-26 12:21:37,707 INFO CSAT comments: 150 detratores, 150 promotores injetados.
+2026-05-26 12:21:37,708 INFO Dashboard atualizado com sucesso.
+2026-05-26 12:21:39,759 INFO Metabase card 33 (totalConsultas): OK (1 linhas)
+2026-05-26 12:21:40,395 INFO Metabase card 130 (consultasPorStatus): OK (11 linhas)
+2026-05-26 12:21:41,058 INFO Metabase card 515 (statusTemporal): OK (600 linhas)
+2026-05-26 12:21:45,791 INFO Metabase card 95 (csatGlobal): OK (1 linhas)
+2026-05-26 12:21:50,777 INFO Metabase card 84 (performanceMedicos): OK (54 linhas)
+2026-05-26 12:21:52,373 INFO Metabase card 85 (reviewsMedicos): OK (2000 linhas)
+2026-05-26 12:21:52,620 INFO Metabase card 96 (couponsAtivos): OK (365 linhas)
+2026-05-26 12:21:52,843 INFO Metabase card 108 (couponsReceita): OK (14 linhas)
+2026-05-26 12:21:54,402 INFO Metabase card 398 (conversaoCoupons): OK (88 linhas)
+2026-05-26 12:21:54,956 INFO Metabase card 531 (custoCupomConsulta): OK (1 linhas)
+2026-05-26 12:21:56,675 INFO Metabase card 494 (cancelamentosPeriodo): OK (29 linhas)
+2026-05-26 12:21:59,120 INFO Metabase card 496 (avaliacaoPeriodo): OK (29 linhas)
+2026-05-26 12:22:01,654 INFO Metabase card 497 (npsPeriodo): OK (29 linhas)
+2026-05-26 12:22:02,807 INFO Metabase card 402 (consultasPorMedico): OK (91 linhas)
+2026-05-26 12:22:44,836 INFO Metabase card 498 (tempoMensal): OK (25 linhas)
+2026-05-26 12:22:49,724 INFO Metabase card 503 (tempoAtual): OK (1 linhas)
+2026-05-26 12:22:52,748 INFO Metabase couponsGasto: OK (27245 pedidos, 224 cupons)
+2026-05-26 12:22:52,755 INFO Metabase: /Users/sol/Downloads/projetos/dash-blis-cx/output/metabase_data.js salvo (291,347 bytes)
+2026-05-26 12:22:52,872 INFO FTP: dashboard.html enviado.
+2026-05-26 12:22:52,945 INFO FTP: cx-portal.html (index.html) enviado.
+2026-05-26 12:22:52,986 INFO FTP: services/metabase.js enviado.
+2026-05-26 12:22:53,051 INFO FTP: data/metabase_data.js enviado.
+2026-05-26 12:22:53,056 INFO FTP: todos os arquivos enviados para Hostinger com sucesso.
+[26/05/2026 12:14] OK_COM_AVISOS(3)  |  SEMANAS ia: tickets=9041 semanas=8853 diff=-188  |  SEMANAS saude: tickets=6580 semanas=6513 diff=-67  |  SEMANAS resolve: tickets=11217 semanas=11068 diff=-149
+2026-05-26 12:22:53,056 INFO === Concluido: 26/05/2026 12:14 — OK_COM_AVISOS(3) ===
+2026-05-26 14:30:46,076 INFO === Atualizacao iniciada: 26/05/2026 14:30 ===
+2026-05-26 14:30:46,078 INFO Rodando extractor_2026.py...
+2026-05-26 14:38:21,563 INFO Extracao OK.
+2026-05-26 14:38:21,698 INFO tickets=44836  csat=18150
+2026-05-26 14:38:21,717 INFO Filtro CRM Blis Saude: 17965 sem assignee removidos -> 0 restantes
+2026-05-26 14:38:24,518 INFO campo_opcoes: 158 tags carregadas
+2026-05-26 14:38:24,762 INFO Perfis encontrados: ['Não Baixou App', 'Fez Login', 'Fez Cadastro', 'Fez Anamnese', 'Fez Consulta', '1ª Compra <30d', '1ª Compra >30d', '2ª+ Recompra', 'Médicos', 'Pergunta']
+2026-05-26 14:38:24,763 WARNING CROSS: SEMANAS ia: tickets=9056 semanas=8853 diff=-203
+2026-05-26 14:38:24,763 WARNING CROSS: SEMANAS saude: tickets=6588 semanas=6513 diff=-75
+2026-05-26 14:38:24,763 WARNING CROSS: SEMANAS resolve: tickets=11226 semanas=11070 diff=-156
+2026-05-26 14:38:24,763 INFO   ia: tickets=9056  status=9056  channels=9056
+2026-05-26 14:38:24,763 INFO   saude: tickets=6588  status=6588  channels=6588
+2026-05-26 14:38:24,763 INFO   resolve: tickets=11226  status=11226  channels=11226
+2026-05-26 14:38:24,763 INFO   tempos: TMA Resolve=[3.9, 4.3, 4.3, 3.4, 2.3, 4.0, 1.6, 4.7, 10.4, 8.0, 4.7, 11.2, 15.5, 7.6, 10.9, 1.4, 1.1, 1.2, 0.8, 0.7, 0.9]  TMA Saude=[4.0, 3.0, 2.5, 2.0, 1.6, 2.3, 2.8, 1.7, 3.0, 2.4, 1.6, 2.0, 2.3, 2.2, 2.2, 1.4, 1.7, 1.6, 1.5, 1.4, 1.3]
+2026-05-26 14:38:24,763 INFO   motivos: 9 categorias  perfis: 10
+2026-05-26 14:38:24,783 INFO CSAT comments: 150 detratores, 150 promotores injetados.
+2026-05-26 14:38:24,784 INFO Dashboard atualizado com sucesso.
+2026-05-26 14:38:25,463 INFO Metabase card 33 (totalConsultas): OK (1 linhas)
+2026-05-26 14:38:26,047 INFO Metabase card 130 (consultasPorStatus): OK (10 linhas)
+2026-05-26 14:38:26,707 INFO Metabase card 515 (statusTemporal): OK (600 linhas)
+2026-05-26 14:38:27,868 INFO Metabase card 95 (csatGlobal): OK (1 linhas)
+2026-05-26 14:38:30,339 INFO Metabase card 84 (performanceMedicos): OK (54 linhas)
+2026-05-26 14:38:31,914 INFO Metabase card 85 (reviewsMedicos): OK (2000 linhas)
+2026-05-26 14:38:32,139 INFO Metabase card 96 (couponsAtivos): OK (365 linhas)
+2026-05-26 14:38:32,426 INFO Metabase card 108 (couponsReceita): OK (14 linhas)
+2026-05-26 14:38:33,809 INFO Metabase card 398 (conversaoCoupons): OK (88 linhas)
+2026-05-26 14:38:34,520 INFO Metabase card 531 (custoCupomConsulta): OK (1 linhas)
+2026-05-26 14:38:36,364 INFO Metabase card 494 (cancelamentosPeriodo): OK (29 linhas)
+2026-05-26 14:38:38,670 INFO Metabase card 496 (avaliacaoPeriodo): OK (29 linhas)
+2026-05-26 14:38:41,070 INFO Metabase card 497 (npsPeriodo): OK (29 linhas)
+2026-05-26 14:38:42,148 INFO Metabase card 402 (consultasPorMedico): OK (91 linhas)
+2026-05-26 14:38:52,748 INFO Metabase card 498 (tempoMensal): OK (25 linhas)
+2026-05-26 14:38:57,551 INFO Metabase card 503 (tempoAtual): OK (1 linhas)
+2026-05-26 14:39:02,181 INFO Metabase couponsGasto: OK (27253 pedidos, 224 cupons)
+2026-05-26 14:39:02,187 INFO Metabase: /Users/sol/Downloads/projetos/dash-blis-cx/output/metabase_data.js salvo (291,252 bytes)
+2026-05-26 14:39:02,514 INFO FTP: dashboard.html enviado.
+2026-05-26 14:39:02,571 INFO FTP: cx-portal.html (index.html) enviado.
+2026-05-26 14:39:02,612 INFO FTP: services/metabase.js enviado.
+2026-05-26 14:39:02,685 INFO FTP: data/metabase_data.js enviado.
+2026-05-26 14:39:02,690 INFO FTP: todos os arquivos enviados para Hostinger com sucesso.
+[26/05/2026 14:30] OK_COM_AVISOS(3)  |  SEMANAS ia: tickets=9056 semanas=8853 diff=-203  |  SEMANAS saude: tickets=6588 semanas=6513 diff=-75  |  SEMANAS resolve: tickets=11226 semanas=11070 diff=-156
+2026-05-26 14:39:02,691 INFO === Concluido: 26/05/2026 14:30 — OK_COM_AVISOS(3) ===
+2026-05-26 14:52:05,440 INFO === Atualizacao iniciada: 26/05/2026 14:52 ===
+2026-05-26 14:52:05,441 INFO Rodando extractor_2026.py...
+2026-05-26 14:59:41,990 INFO Extracao OK.
+2026-05-26 14:59:42,125 INFO tickets=44841  csat=18163
+2026-05-26 14:59:42,144 INFO Filtro CRM Blis Saude: 17965 sem assignee removidos -> 0 restantes
+2026-05-26 14:59:44,979 INFO campo_opcoes: 158 tags carregadas
+2026-05-26 14:59:45,222 INFO Perfis encontrados: ['Não Baixou App', 'Fez Login', 'Fez Cadastro', 'Fez Anamnese', 'Fez Consulta', '1ª Compra <30d', '1ª Compra >30d', '2ª+ Recompra', 'Médicos', 'Pergunta']
+2026-05-26 14:59:45,223 WARNING CROSS: SEMANAS ia: tickets=9056 semanas=8853 diff=-203
+2026-05-26 14:59:45,223 WARNING CROSS: SEMANAS saude: tickets=6587 semanas=6513 diff=-74
+2026-05-26 14:59:45,223 WARNING CROSS: SEMANAS resolve: tickets=11232 semanas=11069 diff=-163
+2026-05-26 14:59:45,223 INFO   ia: tickets=9056  status=9056  channels=9056
+2026-05-26 14:59:45,223 INFO   saude: tickets=6587  status=6587  channels=6587
+2026-05-26 14:59:45,223 INFO   resolve: tickets=11232  status=11232  channels=11232
+2026-05-26 14:59:45,223 INFO   tempos: TMA Resolve=[3.9, 4.3, 4.3, 3.4, 2.3, 4.0, 1.6, 4.7, 10.4, 8.0, 4.7, 11.2, 15.5, 7.6, 10.9, 1.4, 1.1, 1.2, 0.8, 0.7, 0.9]  TMA Saude=[4.0, 3.0, 2.5, 2.0, 1.6, 2.3, 2.8, 1.7, 3.0, 2.4, 1.6, 2.0, 2.3, 2.2, 2.2, 1.4, 1.7, 1.6, 1.5, 1.4, 1.3]
+2026-05-26 14:59:45,223 INFO   motivos: 9 categorias  perfis: 10
+2026-05-26 14:59:45,243 INFO CSAT comments: 150 detratores, 150 promotores injetados.
+2026-05-26 14:59:45,244 INFO Dashboard atualizado com sucesso.
+2026-05-26 14:59:45,979 INFO Metabase card 33 (totalConsultas): OK (1 linhas)
+2026-05-26 14:59:46,592 INFO Metabase card 130 (consultasPorStatus): OK (9 linhas)
+2026-05-26 14:59:47,306 INFO Metabase card 515 (statusTemporal): OK (600 linhas)
+2026-05-26 14:59:48,642 INFO Metabase card 95 (csatGlobal): OK (1 linhas)
+2026-05-26 14:59:50,905 INFO Metabase card 84 (performanceMedicos): OK (54 linhas)
+2026-05-26 14:59:52,492 INFO Metabase card 85 (reviewsMedicos): OK (2000 linhas)
+2026-05-26 14:59:52,768 INFO Metabase card 96 (couponsAtivos): OK (365 linhas)
+2026-05-26 14:59:53,020 INFO Metabase card 108 (couponsReceita): OK (14 linhas)
+2026-05-26 14:59:54,588 INFO Metabase card 398 (conversaoCoupons): OK (88 linhas)
+2026-05-26 14:59:55,219 INFO Metabase card 531 (custoCupomConsulta): OK (1 linhas)
+2026-05-26 14:59:57,034 INFO Metabase card 494 (cancelamentosPeriodo): OK (29 linhas)
+2026-05-26 14:59:59,494 INFO Metabase card 496 (avaliacaoPeriodo): OK (29 linhas)
+2026-05-26 15:00:02,626 INFO Metabase card 497 (npsPeriodo): OK (29 linhas)
+2026-05-26 15:00:04,411 INFO Metabase card 402 (consultasPorMedico): OK (91 linhas)
+2026-05-26 15:00:19,363 INFO Metabase card 498 (tempoMensal): OK (25 linhas)
+2026-05-26 15:00:24,062 INFO Metabase card 503 (tempoAtual): OK (1 linhas)
+2026-05-26 15:00:27,747 INFO Metabase couponsGasto: OK (27255 pedidos, 224 cupons)
+2026-05-26 15:00:27,752 INFO Metabase: /Users/sol/Downloads/projetos/dash-blis-cx/output/metabase_data.js salvo (291,208 bytes)
+2026-05-26 15:00:27,909 INFO FTP: dashboard.html enviado.
+2026-05-26 15:00:27,971 INFO FTP: cx-portal.html (index.html) enviado.
+2026-05-26 15:00:28,013 INFO FTP: services/metabase.js enviado.
+2026-05-26 15:00:28,078 INFO FTP: data/metabase_data.js enviado.
+2026-05-26 15:00:28,083 INFO FTP: todos os arquivos enviados para Hostinger com sucesso.
+[26/05/2026 14:52] OK_COM_AVISOS(3)  |  SEMANAS ia: tickets=9056 semanas=8853 diff=-203  |  SEMANAS saude: tickets=6587 semanas=6513 diff=-74  |  SEMANAS resolve: tickets=11232 semanas=11069 diff=-163
+2026-05-26 15:00:28,084 INFO === Concluido: 26/05/2026 14:52 — OK_COM_AVISOS(3) ===
+2026-05-26 15:40:53,860 INFO === Atualizacao iniciada: 26/05/2026 15:40 ===
+2026-05-26 15:40:53,861 INFO Rodando extractor_2026.py...
+2026-05-26 15:47:56,919 INFO Extracao OK.
+2026-05-26 15:47:57,056 INFO tickets=44861  csat=18181
+2026-05-26 15:47:57,075 INFO Filtro CRM Blis Saude: 17965 sem assignee removidos -> 0 restantes
+2026-05-26 15:47:59,921 INFO campo_opcoes: 158 tags carregadas
+2026-05-26 15:48:00,171 INFO Perfis encontrados: ['Não Baixou App', 'Fez Login', 'Fez Cadastro', 'Fez Anamnese', 'Fez Consulta', '1ª Compra <30d', '1ª Compra >30d', '2ª+ Recompra', 'Médicos', 'Pergunta']
+2026-05-26 15:48:00,172 WARNING CROSS: SEMANAS ia: tickets=9063 semanas=8853 diff=-210
+2026-05-26 15:48:00,172 WARNING CROSS: SEMANAS saude: tickets=6587 semanas=6513 diff=-74
+2026-05-26 15:48:00,172 WARNING CROSS: SEMANAS resolve: tickets=11245 semanas=11070 diff=-175
+2026-05-26 15:48:00,172 INFO   ia: tickets=9063  status=9063  channels=9063
+2026-05-26 15:48:00,172 INFO   saude: tickets=6587  status=6587  channels=6587
+2026-05-26 15:48:00,172 INFO   resolve: tickets=11245  status=11245  channels=11245
+2026-05-26 15:48:00,172 INFO   tempos: TMA Resolve=[3.9, 4.3, 4.3, 3.4, 2.3, 4.0, 1.6, 4.7, 10.4, 8.0, 4.7, 11.2, 15.5, 7.6, 10.9, 1.4, 1.1, 1.2, 0.8, 0.7, 0.9]  TMA Saude=[4.0, 3.0, 2.5, 2.0, 1.6, 2.3, 2.8, 1.7, 3.0, 2.4, 1.6, 2.0, 2.3, 2.2, 2.2, 1.4, 1.7, 1.6, 1.5, 1.4, 1.3]
+2026-05-26 15:48:00,172 INFO   motivos: 9 categorias  perfis: 10
+2026-05-26 15:48:00,193 INFO CSAT comments: 150 detratores, 150 promotores injetados.
+2026-05-26 15:48:00,194 INFO Dashboard atualizado com sucesso.
+2026-05-26 15:48:00,701 INFO Metabase card 33 (totalConsultas): OK (1 linhas)
+2026-05-26 15:48:01,262 INFO Metabase card 130 (consultasPorStatus): OK (9 linhas)
+2026-05-26 15:48:01,927 INFO Metabase card 515 (statusTemporal): OK (600 linhas)
+2026-05-26 15:48:03,166 INFO Metabase card 95 (csatGlobal): OK (1 linhas)
+2026-05-26 15:48:05,467 INFO Metabase card 84 (performanceMedicos): OK (54 linhas)
+2026-05-26 15:48:07,097 INFO Metabase card 85 (reviewsMedicos): OK (2000 linhas)
+2026-05-26 15:48:07,342 INFO Metabase card 96 (couponsAtivos): OK (365 linhas)
+2026-05-26 15:48:07,559 INFO Metabase card 108 (couponsReceita): OK (14 linhas)
+2026-05-26 15:48:08,868 INFO Metabase card 398 (conversaoCoupons): OK (88 linhas)
+2026-05-26 15:48:09,453 INFO Metabase card 531 (custoCupomConsulta): OK (1 linhas)
+2026-05-26 15:48:11,478 INFO Metabase card 494 (cancelamentosPeriodo): OK (29 linhas)
+2026-05-26 15:48:14,122 INFO Metabase card 496 (avaliacaoPeriodo): OK (29 linhas)
+2026-05-26 15:48:16,888 INFO Metabase card 497 (npsPeriodo): OK (29 linhas)
+2026-05-26 15:48:18,014 INFO Metabase card 402 (consultasPorMedico): OK (91 linhas)
+2026-05-26 15:48:29,309 INFO Metabase card 498 (tempoMensal): OK (25 linhas)
+2026-05-26 15:48:33,957 INFO Metabase card 503 (tempoAtual): OK (1 linhas)
+2026-05-26 15:48:41,093 INFO Metabase couponsGasto: OK (27262 pedidos, 224 cupons)
+2026-05-26 15:48:41,098 INFO Metabase: /Users/sol/Downloads/projetos/dash-blis-cx/output/metabase_data.js salvo (291,149 bytes)
+2026-05-26 15:48:41,324 INFO FTP: dashboard.html enviado.
+2026-05-26 15:48:41,405 INFO FTP: cx-portal.html (index.html) enviado.
+2026-05-26 15:48:41,454 INFO FTP: services/metabase.js enviado.
+2026-05-26 15:48:41,594 INFO FTP: data/metabase_data.js enviado.
+2026-05-26 15:48:41,600 INFO FTP: todos os arquivos enviados para Hostinger com sucesso.
+[26/05/2026 15:40] OK_COM_AVISOS(3)  |  SEMANAS ia: tickets=9063 semanas=8853 diff=-210  |  SEMANAS saude: tickets=6587 semanas=6513 diff=-74  |  SEMANAS resolve: tickets=11245 semanas=11070 diff=-175
+2026-05-26 15:48:41,600 INFO === Concluido: 26/05/2026 15:40 — OK_COM_AVISOS(3) ===

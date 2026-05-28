@@ -1,0 +1,52 @@
+name: Atualização Diária
+
+on:
+  schedule:
+    - cron: '0 14 * * *'  # 11h BRT (UTC-3) todos os dias
+  workflow_dispatch:        # permite rodar manualmente pelo painel do GitHub
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Criar pasta output
+        run: mkdir -p output
+
+      - name: Buscar dados e atualizar dashboard (Zendesk + Metabase + FTP)
+        env:
+          ZENDESK_EMAIL:        ${{ secrets.ZENDESK_EMAIL }}
+          ZENDESK_TOKEN:        ${{ secrets.ZENDESK_TOKEN }}
+          FTP_HOST:             ${{ secrets.FTP_HOST }}
+          FTP_USER:             ${{ secrets.FTP_USER }}
+          FTP_PASS:             ${{ secrets.FTP_PASS }}
+          METABASE_URL:         ${{ secrets.METABASE_URL }}
+          METABASE_EMAIL:       ${{ secrets.METABASE_EMAIL }}
+          METABASE_PASSWORD:    ${{ secrets.METABASE_PASSWORD }}
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python3 updater.py
+
+      - name: Carregar Zendesk → Supabase
+        env:
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python3 db_loader_zendesk.py
+
+      - name: Carregar Metabase → Supabase
+        env:
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python3 db_loader_metabase.py

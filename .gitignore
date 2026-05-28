@@ -1,2 +1,8 @@
 __pycache__/
 *.pyc
+*.pyo
+config/metabase.config.js
+.env
+output/
+dashboard_2026.backup.html
+.DS_Store

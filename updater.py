@@ -17,26 +17,61 @@ Causa raiz de dados errados:
   Depois o Task Scheduler mantém tudo atualizado às 09:00 automaticamente.
 """
 
-import os, subprocess, sys, re, json, shutil, logging
-from datetime import datetime, timedelta
+from dotenv import load_dotenv
+load_dotenv()
+
+import os, subprocess, sys, re, json, shutil, logging, urllib.request, urllib.error
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 from ftplib import FTP, all_errors as FTP_ERRORS
 
 import pandas as pd
 
-BASE      = Path(__file__).parent
-OUT       = BASE / "output"
-DASHBOARD = BASE / "dashboard_2026.html"
-LOG_FILE  = OUT  / "update_log.txt"
-BACKUP    = BASE / "dashboard_2026.backup.html"
+BASE           = Path(__file__).parent
+OUT            = BASE / "output"
+DASHBOARD      = BASE / "dashboard_2026.html"
+DASHBOARD_COPY = BASE / "dashboard.html"      # cópia servida pelo portal via iframe
+PORTAL         = BASE / "cx-portal.html"
+LOG_FILE       = OUT  / "update_log.txt"
+BACKUP         = BASE / "dashboard_2026.backup.html"
 BRT       = ZoneInfo("America/Sao_Paulo")
 
 # ── FTP Hostinger ─────────────────────────────────────────────────────────────
-FTP_HOST   = os.getenv("FTP_HOST",   "")
-FTP_USER   = os.getenv("FTP_USER",   "")
-FTP_PASS   = os.getenv("FTP_PASS",   "")
-FTP_REMOTE = "/domains/mediumturquoise-fish-127944.hostingersite.com/public_html/dash/index.html"
+FTP_HOST          = os.getenv("FTP_HOST",   "")
+FTP_USER          = os.getenv("FTP_USER",   "")
+FTP_PASS          = os.getenv("FTP_PASS",   "")
+_FTP_BASE              = "/domains/mediumturquoise-fish-127944.hostingersite.com/public_html/dash"
+FTP_REMOTE_DASH        = f"{_FTP_BASE}/dashboard.html"
+FTP_REMOTE_PORTAL      = f"{_FTP_BASE}/index.html"
+FTP_REMOTE_MB_SERVICE  = f"{_FTP_BASE}/services/metabase.js"
+FTP_REMOTE_MB_DATA     = f"{_FTP_BASE}/data/metabase_data.js"
+MB_SERVICE             = BASE / "services" / "metabase.js"
+MB_DATA_JS             = OUT  / "metabase_data.js"
+
+# ── Metabase ──────────────────────────────────────────────────────────────────
+METABASE_URL   = os.getenv("METABASE_URL",      "https://blis-metabase.azurewebsites.net")
+METABASE_EMAIL = os.getenv("METABASE_EMAIL",    "")
+METABASE_PASS  = os.getenv("METABASE_PASSWORD", "")
+MB_CARD_IDS = {
+    "totalConsultas":        33,
+    "consultasPorStatus":   130,
+    "statusTemporal":       515,
+    "csatGlobal":            95,
+    "performanceMedicos":    84,
+    "reviewsMedicos":        85,
+    "couponsAtivos":         96,
+    "couponsReceita":       108,
+    "conversaoCoupons":     398,
+    "custoCupomConsulta":   531,
+    "cancelamentosPeriodo": 494,
+    "avaliacaoPeriodo":     496,
+    "npsPeriodo":           497,
+    "consultasPorMedico":   402,
+    "tempoMensal":          498,
+    "tempoAtual":           503,
+}
+MB_ROW_LIMITS = {"statusTemporal": 600, "reviewsMedicos": 2000, "conversaoCoupons": 200, "cancelamentosPeriodo": 200}
 
 OUT.mkdir(exist_ok=True)
 logging.basicConfig(
@@ -59,7 +94,7 @@ WEEK_TO_MONTH = {
     5:1, 6:1, 7:1, 8:1, 9:1,      # Fev: S05-S09
     10:2,11:2,12:2,13:2,           # Mar: S10-S13
     14:3,15:3,16:3,17:3,18:3,      # Abr: S14-S18
-    19:4,20:4,                     # Mai: S19-S20
+    19:4,20:4,21:4,                # Mai: S19-S21
 }
 
 # ── Motivos / Perfis ──────────────────────────────────────────────────────────
@@ -278,28 +313,32 @@ def build_semanas(df: pd.DataFrame) -> dict:
 def build_csat(df_c: pd.DataFrame, df_t: pd.DataFrame) -> dict:
     out = {t: {"good":[0]*N_MONTHS,"bad":[0]*N_MONTHS}
            for t in ("ia","saude","resolve")}
-    # Inclui no mapa apenas IA, Saúde e Resolve — exclui grupos "Outros" não-IA
-    # (Financeiro, Gestão, etc.) e tickets fora do período (sem ticket_id no df_t),
-    # evitando que seus CSATs contaminem o Resolve por default.
-    ticket_team = {}
+    # Para Saúde e Resolve: usa o campo `time` direto do CSAT (mais preciso,
+    # sem depender de ticket_id presente em tabela_tickets).
+    # Para IA: cross-referência com tabela_tickets (atendido_por_ia=True),
+    # pois o CSAT agrupa IA junto com "Outros" sem distinção.
+    ia_ticket_ids: set = set()
     for _, r in df_t.iterrows():
         if pd.isna(r.get("ticket_id")):
             continue
         is_ia = r.get("atendido_por_ia")
         is_ia = is_ia is True or str(is_ia).lower() == "true"
-        time_val = str(r.get("time", ""))
-        if is_ia or time_val in ("Blis Saúde", "Blis Resolve"):
-            ticket_team[str(r["ticket_id"])] = _team(r)
+        if is_ia:
+            ia_ticket_ids.add(str(r["ticket_id"]))
     for _, r in df_c.iterrows():
         score = str(r.get("score_raw",""))
         if score not in ("good","bad"):
             continue
-        t = ticket_team.get(str(r.get("ticket_id","")))
-        if t is None:
-            continue  # fora do período, grupo excluído ou ticket filtrado (ex: CRM)
         m = MONTH_IDX.get(str(r.get("ano_mes","")))
-        if m is not None:
-            out[t][score][m] += 1
+        if m is None:
+            continue
+        time_val = str(r.get("time",""))
+        if "Saúde" in time_val or "Saude" in time_val or time_val == "saude":
+            out["saude"][score][m] += 1
+        elif "Resolve" in time_val or time_val == "resolve":
+            out["resolve"][score][m] += 1
+        elif str(r.get("ticket_id","")) in ia_ticket_ids:
+            out["ia"][score][m] += 1
     return out
 
 # ── Motivos / Submotivos / Perfis ────────────────────────────────────────────
@@ -582,6 +621,111 @@ def update_sync_ts(html: str, ts: str) -> str:
         html,
     )
 
+# ── Comentários e Offenders CSAT ─────────────────────────────────────────────
+
+_RE_COMMENTS = re.compile(
+    r"// ── CSAT COMMENTS.*?\nconst COMMENTS = \{.*?\};",
+    re.DOTALL,
+)
+_RE_OFFENDERS = re.compile(
+    r"// ── OFFENDERS by month.*?\nconst OFFENDERS = \[.*?\];",
+    re.DOTALL,
+)
+
+THEMES_KW = [
+    ("Atendimento por IA / Bot",   ["robô","ia","bot","automático","automática","robotizado","máquina","programado","genérica","prontas","chatbot"]),
+    ("Demora no Atendimento",      ["demora","demorou","demorado","aguardar","lento","espera","esperei","horas","dias"]),
+    ("Logística / Entrega",        ["rastreio","entrega","prazo","atrasado","atraso","correios","enviado","status","não recebi","não chegou"]),
+    ("Sem Resposta",               ["sem resposta","não respondeu","não responderam","não atendeu","fantasma","ignorado","ninguém"]),
+    ("Problema Não Resolvido",     ["não resolveu","não resolveram","nada foi","não foi resolvido","sem solução","sem resolução"]),
+    ("Cancelamento / Pagamento",   ["cancelar","cancelamento","estorno","reembolso","dinheiro de volta","pagamento","cobrança"]),
+    ("Receita / Documentação",     ["receita","documento","comprovante","anvisa","prescrição","vencida"]),
+]
+
+def build_comments_offenders(df_c: pd.DataFrame) -> tuple[dict, list]:
+    import random as _rnd
+    _rnd.seed(42)
+
+    def _team(t):
+        t = str(t or "")
+        if "Saúde" in t or "Saude" in t: return "saude"
+        if "Resolve" in t: return "resolve"
+        return "ia"
+
+    def _clean(txt):
+        txt = str(txt or "").strip()
+        if not txt or txt.lower() in ("nan","none",""): return ""
+        txt = re.sub(r'\S+@\S+', '[email]', txt)
+        txt = re.sub(r'\b\d{3}\.\d{3}\.\d{3}-\d{2}\b', '[CPF]', txt)
+        return " ".join(txt.split())
+
+    MONTH_IDX = {"2026-01":0,"2026-02":1,"2026-03":2,"2026-04":3,"2026-05":4}
+    has_com = df_c["comentario"].fillna("").str.strip() != ""
+    scored  = df_c[df_c["score_raw"].isin(["good","bad"]) & has_com].copy()
+    scored["m"]    = scored["ano_mes"].map(MONTH_IDX)
+    scored = scored.dropna(subset=["m"]); scored["m"] = scored["m"].astype(int)
+    scored["team"] = scored["time"].apply(_team)
+    scored["txt"]  = scored["comentario"].apply(_clean)
+    scored = scored[scored["txt"].str.len() >= 10]
+
+    def _sample(grp, n=30):
+        rows = grp.to_dict("records")
+        return _rnd.sample(rows, n) if len(rows) > n else rows
+
+    bad_all=[]; good_all=[]
+    for m in range(5):
+        sub = scored[scored["m"] == m]
+        for r in _sample(sub[sub["score_raw"]=="bad"],  30):
+            bad_all.append({"m":m,"team":r["team"],"t":r["txt"]})
+        for r in _sample(sub[sub["score_raw"]=="good"], 30):
+            good_all.append({"m":m,"team":r["team"],"t":r["txt"]})
+
+    def _themes(texts):
+        from collections import Counter
+        counts=Counter(); examples={}
+        for txt in texts:
+            tl = txt.lower()
+            for theme, kws in THEMES_KW:
+                if any(k in tl for k in kws):
+                    counts[theme] += 1
+                    if theme not in examples: examples[theme] = txt[:140]
+        result = []
+        for theme, cnt in counts.most_common(4):
+            pct = f"{cnt} menções" if len(texts)<50 else f"~{round(cnt/len(texts)*100)}%"
+            result.append({"theme":theme,"ex":examples.get(theme,""),"cnt":pct})
+        return result or [{"theme":"Sem dados suficientes","ex":"","cnt":"0"}]
+
+    import pandas as _pd
+    bad_df = _pd.DataFrame(bad_all)
+    offenders=[]
+    for m in range(5):
+        grp = bad_df[bad_df["m"]==m]["t"].tolist() if len(bad_df)>0 else []
+        offenders.append(_themes(grp))
+    offenders.append(_themes(bad_df["t"].tolist() if len(bad_df)>0 else []))
+
+    return {"bad":bad_all,"good":good_all}, offenders
+
+def inject_comments(html: str, comments: dict, offenders: list) -> str:
+    js = json.dumps
+
+    comments_js = (
+        "// ── CSAT COMMENTS — gerado por updater.py ─────────────────────────\n"
+        f"const COMMENTS = {{\n  bad:{js(comments['bad'],ensure_ascii=False,separators=(',',':'))},\n"
+        f"  good:{js(comments['good'],ensure_ascii=False,separators=(',',':'))}\n}};"
+    )
+    offenders_js = (
+        "// ── OFFENDERS by month — gerado por updater.py ────────────────────\n"
+        f"const OFFENDERS = {js(offenders,ensure_ascii=False,separators=(',',':'))};"
+    )
+
+    html2, n_com = _RE_COMMENTS.subn(comments_js, html)
+    if n_com == 0:
+        log.warning("Padrão COMMENTS não encontrado — bloco não substituído")
+    html3, n_off = _RE_OFFENDERS.subn(offenders_js, html2)
+    if n_off == 0:
+        log.warning("Padrão OFFENDERS não encontrado — bloco não substituído")
+    return html3
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def run():
@@ -657,7 +801,15 @@ def run():
                                  motivos_data, sub_data, perfis_data, n2_data)
         html = inject_into_html(html, data_js)
         html = update_sync_ts(html, ts)
+        # 6b. Comentários e Offenders CSAT (dados reais do CSV)
+        try:
+            comments, offenders = build_comments_offenders(df_c)
+            html = inject_comments(html, comments, offenders)
+            log.info(f"CSAT comments: {len(comments['bad'])} detratores, {len(comments['good'])} promotores injetados.")
+        except Exception as ec:
+            log.warning(f"Comentários CSAT nao injetados: {ec}")
         DASHBOARD.write_text(html, encoding="utf-8")
+        shutil.copy2(DASHBOARD, DASHBOARD_COPY)   # atualiza cópia usada pelo portal
         log.info(f"Dashboard atualizado com sucesso.")
     except Exception as e:
         log.error(f"Erro na injecao: {e}")
@@ -667,7 +819,10 @@ def run():
         _append_log("ERRO", ts, [str(e)])
         return
 
-    # 7. Envio FTP para Hostinger
+    # 7. Dados Metabase (para o Dash Médicos no portal)
+    fetch_metabase_data()
+
+    # 8. Envio FTP para Hostinger
     ftp_ok = upload_ftp()
 
     status_str = "OK" if not issues else f"OK_COM_AVISOS({len(issues)})"
@@ -676,14 +831,98 @@ def run():
     _append_log(status_str, ts, issues)
     log.info(f"=== Concluido: {ts} — {status_str} ===")
 
+def fetch_metabase_data():
+    """Autentica no Metabase, busca todos os cards e salva como JS para o portal."""
+    def mb_post(path, body=None, token=None):
+        url  = f"{METABASE_URL}{path}"
+        data = json.dumps(body or {}).encode()
+        hdrs = {"Content-Type": "application/json"}
+        if token:
+            hdrs["X-Metabase-Session"] = token
+        req = urllib.request.Request(url, data=data, headers=hdrs, method="POST")
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return json.loads(r.read())
+
+    def compact(resp, limit=None):
+        d = resp.get("data", {})
+        rows = d.get("rows", [])
+        if limit:
+            rows = rows[:limit]
+        return {"data": {"cols": [{"name": c["name"]} for c in d.get("cols", [])], "rows": rows}}
+
+    def mb_export_json(card_id, token):
+        import urllib.parse
+        hdrs = {"X-Metabase-Session": token, "Content-Type": "application/x-www-form-urlencoded"}
+        body = urllib.parse.urlencode({"query": json.dumps({})}).encode()
+        req  = urllib.request.Request(f"{METABASE_URL}/api/card/{card_id}/query/json", data=body, headers=hdrs, method="POST")
+        with urllib.request.urlopen(req, timeout=180) as r:
+            return json.loads(r.read())
+
+    def aggregate_gasto(rows_export):
+        from collections import defaultdict
+        gasto = defaultdict(lambda: {"usos": 0, "receita": 0.0})
+        for r in rows_export:
+            code = r.get("code", "")
+            fv   = r.get("full_value")
+            if code and fv is not None:
+                gasto[code]["usos"] += 1
+                gasto[code]["receita"] += float(fv)
+        cols = [{"name": "code"}, {"name": "receita_total"}, {"name": "usos"}, {"name": "ticket_medio"}]
+        agg  = []
+        for code, v in sorted(gasto.items(), key=lambda x: -x[1]["receita"]):
+            ticket = round(v["receita"] / v["usos"], 2) if v["usos"] else 0
+            agg.append([code, round(v["receita"], 2), v["usos"], ticket])
+        return {"data": {"cols": cols, "rows": agg}}
+
+    try:
+        sess  = mb_post("/api/session", {"username": METABASE_EMAIL, "password": METABASE_PASS})
+        token = sess["id"]
+        result = {}
+        for key, card_id in MB_CARD_IDS.items():
+            try:
+                resp  = mb_post(f"/api/card/{card_id}/query", {}, token=token)
+                result[key] = compact(resp, MB_ROW_LIMITS.get(key))
+                log.info(f"Metabase card {card_id} ({key}): OK ({len(result[key]['data']['rows'])} linhas)")
+            except Exception as e:
+                log.warning(f"Metabase card {card_id} ({key}): {e}")
+        # couponsGasto — agregação completa do card 448 (export sem limite de 2000 linhas)
+        try:
+            rows_export = mb_export_json(448, token)
+            result["couponsGasto"] = aggregate_gasto(rows_export)
+            log.info(f"Metabase couponsGasto: OK ({len(rows_export)} pedidos, {len(result['couponsGasto']['data']['rows'])} cupons)")
+        except Exception as e:
+            log.warning(f"Metabase couponsGasto: {e}")
+        ts_brt = datetime.now(tz=timezone(timedelta(hours=-3))).strftime("%Y-%m-%dT%H:%M:%S")
+        js = f"/* Metabase preloaded — {ts_brt} BRT */\nwindow.MB_PRELOADED={json.dumps(result, ensure_ascii=False, separators=(',',':'))};\n"
+        MB_DATA_JS.write_text(js, encoding="utf-8")
+        log.info(f"Metabase: {MB_DATA_JS} salvo ({MB_DATA_JS.stat().st_size:,} bytes)")
+        return True
+    except Exception as e:
+        log.error(f"Metabase fetch falhou: {e}")
+        return False
+
 def upload_ftp():
     try:
         with FTP() as ftp:
             ftp.connect(FTP_HOST, 21, timeout=30)
             ftp.login(FTP_USER, FTP_PASS)
-            with open(DASHBOARD, "rb") as f:
-                ftp.storbinary(f"STOR {FTP_REMOTE}", f)
-        log.info("FTP: dashboard enviado para Hostinger com sucesso.")
+            # dashboard com dados atualizados
+            with open(DASHBOARD_COPY, "rb") as f:
+                ftp.storbinary(f"STOR {FTP_REMOTE_DASH}", f)
+            log.info("FTP: dashboard.html enviado.")
+            if PORTAL.exists():
+                with open(PORTAL, "rb") as f:
+                    ftp.storbinary(f"STOR {FTP_REMOTE_PORTAL}", f)
+                log.info("FTP: cx-portal.html (index.html) enviado.")
+            if MB_SERVICE.exists():
+                with open(MB_SERVICE, "rb") as f:
+                    ftp.storbinary(f"STOR {FTP_REMOTE_MB_SERVICE}", f)
+                log.info("FTP: services/metabase.js enviado.")
+            if MB_DATA_JS.exists():
+                with open(MB_DATA_JS, "rb") as f:
+                    ftp.storbinary(f"STOR {FTP_REMOTE_MB_DATA}", f)
+                log.info("FTP: data/metabase_data.js enviado.")
+        log.info("FTP: todos os arquivos enviados para Hostinger com sucesso.")
         return True
     except FTP_ERRORS as e:
         log.error(f"FTP: falha no envio — {e}")

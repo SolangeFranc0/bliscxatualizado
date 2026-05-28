@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Appblis | Dash CX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+:root{
+  --bg:#07090F;
+  --surface:#0E1420;
+  --surface-2:#141C2E;
+  --surface-3:#1A2438;
+  --border:rgba(255,255,255,0.07);
+  --border-hi:rgba(255,255,255,0.13);
+  --text:#DDE4F5;
+  --text-sec:#7B8BA8;
+  --text-dim:#4A566E;
+  --ia:#818CF8;--ia-dk:#6366F1;--ia-gl:rgba(129,140,248,0.12);
+  --saude:#34D399;--saude-dk:#10B981;--saude-gl:rgba(52,211,153,0.12);
+  --res:#38BDF8;--res-dk:#0EA5E9;--res-gl:rgba(56,189,248,0.12);
+  --good:#34D399;--good-gl:rgba(52,211,153,0.18);
+  --bad:#F43F5E;--bad-gl:rgba(244,63,94,0.18);
+  --warn:#FBBF24;--warn-gl:rgba(251,191,36,0.18);
+  --sh:0 2px 8px rgba(0,0,0,0.5),0 12px 32px rgba(0,0,0,0.4);
+}
+/* ── Light mode ──────────────────────────────────────── */
+[data-theme="light"]{
+  --bg:#EEF2FB;
+  --surface:#FFFFFF;
+  --surface-2:#F5F8FE;
+  --surface-3:#E8EEF8;
+  --border:rgba(0,0,0,0.08);
+  --border-hi:rgba(0,0,0,0.14);
+  --text:#0F172A;
+  --text-sec:#475569;
+  --text-dim:#94A3B8;
+  --ia:#5B5FD9;--ia-dk:#4347C9;--ia-gl:rgba(91,95,217,0.1);
+  --saude:#059669;--saude-dk:#047857;--saude-gl:rgba(5,150,105,0.1);
+  --res:#0284C7;--res-dk:#0369A1;--res-gl:rgba(2,132,199,0.1);
+  --good:#059669;--good-gl:rgba(5,150,105,0.12);
+  --bad:#DC2626;--bad-gl:rgba(220,38,38,0.12);
+  --warn:#D97706;--warn-gl:rgba(217,119,6,0.12);
+  --sh:0 2px 8px rgba(0,0,0,0.06),0 12px 32px rgba(0,0,0,0.04);
+}
+[data-theme="light"] .hdr{background:rgba(255,255,255,0.96)}
+[data-theme="light"] .nav{background:#FFFFFF}
+[data-theme="light"] .fbar{background:#FFFFFF}
+[data-theme="light"] ::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.14)}
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,0.24)}
+[data-theme="light"] .to{background:rgba(0,0,0,0.05)}
+[data-theme="light"] .ww{background:rgba(220,38,38,0.07);border-color:rgba(220,38,38,0.15)}
+[data-theme="light"] .citem.gd{background:rgba(5,150,105,0.04)}
+[data-theme="light"] .citem.bd{background:rgba(220,38,38,0.04)}
+[data-theme="light"] .offrow{background:rgba(220,38,38,0.03);border-color:rgba(220,38,38,0.1)}
+[data-theme="light"] .live-dot{box-shadow:0 0 7px #059669}
+[data-theme="light"] .kc::after{opacity:0.5}
+[data-theme="light"] .fb.on{box-shadow:0 0 10px rgba(91,95,217,0.2)}
+
+/* ── Theme toggle button ─────────────────────────────── */
+#btn-theme{
+  display:flex;align-items:center;gap:7px;
+  padding:5px 13px;border-radius:20px;
+  border:1px solid var(--border-hi);
+  background:var(--surface-2);
+  color:var(--text-sec);font-size:11px;font-weight:500;
+  font-family:inherit;cursor:pointer;
+  transition:all .2s;letter-spacing:0.1px;
+}
+#btn-theme:hover{background:var(--surface-3);color:var(--text)}
+#btn-theme svg{flex-shrink:0;transition:transform .3s}
+#btn-theme:hover svg{transform:rotate(20deg)}
+
+/* ── Global transitions (somente UI, não bloqueia Plotly) */
+body,button,.kc,.cc,.tc2,.gauge,.ccol,.smot,.mrow,.ntab,.hdr,.nav,.fbar,
+.hdr-pill,.citem,.offrow,.ttable td,.ttable th,.smot table td,.smot table th{
+  transition:background-color .25s,border-color .2s,color .15s,box-shadow .25s;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.18)}
+
+/* ── Header ───────────────────────────────────────────── */
+.hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;height:60px;
+  background:rgba(14,20,32,0.92);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:300;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+.logo{
+  width:34px;height:34px;flex-shrink:0;
+  background:#22C55E;
+  border-radius:50%;
+  box-shadow:0 0 14px rgba(34,197,94,0.45);
+}
+.hdr-title{font-size:14px;font-weight:700;letter-spacing:-0.3px;color:var(--text)}
+.hdr-sub{font-size:11px;color:var(--text-dim);margin-top:1px;letter-spacing:0.1px}
+.hdr-pill{
+  display:flex;align-items:center;gap:7px;
+  padding:5px 12px;border-radius:7px;
+  background:var(--surface-2);border:1px solid var(--border-hi);
+  font-size:11px;color:var(--text-sec);
+}
+.live-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--good);
+  box-shadow:0 0 7px var(--good);
+  animation:pulse 2.2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+
+/* ── Navigation ───────────────────────────────────────── */
+.nav{
+  display:flex;background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:0 32px;gap:0;
+}
+.ntab{
+  padding:14px 22px;font-size:12.5px;font-weight:500;
+  color:var(--text-sec);cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+  transition:color .18s,border-color .18s;
+  white-space:nowrap;user-select:none;letter-spacing:0.1px;
+}
+.ntab:hover{color:var(--text)}
+.ntab.on{color:var(--ia);border-color:var(--ia);font-weight:600}
+
+/* ── Filter bar ───────────────────────────────────────── */
+.fbar{
+  padding:9px 32px;background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:24px;flex-wrap:wrap;
+}
+.fl{font-size:9.5px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:0.9px}
+.fb{
+  padding:4px 13px;border-radius:5px;
+  border:1px solid var(--border-hi);background:transparent;
+  color:var(--text-sec);font-size:12px;font-family:inherit;
+  font-weight:500;cursor:pointer;transition:all .14s;letter-spacing:0.1px;
+}
+.fb:hover{background:var(--surface-2);color:var(--text);border-color:rgba(255,255,255,0.2)}
+.fb.on{background:var(--ia-dk);color:#fff;border-color:var(--ia-dk);font-weight:600;box-shadow:0 0 12px rgba(99,102,241,0.3)}
+.fb.on.gs{background:var(--saude-dk);border-color:var(--saude-dk);box-shadow:0 0 12px rgba(16,185,129,0.3)}
+.fb.on.gr{background:var(--res-dk);border-color:var(--res-dk);box-shadow:0 0 12px rgba(14,165,233,0.3)}
+.fsel{
+  padding:4px 9px;border-radius:5px;
+  border:1px solid var(--border-hi);background:var(--surface-2);
+  color:var(--text);font-size:12px;font-family:inherit;
+  cursor:pointer;outline:none;
+}
+.fsel:focus{border-color:var(--ia)}
+.fsel option{background:var(--surface-2)}
+.fsep{width:1px;height:20px;background:var(--border);flex-shrink:0}
+
+/* ── Tab content ─────────────────────────────────────── */
+.tc{display:none;padding:26px 32px;flex-direction:column;gap:28px}
+.tc.on{display:flex}
+
+/* ── Section label ───────────────────────────────────── */
+.slabel{
+  font-size:11px;font-weight:700;color:var(--text-sec);
+  text-transform:uppercase;letter-spacing:0.8px;
+  margin-bottom:12px;display:flex;align-items:center;gap:10px;
+}
+.slabel::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── KPI strip ───────────────────────────────────────── */
+.kstrip{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+.kc{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:20px 22px;
+  position:relative;overflow:hidden;
+  transition:transform .18s,box-shadow .18s;
+  cursor:default;
+}
+.kc:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+.kc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:12px 12px 0 0}
+.kc::after{content:'';position:absolute;top:0;left:0;bottom:0;width:100%;
+  background:radial-gradient(ellipse at top left, var(--accent-gl,transparent) 0%, transparent 65%);
+  pointer-events:none}
+.kc.ct{--accent-gl:rgba(129,140,248,0.07)}.kc.ct::before{background:linear-gradient(90deg,var(--ia),var(--res))}
+.kc.cg{--accent-gl:rgba(52,211,153,0.07)}.kc.cg::before{background:var(--good);box-shadow:0 0 8px var(--good)}
+.kc.cw{--accent-gl:rgba(251,191,36,0.07)}.kc.cw::before{background:var(--warn)}
+.kc.ci{--accent-gl:rgba(129,140,248,0.09)}.kc.ci::before{background:var(--ia);box-shadow:0 0 8px rgba(129,140,248,0.6)}
+.kc.cs{--accent-gl:rgba(52,211,153,0.07)}.kc.cs::before{background:var(--saude)}
+.kc.cr{--accent-gl:rgba(56,189,248,0.07)}.kc.cr::before{background:var(--res)}
+.kc.cb{--accent-gl:rgba(244,63,94,0.07)}.kc.cb::before{background:var(--bad)}
+.kl{font-size:11px;color:var(--text-sec);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.kv{font-size:34px;font-weight:800;line-height:1;letter-spacing:-1.5px;color:var(--text)}
+.ks{font-size:12px;color:var(--text-sec);margin-top:8px}
+.kdelta{font-size:11px;font-weight:600;margin-top:5px}
+.kdelta.up{color:var(--good)}.kdelta.dn{color:var(--bad)}.kdelta.eq{color:var(--text-dim)}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:0.1px}
+.bg{background:rgba(52,211,153,0.12);color:var(--saude)}
+.bb{background:rgba(244,63,94,0.12);color:var(--bad)}
+.by{background:rgba(251,191,36,0.12);color:var(--warn)}
+.bp{background:rgba(129,140,248,0.12);color:var(--ia)}
+.bl{background:rgba(56,189,248,0.12);color:var(--res)}
+
+/* ── Chart cards ─────────────────────────────────────── */
+.cc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px}
+.ct{font-size:14px;font-weight:700;color:var(--text);letter-spacing:-0.2px}
+.cs2{font-size:12px;color:var(--text-sec);margin-top:3px;margin-bottom:14px}
+
+/* ── Grids ───────────────────────────────────────────── */
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g21{grid-template-columns:2fr 1fr}
+.g12{grid-template-columns:1fr 2fr}
+
+/* ── Team cards ──────────────────────────────────────── */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.tc2{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.th{padding:16px 18px;display:flex;align-items:center;gap:12px}
+.tdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tn{font-size:12.5px;font-weight:700;letter-spacing:-0.1px}
+.td{font-size:10.5px;color:var(--text-sec);margin-top:2px}
+.tkpis{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
+.tkpi{background:var(--surface);padding:15px 18px}
+.tkl{font-size:11px;color:var(--text-sec);font-weight:700;text-transform:uppercase;letter-spacing:0.4px}
+.tkv{font-size:24px;font-weight:800;margin-top:5px;letter-spacing:-0.5px}
+.tks{font-size:11px;color:var(--text-sec);margin-top:3px}
+
+/* ── CSAT Gauges ──────────────────────────────────────── */
+.gauges{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.gauge{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 18px;text-align:center}
+.gcircle{
+  width:96px;height:96px;border-radius:50%;
+  margin:0 auto 14px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  font-size:24px;font-weight:800;border:3px solid;
+  letter-spacing:-1px;
+}
+.gcircle.gi{border-color:var(--ia);color:var(--ia);box-shadow:0 0 20px var(--ia-gl)}
+.gcircle.gs{border-color:var(--saude);color:var(--saude);box-shadow:0 0 20px var(--saude-gl)}
+.gcircle.gr{border-color:var(--res);color:var(--res);box-shadow:0 0 20px var(--res-gl)}
+.gcircle.gg{border-color:var(--good);color:var(--good);box-shadow:0 0 20px var(--good-gl)}
+.gsub{font-size:8.5px;font-weight:500;color:var(--text-dim);letter-spacing:0.5px;margin-top:2px}
+.glabel{font-size:12px;font-weight:700;color:var(--text)}
+.gmini{font-size:10.5px;color:var(--text-sec);margin-top:5px}
+
+/* ── Comments ────────────────────────────────────────── */
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ccol{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px}
+.cctitle{font-size:12.5px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;color:var(--text)}
+.clist{display:flex;flex-direction:column;gap:8px;max-height:460px;overflow-y:auto;padding-right:4px}
+.citem{border-radius:7px;padding:11px 13px;border-left:3px solid}
+.citem.gd{background:rgba(52,211,153,0.05);border-color:var(--good)}
+.citem.bd{background:rgba(244,63,94,0.05);border-color:var(--bad)}
+.ctxt{font-size:12.5px;line-height:1.55;color:var(--text)}
+.cmeta{font-size:10px;color:var(--text-sec);margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ctag{display:inline-block;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.3px}
+.ti{background:var(--ia-gl);color:var(--ia)}
+.ts{background:var(--saude-gl);color:var(--saude)}
+.tr{background:var(--res-gl);color:var(--res)}
+.to{background:rgba(255,255,255,0.05);color:var(--text-sec)}
+
+/* ── Word cloud ──────────────────────────────────────── */
+.wcloud{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;min-height:120px}
+.wcloud-inner{display:flex;flex-wrap:wrap;gap:7px;align-items:center;justify-content:center;padding:8px}
+.ww{
+  border-radius:4px;padding:4px 9px;
+  background:rgba(244,63,94,0.1);color:var(--bad);
+  font-weight:700;cursor:default;
+  transition:transform .14s,background .14s;
+  border:1px solid rgba(244,63,94,0.18);
+}
+.ww:hover{transform:scale(1.1);background:rgba(244,63,94,0.2)}
+
+/* ── Motivos ─────────────────────────────────────────── */
+.mrow{
+  display:flex;align-items:center;gap:14px;
+  padding:13px 16px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;transition:background .14s;
+}
+.mrow:hover{background:var(--surface-2)}
+.mrank{font-size:14px;font-weight:800;color:var(--text-dim);width:24px;text-align:center;flex-shrink:0}
+.minfo{flex:1;min-width:0}
+.mname{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mteams{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.mtbadge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:3px}
+.mbar{flex:2;min-width:80px}
+.mbg{background:var(--surface-3);border-radius:3px;height:5px;overflow:hidden}
+.mfill{height:100%;border-radius:3px;transition:width .5s}
+.mnums{min-width:88px;text-align:right;flex-shrink:0}
+.mvol{font-size:14px;font-weight:800;letter-spacing:-0.3px;color:var(--text)}
+.mpct{font-size:10.5px;color:var(--text-sec)}
+.mdelta{font-size:10.5px;font-weight:600}
+
+/* ── Sub-motivos accordion ───────────────────────────── */
+.smot{background:var(--surface);border:1px solid var(--border);border-radius:11px;overflow:hidden;margin-top:7px}
+.smhead{
+  padding:13px 17px;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;
+  user-select:none;transition:background .14s;
+}
+.smhead:hover{background:var(--surface-2)}
+.smbody{display:none;overflow-x:auto}
+.smot table{width:100%;border-collapse:collapse}
+.smot table th{
+  background:var(--surface-2);color:var(--text-sec);
+  padding:8px 12px;font-size:9.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.6px;
+  border-bottom:1px solid var(--border);text-align:center;
+}
+.smot table th:first-child{text-align:left;padding-left:16px}
+.smot table th:last-child{text-align:right;padding-right:16px}
+.smot table td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.smot table td:last-child{text-align:right;padding-right:16px}
+.smot table tr:last-child td{border-bottom:none}
+.smot table tr:hover td{background:var(--surface-2)}
+
+/* ── Trend table ─────────────────────────────────────── */
+.ttable{width:100%;border-collapse:collapse;font-size:12px}
+.ttable th{
+  padding:9px 12px;text-align:left;
+  background:var(--surface-2);font-weight:600;font-size:9.5px;
+  text-transform:uppercase;letter-spacing:0.6px;
+  color:var(--text-sec);border-bottom:1px solid var(--border);
+}
+.ttable td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text)}
+.ttable tr:last-child td{border-bottom:none}
+.ttable tr:hover td{background:var(--surface-2)}
+.delta-up{color:var(--bad);font-weight:700}
+.delta-dn{color:var(--good);font-weight:700}
+
+/* ── Offenders ───────────────────────────────────────── */
+.offenders{display:flex;flex-direction:column;gap:7px}
+.offrow{
+  display:flex;align-items:center;gap:14px;
+  background:rgba(244,63,94,0.04);
+  border:1px solid rgba(244,63,94,0.12);
+  border-radius:9px;padding:13px 16px;
+}
+.ofrank{font-size:17px;font-weight:900;color:var(--bad);width:20px;flex-shrink:0}
+.ofinfo{flex:1}
+.oftheme{font-size:12.5px;font-weight:600;color:var(--text)}
+.ofexample{font-size:11.5px;color:var(--text-sec);margin-top:4px;font-style:italic;line-height:1.5}
+.ofbadge{
+  font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:5px;
+  background:rgba(244,63,94,0.12);color:var(--bad);
+  white-space:nowrap;border:1px solid rgba(244,63,94,0.18);
+}
+
+/* ── Utility ─────────────────────────────────────────── */
+.hidden{display:none!important}
+@media(max-width:900px){.g2,.g3,.g21,.g12,.cgrid{grid-template-columns:1fr}.tgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div style="display:flex;align-items:center;gap:14px">
+    <div class="logo"></div>
+    <div>
+      <div class="hdr-title">Dash CX</div>
+      <div class="hdr-sub">Appblis · Cloud Humans IA · Blis Saude · Blis Resolve · Zendesk API</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="hdr-pill" id="sync-pill"><div class="live-dot" id="sync-dot"></div><span id="sync-label">Carregando...</span></div>
+    <button id="btn-theme" onclick="toggleTheme()" title="Alternar modo claro / escuro">
+      <!-- Ícone Sol (exibido no modo escuro → clica para ir para claro) -->
+      <svg id="icon-sol" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+      <!-- Ícone Lua (exibido no modo claro → clica para ir para escuro) -->
+      <svg id="icon-lua" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:none">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+      <span id="theme-label">Claro</span>
+    </button>
+    <button id="btn-refresh" onclick="forceSyncUI()" title="Forcar atualizacao manual" style="background:rgba(255,255,255,0.07);border:1px solid var(--border-hi);color:var(--text-sec);font-size:11px;padding:5px 10px;border-radius:20px;cursor:pointer;font-family:inherit;transition:background .15s" onmouseover="this.style.background='rgba(255,255,255,0.13)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">Atualizar</button>
+  </div>
+</div>
+
+<!-- TAB NAV -->
+<div class="nav">
+  <div class="ntab on" onclick="showTab('geral',this)">Visao Geral</div>
+  <div class="ntab" onclick="showTab('csat',this)">CSAT &amp; Satisfacao</div>
+  <div class="ntab" onclick="showTab('motivos',this)">Motivos de Contato</div>
+  <div class="ntab" onclick="showTab('trend',this)">Tendencias</div>
+  <div class="ntab" onclick="showTab('tempos',this)">Tempos de Atendimento</div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="fbar">
+  <!-- Perfil: filtro mestre — restringe motivos/submotivos disponíveis -->
+  <div style="display:flex;align-items:center;gap:7px;width:100%;flex-basis:100%;flex-wrap:wrap">
+    <span class="fl">Perfil</span>
+    <button class="fb pf on" id="pb-all" onclick="setPerfil(null,this)">Todos</button>
+    <span id="perfil-btns" style="display:contents"></span>
+  </div>
+  <div style="width:100%;flex-basis:100%;height:1px;background:var(--border);margin:1px 0"></div>
+  <div style="display:flex;align-items:center;gap:7px">
+    <span class="fl">Periodo</span>
+    <button class="fb on" onclick="setMes(-1,this)">Todos</button>
+    <button class="fb" onclick="setMes(0,this)">Jan</button>
+    <button class="fb" onclick="setMes(1,this)">Fev</button>
+    <button class="fb" onclick="setMes(2,this)">Mar</button>
+    <button class="fb" onclick="setMes(3,this)">Abr</button>
+    <button class="fb" onclick="setMes(4,this)">Mai</button>
+  </div>
+  <div class="fsep"></div>
+  <div style="display:flex;align-items:center;gap:7px">
+    <span class="fl">Semana</span>
+    <select class="fsel" id="wsel" onchange="setSemana(+this.value)">
+      <option value="-1">Todas</option>
+    </select>
+  </div>
+  <div class="fsep"></div>
+  <div style="display:flex;align-items:center;gap:7px">
+    <span class="fl">Time</span>
+    <button class="fb on" onclick="setTeam('all',this)">Todos</button>
+    <button class="fb" onclick="setTeam('ia',this)">Cloud Humans IA</button>
+    <button class="fb gs" onclick="setTeam('saude',this)">Blis Saude</button>
+    <button class="fb gr" onclick="setTeam('resolve',this)">Blis Resolve</button>
+  </div>
+</div>
+
+<!-- ═══ TAB 1: VISAO GERAL ═══════════════════════════════ -->
+<div class="tc on" id="tab-geral">
+
+  <div>
+    <div class="slabel">Indicadores do Periodo</div>
+    <div class="kstrip" id="kpis"></div>
+  </div>
+
+  <div>
+    <div class="slabel">Volume de Atendimento</div>
+    <div class="grid g21">
+      <div class="cc">
+        <div class="ct">Tickets por Mes e Time</div>
+        <div class="cs2">Volume total criado no periodo, agrupado por time</div>
+        <div id="ch-mensal" style="height:300px"></div>
+      </div>
+      <div class="cc">
+        <div class="ct">Participacao por Time</div>
+        <div class="cs2">Distribuicao percentual do periodo selecionado</div>
+        <div id="ch-pie" style="height:300px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="slabel">Evolucao Semanal</div>
+    <div class="cc">
+      <div class="ct" id="sem-title">Tickets por Semana — Todos os Meses</div>
+      <div class="cs2">S01 = 01/jan a S21 = 18/mai (parcial) · Cloud Humans IA entrou na S13 (23/mar/26)</div>
+      <div id="ch-semanas" style="height:280px"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="slabel">Performance por Time</div>
+    <div class="tgrid" id="team-cards"></div>
+  </div>
+
+  <div>
+    <div class="slabel">Status e Canais</div>
+    <div class="grid g2">
+      <div class="cc">
+        <div class="ct">Status dos Tickets — 2026</div>
+        <div class="cs2">Dados agregados do periodo completo · closed = fechamento automatico apos 30 dias resolvido</div>
+        <div id="ch-status" style="height:260px"></div>
+      </div>
+      <div class="cc">
+        <div class="ct">Canal de Origem por Time</div>
+        <div class="cs2">Dados agregados do periodo completo · WhatsApp dominante em todos os grupos</div>
+        <div id="ch-canal" style="height:260px"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ TAB 2: CSAT ═══════════════════════════════════════ -->
+<div class="tc" id="tab-csat">
+
+  <div>
+    <div class="slabel">Taxa de Satisfacao no Periodo</div>
+    <div class="gauges" id="gauges"></div>
+  </div>
+
+  <div>
+    <div class="slabel">Evolucao Mensal do CSAT</div>
+    <div class="grid g2">
+      <div class="cc">
+        <div class="ct">Volume de Avaliacoes</div>
+        <div class="cs2">Avaliacoes recebidas por mes · positivas vs negativas</div>
+        <div id="ch-csat-vol" style="height:280px"></div>
+      </div>
+      <div class="cc">
+        <div class="ct">Taxa CSAT por Time</div>
+        <div class="cs2">Percentual mensal de satisfacao · meta de referencia: 90%</div>
+        <div id="ch-csat-pct" style="height:280px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="slabel">Principais Ofensores do CSAT no Periodo</div>
+    <div class="offenders" id="offenders"></div>
+  </div>
+
+  <div>
+    <div class="slabel">Comentarios dos Clientes</div>
+    <div class="cgrid">
+      <div class="ccol">
+        <div class="cctitle"><span style="color:var(--good);font-size:15px">&#9679;</span>Promotores<span class="badge bg" style="margin-left:auto" id="cnt-good">-</span></div>
+        <div class="clist" id="list-good"></div>
+      </div>
+      <div class="ccol">
+        <div class="cctitle"><span style="color:var(--bad);font-size:15px">&#9679;</span>Detratores<span class="badge bb" style="margin-left:auto" id="cnt-bad">-</span></div>
+        <div class="clist" id="list-bad"></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="slabel">Temas Recorrentes nas Avaliacoes Negativas</div>
+    <div class="wcloud"><div class="wcloud-inner" id="wordcloud"></div></div>
+  </div>
+
+  <div>
+    <div class="slabel">Auditoria CSAT — Validacao dos Dados por Periodo</div>
+    <div class="cc" style="padding:0;overflow:auto">
+      <div id="csat-audit"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ TAB 3: MOTIVOS ════════════════════════════════════ -->
+<div class="tc" id="tab-motivos">
+
+  <div>
+    <div class="slabel">Ranking de Motivos — Periodo Selecionado</div>
+    <div style="display:flex;flex-direction:column;gap:7px" id="motivos-list"></div>
+  </div>
+
+  <div>
+    <div class="slabel">Volume por Motivo e por Time</div>
+    <div class="grid g2">
+      <div class="cc">
+        <div class="ct">Volume por Motivo</div>
+        <div class="cs2">Total de tickets por categoria · periodo selecionado</div>
+        <div id="ch-mot-col" style="height:340px"></div>
+      </div>
+      <div class="cc">
+        <div class="ct">Volume por Time</div>
+        <div class="cs2">Total de tickets por time · periodo selecionado</div>
+        <div id="ch-time-col" style="height:340px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="slabel">Sub-motivos por Categoria</div>
+    <div id="submotivos"></div>
+  </div>
+
+</div>
+
+<!-- ═══ TAB 4: TENDENCIAS ═════════════════════════════════ -->
+<div class="tc" id="tab-trend">
+
+  <div>
+    <div class="slabel">Comparativo Mes a Mes — Tickets</div>
+    <div class="cc">
+      <div class="ct">Evolucao de Volume por Time</div>
+      <div class="cs2">Linha de tendencia mensal · Janeiro a Maio 2026</div>
+      <div id="ch-trend-vol" style="height:280px"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="slabel">Evolucao dos Motivos de Contato</div>
+    <div class="cc">
+      <div class="ct">Tendencia Mensal por Motivo</div>
+      <div class="cs2">Volume mensal dos 9 motivos · identifica crescimento e queda</div>
+      <div id="ch-trend-mot" style="height:320px"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="slabel">Tabela Comparativa Mes a Mes</div>
+    <div class="cc">
+      <div class="ct">Variacao Percentual — Motivos de Contato</div>
+      <div class="cs2">Vermelho = crescimento · Verde = queda · vs mes anterior</div>
+      <div id="trend-table"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="slabel">CSAT — Tendencia e Comparativo</div>
+    <div class="grid g2">
+      <div class="cc">
+        <div class="ct">Evolucao da Taxa CSAT</div>
+        <div class="cs2">Percentual mensal por time · meta de referencia: 90%</div>
+        <div id="ch-trend-csat" style="height:280px"></div>
+      </div>
+      <div class="cc">
+        <div class="ct">Volume de Avaliacoes Negativas</div>
+        <div class="cs2">Detratores por time ao longo dos meses</div>
+        <div id="ch-trend-bad" style="height:280px"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TAB TEMPOS DE ATENDIMENTO -->
+<div class="tc" id="tab-tempos">
+
+  <div class="slabel">Indicadores de Tempo — Dias Úteis (Seg–Sex) · unidade ajustada automaticamente</div>
+  <div id="tempos-kpis" class="kstrip"></div>
+
+  <div>
+    <div class="slabel">Tempo de Resolução por Semana — quanto tempo até fechar o ticket</div>
+    <div class="cc">
+      <div class="ct">Resolução de Tickets — Evolução Semanal</div>
+      <div class="cs2">Tempo médio do momento da abertura até o fechamento · dias úteis · Seg–Sex</div>
+      <div id="ch-tma-semana" style="height:300px"></div>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div>
+      <div class="slabel">Tempo de 1ª Resposta — quanto tempo o cliente esperou a primeira resposta</div>
+      <div class="cc">
+        <div class="ct">1ª Resposta do Agente — Evolução Semanal</div>
+        <div class="cs2">Tempo até o agente responder pela primeira vez · dias úteis · Seg–Sex</div>
+        <div id="ch-tmr-semana" style="height:260px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="slabel">Comparativo Geral — Resolução · 1ª Resposta</div>
+    <div class="cc">
+      <div class="ct">Média do Período por Métrica e Time</div>
+      <div class="cs2">Colunas agrupadas · unidade exibida automaticamente em minutos, horas ou dias</div>
+      <div id="ch-tempos-col" style="height:300px"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// DATA — Zendesk API 11/05/2026
+// ═══════════════════════════════════════════════════
+const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio"];
+const MSHORT = ["Jan","Fev","Mar","Abr","Mai"];
+
+const D = {
+  // Gerado por updater.py em 26/05/2026 15:48 — fonte: Zendesk API
+  // tickets: {ia=9063, saude=6587, resolve=11245}
+  tickets:{"ia":[0,0,1132,4702,3229],"saude":[1361,1724,1773,919,810],"resolve":[2625,2413,2504,2041,1662]},
+  status:{"ia":{"closed":9049,"solved":8,"open":6,"pending":0,"new_":0},"saude":{"closed":6575,"solved":2,"open":0,"pending":10,"new_":0},"resolve":{"closed":11161,"solved":24,"open":10,"pending":50,"new_":0}},
+  status_monthly:{"ia":[{"closed":0,"solved":0,"open":0,"pending":0,"new_":0},{"closed":0,"solved":0,"open":0,"pending":0,"new_":0},{"closed":1132,"solved":0,"open":0,"pending":0,"new_":0},{"closed":4702,"solved":0,"open":0,"pending":0,"new_":0},{"closed":3215,"solved":8,"open":6,"pending":0,"new_":0}],"saude":[{"closed":1361,"solved":0,"open":0,"pending":0,"new_":0},{"closed":1724,"solved":0,"open":0,"pending":0,"new_":0},{"closed":1773,"solved":0,"open":0,"pending":0,"new_":0},{"closed":919,"solved":0,"open":0,"pending":0,"new_":0},{"closed":798,"solved":2,"open":0,"pending":10,"new_":0}],"resolve":[{"closed":2625,"solved":0,"open":0,"pending":0,"new_":0},{"closed":2413,"solved":0,"open":0,"pending":0,"new_":0},{"closed":2504,"solved":0,"open":0,"pending":0,"new_":0},{"closed":2038,"solved":0,"open":0,"pending":3,"new_":0},{"closed":1581,"solved":24,"open":10,"pending":47,"new_":0}]},
+  channels:{"ia":{"WhatsApp":9057,"Native Msg":3,"Web/E-mail":3},"saude":{"WhatsApp":6442,"Native Msg":46,"Web/E-mail":27,"instagram_dm":70,"Facebook":2},"resolve":{"Native Msg":470,"WhatsApp":8323,"Web/E-mail":916,"instagram_dm":712,"any_channel":809,"Facebook":15}},
+  channels_monthly:{"ia":[{},{},{"WhatsApp":1126,"Native Msg":3,"Web/E-mail":3},{"WhatsApp":4702},{"WhatsApp":3229}],"saude":[{"WhatsApp":1335,"Native Msg":14,"Web/E-mail":1,"instagram_dm":11},{"WhatsApp":1675,"instagram_dm":30,"Native Msg":8,"Web/E-mail":10,"Facebook":1},{"WhatsApp":1707,"Web/E-mail":12,"instagram_dm":29,"Native Msg":24,"Facebook":1},{"WhatsApp":916,"Web/E-mail":3},{"WhatsApp":809,"Web/E-mail":1}],"resolve":[{"Native Msg":118,"WhatsApp":2094,"Web/E-mail":94,"instagram_dm":203,"any_channel":116},{"Native Msg":115,"WhatsApp":1654,"Web/E-mail":200,"instagram_dm":244,"any_channel":199,"Facebook":1},{"WhatsApp":1564,"Native Msg":181,"Web/E-mail":294,"instagram_dm":265,"any_channel":193,"Facebook":7},{"any_channel":154,"WhatsApp":1589,"Web/E-mail":244,"Native Msg":48,"Facebook":6},{"WhatsApp":1422,"Web/E-mail":84,"any_channel":147,"Native Msg":8,"Facebook":1}]},
+  semanas:{"labels":["S01","S02","S03","S04","S05","S06","S07","S08","S09","S10","S11","S12","S13","S14","S15","S16","S17","S18","S19","S20","S21"],"datas":["29/12","05/01","12/01","19/01","26/01","02/02","09/02","16/02","23/02","02/03","09/03","16/03","23/03","30/03","06/04","13/04","20/04","27/04","04/05","11/05","18/05"],"mesIdx":[0,0,0,0,1,1,1,1,1,2,2,2,2,3,3,3,3,3,4,4,4],"ia":[0,0,0,0,0,0,0,0,0,0,0,0,582,1319,1543,979,803,855,933,848,991],"saude":[92,262,388,387,257,468,514,383,345,462,497,402,366,69,222,230,241,229,199,244,256],"resolve":[187,560,646,640,637,579,614,579,628,655,612,570,436,424,508,497,412,446,456,430,554]},
+  csat:{"ia":{"good":[0,0,0,166,726],"bad":[0,0,0,68,197]},"saude":{"good":[395,493,460,9,239],"bad":[25,52,46,4,17]},"resolve":{"good":[546,375,196,13,311],"bad":[98,76,81,21,13]}},
+  n2:{"ia":[0,0,0,0,0],"saude":[0,0,0,0,0],"resolve":[0,0,0,0,0]},
+  tempos:{"tma":{"resolve":[3.9,4.3,4.3,3.4,2.3,4.0,1.6,4.7,10.4,8.0,4.7,11.2,15.5,7.6,10.9,1.4,1.1,1.2,0.8,0.7,0.9],"saude":[4.0,3.0,2.5,2.0,1.6,2.3,2.8,1.7,3.0,2.4,1.6,2.0,2.3,2.2,2.2,1.4,1.7,1.6,1.5,1.4,1.3]},"tmr":{"resolve":[0.7,0.8,1.8,0.9,0.2,0.7,0.5,1.3,8.7,4.6,2.6,6.2,12.9,5.3,11.3,0.3,0.4,0.4,0.2,0.2,0.3],"saude":[1.3,0.2,0.3,0.1,0.1,0.2,0.1,0.1,0.2,0.3,0.1,0.1,0.7,0.6,0.8,0.2,0.3,0.2,0.2,0.2,0.1]},"tmp":{"resolve":[2.9,3.1,3.4,2.3,1.4,3.0,1.4,3.4,9.9,6.8,4.2,10.0,13.5,6.3,9.1,1.0,0.9,0.9,0.7,0.6,0.8],"saude":[2.2,0.8,0.7,0.7,0.6,1.1,1.0,0.7,1.1,1.1,0.7,1.1,1.3,1.1,1.3,0.5,0.9,0.8,0.7,0.6,0.4]}},
+  perfis:{"labels":["Não Baixou App","Fez Login","Fez Cadastro","Fez Anamnese","Fez Consulta","1ª Compra <30d","1ª Compra >30d","2ª+ Recompra","Médicos","Pergunta"],"ids":["não_baixou_app__sem_login","perfil_paciente","perfil_nao_paciente","perfil_medico","fez_consulta__não_comprou","fez_primeira_compra_há_menos_de_30_dias","fez_primeira_compra_há_mais_de_30_dias_e_não_recomprou_","fez_segunda_recompra_ou_mais","medicos","pergunta"],"ia":[3,0,0,0,0,0,0,0,0,9057],"saude":[70,2069,232,28,282,2033,1174,434,7,88],"resolve":[1350,2712,1219,298,515,1789,293,424,71,1887],"motivos":{"não_baixou_app__sem_login":["appblis","cadastros","pagamento","receitas","medicos","logistica","estoque","cancela","docs"],"perfil_paciente":["medicos","appblis","logistica","docs","receitas","pagamento","estoque","cancela","cadastros"],"perfil_nao_paciente":["appblis","receitas","pagamento","medicos","cadastros","estoque","logistica","cancela","docs"],"perfil_medico":["cadastros","appblis","pagamento","medicos","receitas","cancela","docs","logistica","estoque"],"fez_consulta__não_comprou":["appblis","receitas","pagamento","cadastros","medicos","cancela","estoque","docs","logistica"],"fez_primeira_compra_há_menos_de_30_dias":["receitas","medicos","logistica","docs","cadastros","appblis","cancela","estoque","pagamento"],"fez_primeira_compra_há_mais_de_30_dias_e_não_recomprou_":["medicos","receitas","logistica","appblis","cadastros","docs","pagamento","estoque","cancela"],"fez_segunda_recompra_ou_mais":["logistica","medicos","receitas","pagamento","appblis","estoque","cadastros","docs","cancela"],"medicos":["cadastros","medicos","appblis","estoque","pagamento","receitas","docs","logistica"],"pergunta":["pagamento","cadastros","logistica","estoque","docs","appblis","receitas","cancela","medicos"]},"counts":{"não_baixou_app__sem_login":{"appblis":{"total":660,"ia":0,"saude":5,"resolve":655},"cadastros":{"total":610,"ia":3,"saude":15,"resolve":592},"medicos":{"total":39,"ia":0,"saude":29,"resolve":10},"docs":{"total":3,"ia":0,"saude":0,"resolve":3},"logistica":{"total":10,"ia":0,"saude":1,"resolve":9},"pagamento":{"total":52,"ia":0,"saude":0,"resolve":52},"estoque":{"total":5,"ia":0,"saude":1,"resolve":4},"receitas":{"total":40,"ia":0,"saude":19,"resolve":21},"cancela":{"total":4,"ia":0,"saude":0,"resolve":4}},"perfil_paciente":{"appblis":{"total":1195,"ia":0,"saude":522,"resolve":673},"cadastros":{"total":71,"ia":0,"saude":0,"resolve":71},"medicos":{"total":1335,"ia":0,"saude":1291,"resolve":44},"docs":{"total":598,"ia":0,"saude":1,"resolve":597},"logistica":{"total":912,"ia":0,"saude":6,"resolve":906},"pagamento":{"total":165,"ia":0,"saude":36,"resolve":129},"estoque":{"total":139,"ia":0,"saude":79,"resolve":60},"receitas":{"total":241,"ia":0,"saude":133,"resolve":108},"cancela":{"total":124,"ia":0,"saude":1,"resolve":123}},"perfil_nao_paciente":{"appblis":{"total":991,"ia":0,"saude":87,"resolve":904},"cadastros":{"total":56,"ia":0,"saude":3,"resolve":53},"medicos":{"total":73,"ia":0,"saude":61,"resolve":12},"docs":{"total":7,"ia":0,"saude":0,"resolve":7},"logistica":{"total":15,"ia":0,"saude":0,"resolve":15},"pagamento":{"total":85,"ia":0,"saude":14,"resolve":71},"estoque":{"total":51,"ia":0,"saude":13,"resolve":38},"receitas":{"total":159,"ia":0,"saude":54,"resolve":105},"cancela":{"total":14,"ia":0,"saude":0,"resolve":14}},"perfil_medico":{"appblis":{"total":87,"ia":0,"saude":8,"resolve":79},"cadastros":{"total":116,"ia":0,"saude":4,"resolve":112},"medicos":{"total":24,"ia":0,"saude":5,"resolve":19},"docs":{"total":4,"ia":0,"saude":1,"resolve":3},"logistica":{"total":3,"ia":0,"saude":0,"resolve":3},"pagamento":{"total":55,"ia":0,"saude":9,"resolve":46},"estoque":{"total":2,"ia":0,"saude":0,"resolve":2},"receitas":{"total":21,"ia":0,"saude":0,"resolve":21},"cancela":{"total":13,"ia":0,"saude":1,"resolve":12}},"fez_consulta__não_comprou":{"appblis":{"total":180,"ia":0,"saude":15,"resolve":165},"cadastros":{"total":128,"ia":0,"saude":7,"resolve":121},"medicos":{"total":112,"ia":0,"saude":101,"resolve":11},"docs":{"total":16,"ia":0,"saude":2,"resolve":14},"logistica":{"total":9,"ia":0,"saude":2,"resolve":7},"pagamento":{"total":132,"ia":0,"saude":31,"resolve":101},"estoque":{"total":19,"ia":0,"saude":12,"resolve":7},"receitas":{"total":143,"ia":0,"saude":109,"resolve":34},"cancela":{"total":58,"ia":0,"saude":3,"resolve":55}},"fez_primeira_compra_há_menos_de_30_dias":{"appblis":{"total":200,"ia":0,"saude":104,"resolve":96},"cadastros":{"total":359,"ia":0,"saude":73,"resolve":286},"medicos":{"total":721,"ia":0,"saude":707,"resolve":14},"docs":{"total":468,"ia":0,"saude":3,"resolve":465},"logistica":{"total":621,"ia":0,"saude":31,"resolve":590},"pagamento":{"total":120,"ia":0,"saude":16,"resolve":104},"estoque":{"total":124,"ia":0,"saude":96,"resolve":28},"receitas":{"total":1040,"ia":0,"saude":997,"resolve":43},"cancela":{"total":161,"ia":0,"saude":4,"resolve":157}},"fez_primeira_compra_há_mais_de_30_dias_e_não_recomprou_":{"appblis":{"total":59,"ia":0,"saude":36,"resolve":23},"cadastros":{"total":49,"ia":0,"saude":30,"resolve":19},"medicos":{"total":593,"ia":0,"saude":590,"resolve":3},"docs":{"total":41,"ia":0,"saude":0,"resolve":41},"logistica":{"total":143,"ia":0,"saude":1,"resolve":142},"pagamento":{"total":40,"ia":0,"saude":20,"resolve":20},"estoque":{"total":38,"ia":0,"saude":30,"resolve":8},"receitas":{"total":475,"ia":0,"saude":461,"resolve":14},"cancela":{"total":22,"ia":0,"saude":2,"resolve":20}},"fez_segunda_recompra_ou_mais":{"appblis":{"total":50,"ia":0,"saude":15,"resolve":35},"cadastros":{"total":37,"ia":0,"saude":18,"resolve":19},"medicos":{"total":217,"ia":0,"saude":208,"resolve":9},"docs":{"total":36,"ia":0,"saude":0,"resolve":36},"logistica":{"total":245,"ia":0,"saude":10,"resolve":235},"pagamento":{"total":65,"ia":0,"saude":16,"resolve":49},"estoque":{"total":39,"ia":0,"saude":29,"resolve":10},"receitas":{"total":151,"ia":0,"saude":137,"resolve":14},"cancela":{"total":18,"ia":0,"saude":1,"resolve":17}},"medicos":{"appblis":{"total":7,"ia":0,"saude":2,"resolve":5},"cadastros":{"total":54,"ia":0,"saude":1,"resolve":53},"medicos":{"total":11,"ia":0,"saude":1,"resolve":10},"docs":{"total":1,"ia":0,"saude":0,"resolve":1},"logistica":{"total":1,"ia":0,"saude":0,"resolve":1},"pagamento":{"total":1,"ia":0,"saude":0,"resolve":1},"estoque":{"total":2,"ia":0,"saude":2,"resolve":0},"receitas":{"total":1,"ia":0,"saude":1,"resolve":0}},"pergunta":{"appblis":{"total":815,"ia":715,"saude":1,"resolve":99},"cadastros":{"total":1522,"ia":1243,"saude":55,"resolve":224},"medicos":{"total":208,"ia":184,"saude":4,"resolve":20},"docs":{"total":982,"ia":535,"saude":2,"resolve":445},"logistica":{"total":1274,"ia":774,"saude":3,"resolve":497},"pagamento":{"total":1657,"ia":1374,"saude":1,"resolve":282},"estoque":{"total":1121,"ia":1086,"saude":5,"resolve":30},"receitas":{"total":282,"ia":97,"saude":17,"resolve":168},"cancela":{"total":248,"ia":132,"saude":0,"resolve":116}}}},
+  motivos:[{"id":"appblis","nome":"AppBlis","monthly":[1223,1370,599,568,635],"resolve":[921,936,540,240,236],"saude":[302,434,33,11,27],"ia":[0,0,26,317,372]},{"id":"cadastros","nome":"Cadastros","monthly":[39,226,801,1184,772],"resolve":[39,169,698,436,226],"saude":[0,57,76,15,60],"ia":[0,0,27,733,486]},{"id":"medicos","nome":"Blis Médicos","monthly":[942,970,652,448,386],"resolve":[42,25,42,32,17],"saude":[900,945,592,309,310],"ia":[0,0,18,107,59]},{"id":"docs","nome":"Documentação","monthly":[422,311,254,530,651],"resolve":[421,307,248,274,374],"saude":[1,4,2,1,1],"ia":[0,0,4,255,276]},{"id":"logistica","nome":"Logística","monthly":[744,438,492,956,628],"resolve":[743,432,423,512,319],"saude":[1,6,25,20,3],"ia":[0,0,44,424,306]},{"id":"pagamento","nome":"Pagamentos","monthly":[153,150,305,1077,701],"resolve":[142,108,200,221,197],"saude":[11,42,28,37,26],"ia":[0,0,77,819,478]},{"id":"estoque","nome":"Produtos/Estoque","monthly":[117,106,149,693,486],"resolve":[63,45,24,39,25],"saude":[54,61,72,41,41],"ia":[0,0,53,613,420]},{"id":"receitas","nome":"Receitas","monthly":[215,236,961,621,522],"resolve":[129,105,63,91,141],"saude":[86,131,893,479,340],"ia":[0,0,5,51,41]},{"id":"cancela","nome":"Cancelar Tratamento","monthly":[86,120,106,215,150],"resolve":[86,117,83,129,118],"saude":[0,3,6,2,1],"ia":[0,0,17,84,31]}],
+  sub:{"appblis":[{"nome":"Submotivo Sem Resposta/ Falta De Contato","monthly":[488,562,0,0,0]},{"nome":"Submotivo Appblis Blis","monthly":[293,239,0,0,0]},{"nome":"Avaliacao Loja App Positva","monthly":[0,0,78,126,139]},{"nome":"Avaliacao Loja App Negativa","monthly":[0,120,118,30,12]},{"nome":"Como Funciona","monthly":[0,22,107,55,65]},{"nome":"Submotivo Avaliação Lojas Aplicativos","monthly":[119,91,0,0,0]},{"nome":"Bug Tela Cliente ","monthly":[0,5,147,6,15]},{"nome":"Submotivo Appblis Login","monthly":[61,56,0,0,0]}],"cadastros":[{"nome":"Abandonado","monthly":[0,129,665,292,57]},{"nome":"Atualizacao Cadastro Adm ","monthly":[0,8,27,69,107]},{"nome":"Login Esqueceu Senha","monthly":[0,1,26,23,25]},{"nome":"Excluir Conta","monthly":[0,0,15,28,21]},{"nome":"Relay","monthly":[0,0,0,0,56]},{"nome":"Submotivo Blisdoctor Cadastro","monthly":[29,22,0,0,0]},{"nome":"Médico | Cadastro","monthly":[0,10,19,6,5]},{"nome":"Submotivo Blisdoctor Nao Achei","monthly":[4,13,0,0,0]}],"medicos":[{"nome":"Submotivo Acompanhamento","monthly":[546,499,0,0,0]},{"nome":"Ajuste Médico","monthly":[0,17,218,130,155]},{"nome":"Submotivo Ajuste De Dosagem Médico","monthly":[171,149,0,0,0]},{"nome":"Feedback Inicio Tratamento","monthly":[0,1,160,46,49]},{"nome":"Ajuste Enfermagem","monthly":[0,54,76,35,27]},{"nome":"Submotivo Ajuste De Dosagem Bia","monthly":[81,47,0,0,0]},{"nome":"Tipos de Tratamento","monthly":[0,14,46,44,20]},{"nome":"Submotivo Tipos De Tratamento","monthly":[38,31,0,0,0]}],"docs":[{"nome":"Submotivo Documentacao Comprovante De Endereco","monthly":[231,150,0,0,0]},{"nome":"Comprovante de Endereço | Incorreto","monthly":[0,0,88,88,141]},{"nome":"Comprovante de Vínculo","monthly":[0,7,47,47,91]},{"nome":"Não Anexou Documento","monthly":[0,2,24,42,52]},{"nome":"Comprovante de Endereço | Ilegível ","monthly":[0,25,49,16,22]},{"nome":"Submotivo Documentacao Comprovnte De Vinculo","monthly":[65,29,0,0,0]},{"nome":"RG","monthly":[0,5,12,21,27]},{"nome":"Submotivo Documentacao Documento De Identidade","monthly":[32,30,0,0,0]}],"logistica":[{"nome":"Código de Rastreio | Não possui ","monthly":[0,66,230,205,122]},{"nome":"Submotivo Codigo De Rastreio","monthly":[404,196,0,0,0]},{"nome":"Prazo de entrega","monthly":[0,0,47,184,102]},{"nome":"Submotivo Entrega Logistica Tracking Parado","monthly":[162,34,0,0,0]},{"nome":"Status Entregue | Cliente Não Recebeu ","monthly":[0,14,18,40,25]},{"nome":"Pedido Fora do Prazo | Atrasado","monthly":[0,5,16,30,22]},{"nome":"Local de Entrega ","monthly":[0,4,38,14,6]},{"nome":"Pedido Entregue ","monthly":[0,17,18,14,11]}],"pagamento":[{"nome":"Cupom de Pedido","monthly":[0,9,58,69,52]},{"nome":"Estorno Consulta","monthly":[0,0,26,70,31]},{"nome":"Cartão Sem Limite","monthly":[0,8,20,35,46]},{"nome":"Cupom de Consulta","monthly":[0,5,11,25,49]},{"nome":"Submotivo Cupom De Frete/ Compra","monthly":[43,45,0,0,0]},{"nome":"Submotivo Cupom De Consulta","monthly":[39,33,0,0,0]},{"nome":"Valor de Produto","monthly":[0,0,22,18,24]},{"nome":"Link de Pagamento","monthly":[0,1,14,10,19]}],"estoque":[{"nome":"Conteudo | Medidas ","monthly":[0,5,44,39,31]},{"nome":"Submotivo Produtos Marcas Conteudo Medidas","monthly":[36,40,0,0,0]},{"nome":"Submotivo Produtos Marcas Tipo Formato","monthly":[32,15,0,0,0]},{"nome":"Submotivo Aparencia Do Produto","monthly":[17,11,0,0,0]},{"nome":"Submotivo Maior Concentração Thc","monthly":[14,9,0,0,0]},{"nome":"Tipo | Formato Produto ","monthly":[0,3,10,2,4]},{"nome":"Duracao produto ","monthly":[0,0,5,6,7]},{"nome":"Submotivo Produtos Marcas Nao Achei","monthly":[7,11,0,0,0]}],"receitas":[{"nome":"Inicio Tratamento","monthly":[0,9,493,225,159]},{"nome":"Receita Fora App","monthly":[58,62,38,64,97]},{"nome":"Falta de contato / sem resposta","monthly":[0,0,104,100,69]},{"nome":"Efeitos Colaterais","monthly":[0,8,78,20,14]},{"nome":"Uso da Receita","monthly":[11,16,34,23,31]},{"nome":"Submotivo Autorizacao Anvisa","monthly":[49,25,0,0,0]},{"nome":"Vencimento | Prazo Receita","monthly":[8,13,16,21,8]},{"nome":"Efeito Colateral | Sonolência","monthly":[0,0,35,21,9]}],"cancela":[{"nome":"Não informou motivo desistência","monthly":[0,0,24,40,55]},{"nome":"Submotivo Estorno Consulta","monthly":[38,42,0,0,0]},{"nome":"Indicação Medica","monthly":[0,4,12,20,13]},{"nome":"Não tem a documentação necessária","monthly":[0,0,15,9,14]},{"nome":"Submotivo Desistência","monthly":[13,23,0,0,0]},{"nome":"Preço alto","monthly":[0,4,7,14,8]},{"nome":"Submotivo Documentação","monthly":[12,9,0,0,0]},{"nome":"Documentação","monthly":[0,16,4,0,0]}]},
+// END_DATA
+};
+
+// ── CSAT COMMENTS — gerado por updater.py ─────────────────────────
+const COMMENTS = {
+  bad:[{"m":0,"team":"resolve","t":"Medicação extremamente cara . Sem dúvida o médico é IA . Não encontrei o CRM . Por isso o valor da medicação é exibido após a consulta"},{"m":0,"team":"resolve","t":"Meu problema esta sendo a entrega, o meu medicamento esta parado a uma distância de 27 km de minha casa a 4 dias, esse percurso leva 25 minutos, ou seja o produto esta estocado sabe-se la como a 4 dias . Uma pena, pra vir dos Estados Unidos pro Brasil foi mais rápido kk"},{"m":0,"team":"resolve","t":"Regularizei meu CPF no dia 19/11 e até hj meu produto continua na Avisa!"},{"m":0,"team":"saude","t":"Acho que precisa melhorar o pós venda e a primeira consulta com o usuário, acho que deveria ser via chamada de vídeo"},{"m":0,"team":"resolve","t":"Demorando muito a entrega não chegou ainda"},{"m":0,"team":"resolve","t":"Eu quero sair do aplicativo, já que não foi possivel realizar uma consulta pra mim. Quero dizer, apagar meus dados. Como eu faço? Obrigada"},{"m":0,"team":"resolve","t":"Não me falaram nada que acrescentasse, preciso que libere pra que o remédio possa vir o mais rápido possível pq é urgente."},{"m":0,"team":"resolve","t":"Muita demora para um retorno que não é solucionado. Estou tentando entender porque não acham meu endereço , nunca tive problemas com entregas , moramos a mais de 30 anos no mesmo lugar. o problema real está na entrega até o momento , não entendo isso !"},{"m":0,"team":"saude","t":"A empresa não presa com a verdade"},{"m":0,"team":"resolve","t":"Demora demais pra entregar mais de um mês e não ganha nenhum desconto nem uma satisfação ou nada free pra amenizar o cliente final , pq sem nos vcs não são ninguém, invista em nós"},{"m":0,"team":"saude","t":"Atendimento por IA. Essas informações eu consigo sozinho."},{"m":0,"team":"resolve","t":"Hj sou cliente de vcs pq não achei outras empresa que vende canibidiol, mas respostas do atendimento de vcs é extremamente pobre e rasa. Fiz uma pergunta e o atendente já veio com a resposta que está no site de vcs e que todos têm acesso. Precisa atualizar o modo de abordagem, pois em um mundo digital esse tipo de atendimento analógico, vcs perdem!"},{"m":0,"team":"resolve","t":"Muito ruim o atendimento, problema não resolvido,e as mesmas respostas que já tinha respondido anteriormente 😡"},{"m":0,"team":"resolve","t":"Mandei mensagem demorou pra responder larguei o celular passou um link que está inválido e encerrou o atendimento"},{"m":0,"team":"resolve","t":"Pessimo Nem responde ao questionamento"},{"m":0,"team":"resolve","t":"Motoboy falou q vinha hoje e vc fala q vem no final de semana! Vcs precisam decidir como vamos resolver a situação!"},{"m":0,"team":"resolve","t":"Eu preciso de atendimento por humano pra poder cancelar minha compra. Vocês colocam uma IA pra me responder uma coisa genérica, jogando a culpa pra cima da Anvisa sendo que eu, cliente, não tenho nada a ver com isso."},{"m":0,"team":"resolve","t":"A resolução foi demorada e não consegui ser atendido prontamente por uma pessoa.."},{"m":0,"team":"resolve","t":"Quero saber em qual endereço será mandado mandei o da minha mãe e da onde eu moro o outro era do meu emprego"},{"m":0,"team":"resolve","t":"Fui atendida rápido e com a resolução da minha dúvida"},{"m":0,"team":"resolve","t":"Ainda esperando uma resposta do suporte"},{"m":0,"team":"resolve","t":"Já havia recebido a mesma resposta em dezembro. Parece que copiaram e colaram."},{"m":0,"team":"saude","t":"Achei que teria testados mais rápidos. Continuo com muitas dores nas pernas e na planta dos pés"},{"m":0,"team":"resolve","t":"Custaram responder Não me deixaram seguro com as respostas"},{"m":0,"team":"resolve","t":"Demora muito para responder e quando responde não é aquilo que eu tinha pedido."},{"m":0,"team":"saude","t":"O médico já havia me dado a orientação q o início é a metade. E eu senti falta de empatia e acolhimento muito frio"},{"m":0,"team":"resolve","t":"Além de eu ter mandado mensagem na parte da manhã e somente receber resposta depois das 19:00 h, não fiquei feliz com a forma como a empresa lida com a precificação de seus produtos, além de remetimento de mensagens automáticas com menores descontos do que aqueles anteriormente proporcionados e que não foram suficientes, na visão do paciente, para que pudesse ter havido a aquisição."},{"m":0,"team":"resolve","t":"TENHO 3 PEDIDOS SEPARADOS .QUERO INFIRMACOES SOBRE O PEDIDO DO OLEO QUE ESTA PARADO A 10 DIAS E FICAM ME INFORMANDO DO PEDIDO DAS GOMAS .NINGUEM RESPONDE MINHA PERGUNTA SOBRE O PEDIDO QUE QUERO SABER"},{"m":0,"team":"resolve","t":"Além do problema nao ter sido resolvido, fiquei o dia todo esperando uma resposta"},{"m":0,"team":"resolve","t":"Bom dia fiz um investimento mesmo sem ter condições, e não pude ter acesso a medicação pelo alto preço."},{"m":1,"team":"resolve","t":"Acho que o atendimento é IA ,QUANDO O ATENDENTE DISSE VOU TRANSFERIR PRA UM HUMANO. ISSO É TRISTE, IA EU MESMO FAÇO A PESQUISA"},{"m":1,"team":"resolve","t":"Com o vídeo consegui abrir o produto uma vez e não consigo mais."},{"m":1,"team":"saude","t":"Tranquilo."},{"m":1,"team":"resolve","t":"Demorou o atendimento, não respondeu minha pergunta. Encerrou sem saber se eu precisava de algo além do que me respondeu"},{"m":1,"team":"resolve","t":"A demora é muito grande e não existe acompanhamento por e-mail."},{"m":1,"team":"resolve","t":"Continuo sem saber a previsão precisa ! Pois até 13 dias úteis é muito vaga!"},{"m":1,"team":"resolve","t":"Falaram que iam me bloquear caso não falasse, tem que entender que as pessoas trabalham e as vezes não podem ficar o tempo todo no celular. Mas vlw pela experiência. Time de consultores péssimo"},{"m":1,"team":"saude","t":"Não respondeu"},{"m":1,"team":"saude","t":"Não obtive resposta alguma nem se quer uma msg após a minha intenção de contato com o médico .totalmente insatisfeito"},{"m":1,"team":"saude","t":"Não recebi retorno"},{"m":1,"team":"resolve","t":"Passei dias tentando o atendimento humano. Por diversas vezes solicitei o atendimento e voltava para IA. Uma experiência bem incômoda. Quando o atendimento aconteceu foi rápido e objetivo."},{"m":1,"team":"resolve","t":"Por ser um suporte, penso que deveria ser mais rápido. Demorou muito e fiquei com receio de ser golpe. Por isso cancelei. Se tivesse alguém pra tirar duvidas e dar mais informações um pouquinho mais rápido eu não teria cancelado. Acredito que assim como eu, muitas pessoas ficam com medo de golpes."},{"m":1,"team":"resolve","t":"O aplicativo não permitiu nem 5 segundos pra que eu pudesse ler a orientação dada. Fechou o chat e foi direto pra pagina de reembolso"},{"m":1,"team":"resolve","t":"Ruim demorado , depois eu questionei foi enviado algumas informações mas tb inicialmente fala um valor de consulta, depois outro bem diferente ?quando vamos fazer pagto....achei até poderia ser golpe etc...."},{"m":1,"team":"resolve","t":"Satisfeita pq fui reembolsada,mas dá consulta não gostei."},{"m":1,"team":"saude","t":"Enviei uma mensagem às 9:14 e já são 17:55 e não recebi retorno."},{"m":1,"team":"resolve","t":"Demorou para dar um retorno,me surpreendeu ao estornar parte do pix que havia feito."},{"m":1,"team":"resolve","t":"É só olhar no histórico das msgns p vcs mesmo avaliarem quão péssimos sao para resolver as questões do cliente, assim como a memphis courier. Já sei onde está minha encomenda, precisei procurar por outro meio já que a ineficiência da blu e memphis courier Palhaçada por carnaval as ausências dos retornos das msgns?????"},{"m":1,"team":"resolve","t":"Não conseguiu me ajudar. Não gosto de falar com máquina, preciso suporte humano"},{"m":1,"team":"resolve","t":"Muito atencioso e pré-compra os medicamentos que tomo para fazer a prescrição. Sem pressa e deixando claro que só iria encerrar; depois de tirar as dúvidas"},{"m":1,"team":"saude","t":"Não consegui fazer o contato. A.espera é por prazo indeterminado e é impossivel ficar a disposição para um atendimento sem um minimo de previsibilidade de espera. Esse sistema não funcionou pra mim."},{"m":1,"team":"resolve","t":"Eu ainda estou aguardando o retorno sobre o meu pedido. Ainda não foi me fornecido a data que irão entregar. Estou esperando há mais de um mês. Estou decepcionada."},{"m":1,"team":"saude","t":"Não recebi nenhum suporte. Terceira vez que chamo e a resposta que recebo é que não tiveram a devolutiva, como vou falar algo se ninguém interage, nem IA."},{"m":1,"team":"saude","t":"Uma grande demora para obter informações."},{"m":1,"team":"resolve","t":"Atendimento séptico, mecânico e robotizado. O atendimento ao cliente é o único lugar onde uma pessoa realmente faz a diferença! “ao tocar uma alma humana, seja apenas humano…” Pensem nisso…"},{"m":1,"team":"resolve","t":"Não cumpriram data de entrega"},{"m":1,"team":"resolve","t":"Fazem as.promoção aí a gente entra e o valor é outro ! Propaganda enganos e sem suporte nenhum"},{"m":1,"team":"resolve","t":"Robô não resolve …"},{"m":1,"team":"resolve","t":"Suporte quanto ao atendimento demora para eu ser atendido , e solicitei várias vezes atenção a um Fator de risco para vazamento Do produto e toda vez caia sobre mim a intenção de mal uso da embalagem ."},{"m":1,"team":"resolve","t":"Com o vídeo consegui abrir o produto, mas o atendimento é extremamente demorado e não dá feedback (previsão) e te deixar esperado sem saber se reallmenre foi para o atendimento humano e sem saber a previsão de atendimento. Poderia até ser uma resposta automática, mas quando passa para o atendimento humano deveria te dar um feedback que passou para este atendimento humano e que vai ser atendido, dando uma previsão de atendimento como fila por exemplo. E ir mostrando algumas atualizações da fila, a posição da fila, até chegar sua vez."},{"m":2,"team":"resolve","t":"Nao foi resolvido o problema"},{"m":2,"team":"resolve","t":"Não fui atendida .. paguei a consulta e ninguém me atende"},{"m":2,"team":"resolve","t":"Três dias tentando cancelar uma compra e ninguém respondia. O aplicativo direciona pro whatsapp, que não te dá opção cancelar, além de só ter atendimento até às 18 horas. Há dois dias preenchi um formulário que não tive retorno também. Péssima estrutura de atendimento."},{"m":2,"team":"saude","t":"Chat Boot não está alinhado."},{"m":2,"team":"resolve","t":"Não tive atendimento adequado. WhatsApp não funciona. Procurei por e-mail pra ver se tem algum resultado. A mensagem que recebi basicamente me passou uma info antiga."},{"m":2,"team":"resolve","t":"Não consigo abrir o carrinho. Também quero escolher A quantidade"},{"m":2,"team":"resolve","t":"O WhatsApp não está funcionado direito e fiquei 3 dias tentando achar um meio de conversar com vocês. Telefone Não atende…"},{"m":2,"team":"resolve","t":"Aplicativo blis apresenta falha no acesso."},{"m":2,"team":"resolve","t":"Não atende ao meu problema por isso quero o estorno do meu dinheiro. Vcs deveriam deixar avisado que certos probl mas não são atendidos"},{"m":2,"team":"resolve","t":"Demora e não teve consulta na hora prometida"},{"m":2,"team":"resolve","t":"Demora demais a responder. Levou 24 horas pra dar um retorno, e quando deram bom dia já sumiram de novo. Inviável manter conversa."},{"m":2,"team":"resolve","t":"Ninguém me atende e não estou conseguindo comprar minha medicação pelo app"},{"m":2,"team":"saude","t":"Demora muito pra ser atendida"},{"m":2,"team":"saude","t":"Um dia inteiro para ter acesso ao atendimento, complicado, em relação ao atendimento tanto da enfermeira quanto do médico quando fiz a consulta, ninguém perguntou como eu estou me sentindo ou o que eu estou tomando."},{"m":2,"team":"saude","t":"Não consigo dormir, nem pegar no sono!"},{"m":2,"team":"resolve","t":"orientem os atendentes pra serem mais humanos, a sensação é de que eu estava conversando com uma IA."},{"m":2,"team":"saude","t":"Esperava por uma consulta por vídeo. A consulta através de mensagens foi muito estranha. Quando digitava uma pergunta vinha uma longa resposta que já estava pronta, tudo já estava pronto, inclusive a receita. Decepcionado, joguei meu dinheiro fora e perdi meu tempo."},{"m":2,"team":"resolve","t":"Existe bastante dificuldade para falar com o suporte “humano”"},{"m":2,"team":"resolve","t":"Até agora não resolveram meu problema referente a assinatura digital."},{"m":2,"team":"resolve","t":"Não solucionar o meu problema"},{"m":2,"team":"resolve","t":"não deu uma certa atenção"},{"m":2,"team":"saude","t":"Me deram o suporte que eu precisava"},{"m":2,"team":"resolve","t":"Preciso cancelar o pedido, é uma tarefa fácil de resolver.... estou a dias tentando."},{"m":2,"team":"resolve","t":"Os medicamentos chegaram irregulares. Nenhum dos potes contém dissecando para barrar a umidade."},{"m":2,"team":"resolve","t":"Nao fui atendido. Nao entraram em contato comigo, apenas enviaram.mensagem.padrao"},{"m":2,"team":"resolve","t":"Preciso falar com humano, fica a IA, isso é uma falta de respeito gigantesca com seus clientes. A IA até certo ponto,. depois vcs precisam atender com humano"},{"m":2,"team":"saude","t":"Obrigam a pessoa a passar com um médico de vocês. Meu psiquiatra me trata há mais de 6 anos, tem especialização em tratamento com cannabidiol, fez a receita e ainda assim o documento não é apto para vocês."},{"m":2,"team":"resolve","t":"Não fui atendida"},{"m":2,"team":"resolve","t":"Difícil os retornos pelo app e mensagens"},{"m":2,"team":"resolve","t":"Foi um pouco difícil o atendimento"},{"m":3,"team":"ia","t":"É puro golpe!"},{"m":3,"team":"resolve","t":"Meu comprovante de endereço foi errado e nao consigo substituir por outro correto, meu pedido esta pago e ainda parado."},{"m":3,"team":"ia","t":"Atendimento fantasma"},{"m":3,"team":"ia","t":"Encerraram o atendimento antes d ereoslver minha duvida"},{"m":3,"team":"ia","t":"Falei com uma IA que só tem respostas prontas sem entender o que peço."},{"m":3,"team":"resolve","t":"Terrível. Muita conversa. Nenhuma solução"},{"m":3,"team":"ia","t":"A médica não consegue indicar o que eu preciso. Muito ruim quer vender goma de thc pelo amor de Deus."},{"m":3,"team":"resolve","t":"Muita burocracia e sobretudo muito tempo pra se receber os remédios, que estão caríssimos, em comparação com outros fornecedores..."},{"m":3,"team":"ia","t":"Aplicativo e profissionais falhos!"},{"m":3,"team":"ia","t":"Gostaria de desconto maior e não foi possível. Infelizmente não vou conseguir comprar. Já faço uso de 2 medicamentos da blis. Fica muito caro esse terceiro. No mais o dólar caiu o valor. Pq os medicamentos não diminuem o preço?"},{"m":3,"team":"ia","t":"Parece tudo IA , não gostei"},{"m":3,"team":"ia","t":"Mandei uma mensagem do fim do dia anterior e não tive retorno"},{"m":3,"team":"resolve","t":"Não responderam o e-mail."},{"m":3,"team":"ia","t":"Nunca fui atendido O programa de vocês é muito ruim, nada funciona kkkkk"},{"m":3,"team":"ia","t":"Péssimo, problema não resolvido 🤡"},{"m":3,"team":"ia","t":"Minha reclamação durou 4 dias para ser resolvida. E era de fácil resolução, uma vez que era uma simples entrega de um medicamento."},{"m":3,"team":"saude","t":"Produto pessimo não senti nada de melhor so roubaram meu dinheiro."},{"m":3,"team":"resolve","t":"Atendimento deixa muito a desejar quando precisamos de instruções para cancelamento, ninguém responde, suporte péssimo, ainda no aguardo de soluções sobre meu cancelamento!"},{"m":3,"team":"ia","t":"Eu recebi um desconto e esse desconto não está aparecendo mais pra mim. Não consegui resolver."},{"m":3,"team":"resolve","t":"Recebi mensagem de um número q dizia ser da blis. Cliquei no link. Abriu minha pagina. Fiquei preocupada, denunciei o número e troquei a senha. Avisei a Blis. Ninguém conseguiu me atender. Só resposta de robô . Ate a humana respondeu com o bot. Nada esclarecido"},{"m":3,"team":"ia","t":"Estou tentando a dias alterar p endereço de entrega para meu escritório, endereço comercial e nada resolvido"},{"m":3,"team":"ia","t":"Ainda bem que não comprei com vocês. Tempo de espera Pra um orçamento mais de uma semana e ainda nem chegou rs"},{"m":3,"team":"ia","t":"Em menos de 10 minutos, estou tentando cancelar o pedido que está em fase de validação de documentação ainda, o IA do WhatsApp não me passa um e-mail para formalizar já que não há atendentes no momento e quero resguardar meus direitos de cancelamento e reembolso integral. Nem no aplicativo dão opção de cancelar."},{"m":3,"team":"ia","t":"Faz mais de 1 mês que paguei consulta com Dr Mohamed e e me passou o canabidiol e esse tempo esperando acha que vou desistir, o meu dinheiro de volta ou me entregam o canabidiol. Fico no aguardo . Ou vou cancelar o cartão de crédito."},{"m":3,"team":"ia","t":"Bando de filho da puta . Não resolve bosta nenhuma.. Quando vc precisa.. Vai cê fuder. Caralho."},{"m":3,"team":"ia","t":"Quero solução"},{"m":3,"team":"resolve","t":"Descaso com o paciente"},{"m":3,"team":"ia","t":"Gostaria de saber se há outros edibles que possamos ter acesso,.se há um catálogo de produtos compatíveis em outros formatos."},{"m":3,"team":"ia","t":"Não respondeu o que realmente foi perguntado. Pareceu atendimento automatizado"},{"m":3,"team":"resolve","t":"Paguei e nao recebi o produto. Péssima experiÊncia. vcs vao me devolver o dinheiro que dia?"},{"m":4,"team":"saude","t":"Ainda não fui atendido"},{"m":4,"team":"ia","t":"Maquinas de IA nao resolvem o problema"},{"m":4,"team":"ia","t":"Não foi o formado que era venda casada. Pago por uma consulta e sou encaminhado ao site para comprar medicamento importado. Minha idéia era usar a receita para comprar na indústria brasileira."},{"m":4,"team":"ia","t":"Fui atendido por um robo.agh"},{"m":4,"team":"resolve","t":"48 dias para fazer algo simples"},{"m":4,"team":"ia","t":"O atendimento foi bom...mas não resolvi minha solicitação. Obrigada"},{"m":4,"team":"ia","t":"Péssimo ser atendido por máquinas, simplesmente desgastante"},{"m":4,"team":"resolve","t":"Tô aguardando retorno"},{"m":4,"team":"ia","t":"Não resolve"},{"m":4,"team":"ia","t":"As propostas não são congruentes."},{"m":4,"team":"ia","t":"Não ajudou em nada"},{"m":4,"team":"ia","t":"O atendente não soube verificar sobre a entrega do meu pedido."},{"m":4,"team":"ia","t":"Já deve ser a quarta ou quinta vez que tento ajuda e me mandam as mesmas mensagens prontas que nao me ajudam"},{"m":4,"team":"saude","t":"Não fui respondido, fui ignorado"},{"m":4,"team":"ia","t":"Aqui muito bom mas no App fiquei surpreso com a situação de ter que pagar a consulta sem saber ao certo preço canabidiol"},{"m":4,"team":"ia","t":"Respostas automáticas e sem continuidad"},{"m":4,"team":"ia","t":"PESSIMO ATENDIMENTO"},{"m":4,"team":"saude","t":"Vou denunciar o medico"},{"m":4,"team":"saude","t":"Não houve esforço em entender o problema e ajudar. A atendente não tinha conhecimento técnico nem estava preparada para fazer um atendimento."},{"m":4,"team":"ia","t":"Atendimento virtual,. aguardo para falar com especialista"},{"m":4,"team":"ia","t":"Sem expectativas, ou uma outra solução quanto a medicação e meus relatos ja dentro de um diagnóstico e um corpo clínico."},{"m":4,"team":"ia","t":"Até agora não chegou"},{"m":4,"team":"ia","t":"Respostas vagas e grosseiras e não resolveu meu problema, mas acho que no reclame aqui eu resolvo mais rapido"},{"m":4,"team":"ia","t":"Nao.consigo atualizar meus documentos no app. Realmente frustrante"},{"m":4,"team":"ia","t":"Não consegui o que eu queria"},{"m":4,"team":"ia","t":"Deu problema no aplicativo e quando fui falar sobre me encaminharam pro WhatsApp. Me atenderam no whatsapp e quando eu falei do problema a pessoa desconectou. Triste."},{"m":4,"team":"ia","t":"Se recusam a me atender e dar andamento ao cancelamento de uma compra, até chegar o momento que nao vai dar mais pra cancelar"},{"m":4,"team":"ia","t":"Cancelamento escondido no site e recusa em cancelar meu pedido, que foi feito ontem, a receita médica tudo bem, mas o produto importado, não poder cancelar é um absurdo"},{"m":4,"team":"ia","t":"Eta como entregue no rastreio mas não foi entregue!"},{"m":4,"team":"ia","t":"IA é rápida e interpreta bem, porém é genérico demais. Paciente sem paciência pela ausência do medicamento devido a demora que não tem culpa alguma da morosidade"}],
+  good:[{"m":0,"team":"saude","t":"Tirou minha dúvida e me deu mais tranquilidade"},{"m":0,"team":"resolve","t":"Só quero comentar que eu fiquei surpreso pq não havia recebido o medicamento ainda. Na minha opinião, vcs deveriam ter me enviado uma mensagem dizendo que o medicamento iria chegar hoje, aí eu não teria ficado surpreso com a mensagem da colaboradora tratando do assunto."},{"m":0,"team":"saude","t":"escutou o problema e deu alternativas pra resolução e acompanhou ate o fim excelente"},{"m":0,"team":"resolve","t":"Resolveu rápido e sem problemas"},{"m":0,"team":"resolve","t":"O atendente me explicou tudo direitinho infelizmente o problema é logístico"},{"m":0,"team":"resolve","t":"Muitos canais diferentes dificil saber qual"},{"m":0,"team":"resolve","t":"Faltou só um pouco mais de clareza nas informações anteriores, nas agora deu tudo certo."},{"m":0,"team":"saude","t":"Enf Juliana mto atenciosa e esclareceu minhas dúvidas"},{"m":0,"team":"saude","t":"Suporte super acolhedor."},{"m":0,"team":"resolve","t":"excelente bem paciente"},{"m":0,"team":"resolve","t":"TODAS AS INFORMAÇÕES FORAM CLARAS E O ATENDIMENTO FOI GENTIL E ACOLHEDOR"},{"m":0,"team":"saude","t":"Excelente!"},{"m":0,"team":"saude","t":"Atendimento maravilhoso muito obrigado ☺️"},{"m":0,"team":"saude","t":"Me senti ouvida e bem orientada. Fez excelente ponte entre o médico e eu."},{"m":0,"team":"saude","t":"Muito obrigado pelo suporte Pessoa muito atenciosa com acompanhamento obrigado"},{"m":0,"team":"saude","t":"Atendimento excelente"},{"m":0,"team":"resolve","t":"Tive a resposta que precisava"},{"m":0,"team":"saude","t":"Muit o top"},{"m":0,"team":"resolve","t":"Muito bom e humano"},{"m":0,"team":"saude","t":"Muito bem atendida, com dedicação, paciência e educação. Obrigada"},{"m":0,"team":"saude","t":"Excelente atendimento. Gratidão 🙏"},{"m":0,"team":"resolve","t":"Rápido e eficiente."},{"m":0,"team":"resolve","t":"Fui muito bem atendido, com atenção e educação. Sendo que minha dúvida, era sobre outro app kkkk"},{"m":0,"team":"saude","t":"Foi bom e esclarecedor!!"},{"m":0,"team":"resolve","t":"Satisfeito"},{"m":0,"team":"saude","t":"Muito bom ter essa orientação, pois ajuda a tirar muitas dúvidas."},{"m":0,"team":"resolve","t":"Recebi a informação que precisava"},{"m":0,"team":"resolve","t":"O suporte demorou, mas foi de qualidade"},{"m":0,"team":"saude","t":"Satisfeita"},{"m":0,"team":"resolve","t":"Motoboy falou q vinha hoje e vc fala q vem no final de semana! Vcs precisam decidir como vamos resolver a situação!"},{"m":1,"team":"saude","t":"Estou satisfeito pessoa educada e qualificada à dirimir minha dúvidas"},{"m":1,"team":"saude","t":"Ótimo atendimento"},{"m":1,"team":"resolve","t":"Muita atenção com o paciente"},{"m":1,"team":"saude","t":"Foi satisfatório."},{"m":1,"team":"resolve","t":"Não consegui fazer o upload do documento pelo app. Mas fui prontamente atendida agora pelo WhatsApp. Obrigada. Fico no aguardo"},{"m":1,"team":"saude","t":"Ok, para o atendimento. Ainda não recebi a medicação, portanto não posso avaliar mais."},{"m":1,"team":"saude","t":"Atendimento ótimo. Agora vou começar o tratamento."},{"m":1,"team":"saude","t":"Qto aos esclarecimentos p, vou confiar no q vc me escreveu, mas o tempo de espera é mto grande p alguém q deseja saber sobre o tratamento q está fazendo, pensei q eu poderia retornar ao médico pois ele é q tem o meu histórico. Por isso a nota 4. Grata pela atenção, att. Vilma"},{"m":1,"team":"resolve","t":"Atendente atenciosa"},{"m":1,"team":"saude","t":"Dentro do esperado."},{"m":1,"team":"saude","t":"Muito satisfeita...obrigada!"},{"m":1,"team":"saude","t":"Rapidez, agilidade e segurança nas respostas!"},{"m":1,"team":"saude","t":"O suporte tem sido muito eficiente e estou satisfeito com o atendimento dado"},{"m":1,"team":"saude","t":"Maravilloso!"},{"m":1,"team":"resolve","t":"Muito gentis e dispostos a ajudar a resolver o problema"},{"m":1,"team":"saude","t":"Sempre atentos"},{"m":1,"team":"resolve","t":"O suporte foi satisfatório!"},{"m":1,"team":"saude","t":"Excelente atendimento"},{"m":1,"team":"saude","t":"Rápido o atendimento e respostas claras"},{"m":1,"team":"saude","t":"A Juliana foi muito educada e muito profissional simpática fiquei a vontade pra perguntar enfim gostei muito"},{"m":1,"team":"saude","t":"Atendimento rápido e super humanizado pelo Beatriz Pereira, parabéns ao time BLIS!"},{"m":1,"team":"saude","t":"Por enquanto vou dar essa nota de satisfeito pois ainda não fiz a compra,vamos ver depois da compra,desde já agradeço"},{"m":1,"team":"resolve","t":"Super recomendo"},{"m":1,"team":"saude","t":"Atencioso, cordial, pontual e profissional"},{"m":1,"team":"saude","t":"Responderam prontamente minha solicitação dentro das possibilidades"},{"m":1,"team":"resolve","t":"Até o momento estou satisfeita"},{"m":1,"team":"saude","t":"Gostei demais do blis aplicativo e atendimento melhor do Mundo. Indicarei a meus amigos."},{"m":1,"team":"resolve","t":"Excelente comunicação , prático e muito rápido."},{"m":1,"team":"saude","t":"Informações precisas"},{"m":1,"team":"saude","t":"Sempre atentos"},{"m":2,"team":"saude","t":"Atendimento rápido e objetivo"},{"m":2,"team":"resolve","t":"Para o propósito acho a foi suficiente, porém esperava mais (expectativa)."},{"m":2,"team":"saude","t":"Excelente atendimento!"},{"m":2,"team":"saude","t":"Respondeu rápido, e me ajudou!"},{"m":2,"team":"resolve","t":"Ótimo atendimento."},{"m":2,"team":"resolve","t":"Atendimento de primeira."},{"m":2,"team":"saude","t":"Respondeu rapidamente."},{"m":2,"team":"saude","t":"Juliana tem um excelente atendimento, humabizado e atencioso. Parabéns time BLIS."},{"m":2,"team":"resolve","t":"Excelente, facilitou muito a conclusão da compra, atendimento rápido e prático"},{"m":2,"team":"saude","t":"Foi bem esclarecedor porém demorou pra pra responder"},{"m":2,"team":"saude","t":"rápida e solícita"},{"m":2,"team":"saude","t":"enfermeira atenciosa,gostei do atendimento e preocupação com o paciente"},{"m":2,"team":"saude","t":"Atendeu minhas expectativas"},{"m":2,"team":"resolve","t":"Até agora foi tudo muito bom 👍"},{"m":2,"team":"saude","t":"Juliana fez um pronto atendimento, bem rápida, obrigado!!"},{"m":2,"team":"saude","t":"Não tenho o que reclamar não, fui atendido na hora , há falei com o médico e já pedi o remédio , foi muito bom"},{"m":2,"team":"saude","t":"Profissional atenciosa que passou com clareza as recomendações"},{"m":2,"team":"resolve","t":"Esclarecedor...IA"},{"m":2,"team":"saude","t":"Rápido e prático."},{"m":2,"team":"resolve","t":"Lm a co zh"},{"m":2,"team":"saude","t":"resposta clara e certeira para a minha dúvida."},{"m":2,"team":"saude","t":"Até agora muito satisfeito"},{"m":2,"team":"saude","t":"Atendimento rápido e esclarecedor."},{"m":2,"team":"saude","t":"Orientação adequada e correta."},{"m":2,"team":"resolve","t":"Bom atendimento"},{"m":2,"team":"saude","t":"Muito satisfatório e feliz com meu tratamento Podem comprar e usar os profissionais com uma consulta incrível sem medo"},{"m":2,"team":"saude","t":"Excelente e rápido"},{"m":2,"team":"saude","t":"Muito rápido"},{"m":2,"team":"saude","t":"Fiquei muito confiante e segura. Comecei o meu tratamento, estou muito feliz pela atenção que appblis está me proporcionando.🌟🌟🌟🌟🌟"},{"m":2,"team":"saude","t":"É sempre muito bom o atendimento, muito esclarecedor"},{"m":3,"team":"resolve","t":"ótimo atendimento"},{"m":3,"team":"ia","t":"Pronto atendimento para as duvidas"},{"m":3,"team":"resolve","t":"muito atenciosa e procurou saber todos os detalhes do meu descontentamento e prontamente foi buscar uma solução"},{"m":3,"team":"saude","t":"Ótimo, atenciosos"},{"m":3,"team":"saude","t":"Atendimento rápido e claro"},{"m":3,"team":"ia","t":"Muito atenciosa 👏🏼👏🏼👏🏼"},{"m":3,"team":"ia","t":"muito prestativo"},{"m":3,"team":"ia","t":"Ótimo atendimento"},{"m":3,"team":"ia","t":"Me atenderam, (a Letícia)muito bem. Agora é esperar que o produto, enfim, chegue."},{"m":3,"team":"ia","t":"Ótimo atendimento, não demorou muito para entregar!"},{"m":3,"team":"ia","t":"Muito satisfeito com o atendimento da Letícia."},{"m":3,"team":"ia","t":"Teve uma falha na aprovação da documentação pois depois eu tinha mandado so um printe da minha conta de luz que mostrou meu nome e tudo vcs avisarem que não fui a conta completa, em resposta mandei uma cópia completa da minha conta de luz com endereço e meu nome por completo na mesma hira ! Não fui no dia seguinte , fui em sequencia !! Dai vcs ainda reconeserem o recebimento do nesmo e tudo tava pra ser certo ! Tu pode rever tudo nossa conversa no app . Obrigado por tudo Alexander"},{"m":3,"team":"ia","t":"Excelente atendimento. Rápido e esclarecedor."},{"m":3,"team":"ia","t":"Atendente muito atenciosa,educada e prestativa."},{"m":3,"team":"resolve","t":"Prontidão e rápida resolução. Muito obrigada. Fez.toda a diferença."},{"m":3,"team":"ia","t":"Respostas muito educadas Mesmo nao sendo possivel resolver, foram atras de informações e me deixaram sempre atualizado Problema era externo e ainda assim cumpriram com a entrega"},{"m":3,"team":"ia","t":"Atendimento pelo médico e pela assistência da secretária, dotados de simpatia e profissionalismo top."},{"m":3,"team":"ia","t":"O Brasil merece um app assim! 🍁"},{"m":3,"team":"ia","t":"Encaminhou a questão rápido"},{"m":3,"team":"ia","t":"ajudou muito"},{"m":3,"team":"ia","t":"Simpatia, profissionalismo e conhecimento plena no assunto. O médico dotado de conhecimento na área do canabidiol."},{"m":3,"team":"ia","t":"Sempre muito bem atendida, atualizada, descontos vários. Recomendo sempre. Parabéns a equipe."},{"m":3,"team":"ia","t":"Fui muito bem e profissionalmente atendido !"},{"m":3,"team":"ia","t":"Atendimento super rápido, e atencioso."},{"m":3,"team":"ia","t":"Fui atendida em todas as solicitações e com muito carinho e atenção! Muito obrigada!"},{"m":3,"team":"resolve","t":"Atendimento muito bom, como sugestão fica a possibilidade de cancelamento de um pedido até um certo periodo através do sistema."},{"m":3,"team":"ia","t":"Ótimo atendimento"},{"m":3,"team":"ia","t":"Equipe muito bem treinada amei"},{"m":3,"team":"ia","t":"Gratidão ao atendimento"},{"m":3,"team":"ia","t":"Muito bem atendida! Super recomendo!"},{"m":4,"team":"ia","t":"Atendimento rápido e todas as questões respondidas com exatidão."},{"m":4,"team":"ia","t":"Sempre bem atendido."},{"m":4,"team":"ia","t":"O atendimento foi rápido, resolutivo e atencioso. Muito bom. Continuem assim."},{"m":4,"team":"ia","t":"Este moço que me atendeu adorei ele mas algum setor aí errou"},{"m":4,"team":"ia","t":"Tudo muito sério, suporte atento, ameo"},{"m":4,"team":"ia","t":"Esclarecedor"},{"m":4,"team":"ia","t":"Rápido, cordial e muito eficaz.Excelente atendimento. Nota 10."},{"m":4,"team":"ia","t":"Atenciosos"},{"m":4,"team":"resolve","t":"O Gustavo me atendeu bem e resolveu rapidamente"},{"m":4,"team":"resolve","t":"Atenciosa educada respondeu tudo teve paciência"},{"m":4,"team":"resolve","t":"Todos os amigos da BLIS merecem nota 10 pelo atendimento e presteza nas informações !"},{"m":4,"team":"ia","t":"Por enquanto, tudo bem"},{"m":4,"team":"saude","t":"Lins martins e Juliana enfermeira forma muito pacientes e profissionais. Obrigado! Deus abençoe 🙏🏽"},{"m":4,"team":"resolve","t":"Muito solicito e rápido"},{"m":4,"team":"resolve","t":"Muito atencioso e educada"},{"m":4,"team":"resolve","t":"Preciso muito cancelar esse pedido por indicação do meu médico e fui atendida com agilidade. Obrigada!"},{"m":4,"team":"saude","t":"Otimo atendimento , me respondeu e orientou prontamente ! 🥰"},{"m":4,"team":"ia","t":"Muito atenciosa e educada"},{"m":4,"team":"ia","t":"Bom uai não sei o que dizer"},{"m":4,"team":"saude","t":"Sempre que precisei, fui muito bem atendida. Profissionais excelentes! Parabéns! Gratidão!"},{"m":4,"team":"resolve","t":"pronto atendimento, com explicações claras"},{"m":4,"team":"ia","t":"Embora não tenha recebido e entendido o motivo do atraso de entrega"},{"m":4,"team":"ia","t":"Gostei do atendimento! Confesso que fiquei muito insegura com o aplicativo , os documentos solicitados, o pagamento, tudo…aos poucos o amigo, bem paciente, foi me explicando … fiquei mais tranquila ."},{"m":4,"team":"ia","t":"Rápido retorno"},{"m":4,"team":"saude","t":"Atendimento rápido e assertivo, respondeu minha dúvida de maneira direta e pragmática, gostei muito."},{"m":4,"team":"ia","t":"Pagar consulta duas vezes pra só mudar a medicação isso não existe não . Só essa insatisfação ainda onlaine ."},{"m":4,"team":"ia","t":"O atendimento foi bom mas o valor tô sem condições de pagar no momento"},{"m":4,"team":"resolve","t":"Resolveu perfeitamente e rápido"},{"m":4,"team":"ia","t":"Fui muito bem atendida. Só espero q esse medicamento, resolva de vez meu problema de insônia e ansiedade. Vou dando notícias! Obrigada"},{"m":4,"team":"saude","t":"Rápido, prático e eficiente"}]
+};
+
+// ── OFFENDERS by month — gerado por updater.py ────────────────────
+const OFFENDERS = [[{"theme":"Atendimento por IA / Bot","ex":"Medicação extremamente cara . Sem dúvida o médico é IA . Não encontrei o CRM . Por isso o valor da medicação é exibido após a consulta","cnt":"13 menções"},{"theme":"Demora no Atendimento","ex":"Meu problema esta sendo a entrega, o meu medicamento esta parado a uma distância de 27 km de minha casa a 4 dias, esse percurso leva 25 minu","cnt":"10 menções"},{"theme":"Logística / Entrega","ex":"Meu problema esta sendo a entrega, o meu medicamento esta parado a uma distância de 27 km de minha casa a 4 dias, esse percurso leva 25 minu","cnt":"4 menções"},{"theme":"Sem Resposta","ex":"Demora demais pra entregar mais de um mês e não ganha nenhum desconto nem uma satisfação ou nada free pra amenizar o cliente final , pq sem ","cnt":"1 menções"}],[{"theme":"Atendimento por IA / Bot","ex":"Acho que o atendimento é IA ,QUANDO O ATENDENTE DISSE VOU TRANSFERIR PRA UM HUMANO. ISSO É TRISTE, IA EU MESMO FAÇO A PESQUISA","cnt":"15 menções"},{"theme":"Demora no Atendimento","ex":"Demorou o atendimento, não respondeu minha pergunta. Encerrou sem saber se eu precisava de algo além do que me respondeu","cnt":"12 menções"},{"theme":"Logística / Entrega","ex":"Não recebi retorno","cnt":"7 menções"},{"theme":"Sem Resposta","ex":"Demorou o atendimento, não respondeu minha pergunta. Encerrou sem saber se eu precisava de algo além do que me respondeu","cnt":"3 menções"}],[{"theme":"Atendimento por IA / Bot","ex":"Três dias tentando cancelar uma compra e ninguém respondia. O aplicativo direciona pro whatsapp, que não te dá opção cancelar, além de só te","cnt":"10 menções"},{"theme":"Demora no Atendimento","ex":"Três dias tentando cancelar uma compra e ninguém respondia. O aplicativo direciona pro whatsapp, que não te dá opção cancelar, além de só te","cnt":"7 menções"},{"theme":"Sem Resposta","ex":"Não fui atendida .. paguei a consulta e ninguém me atende","cnt":"4 menções"},{"theme":"Cancelamento / Pagamento","ex":"Três dias tentando cancelar uma compra e ninguém respondia. O aplicativo direciona pro whatsapp, que não te dá opção cancelar, além de só te","cnt":"3 menções"}],[{"theme":"Atendimento por IA / Bot","ex":"Falei com uma IA que só tem respostas prontas sem entender o que peço.","cnt":"11 menções"},{"theme":"Sem Resposta","ex":"Atendimento fantasma","cnt":"5 menções"},{"theme":"Demora no Atendimento","ex":"Minha reclamação durou 4 dias para ser resolvida. E era de fácil resolução, uma vez que era uma simples entrega de um medicamento.","cnt":"4 menções"},{"theme":"Logística / Entrega","ex":"Minha reclamação durou 4 dias para ser resolvida. E era de fácil resolução, uma vez que era uma simples entrega de um medicamento.","cnt":"3 menções"}],[{"theme":"Atendimento por IA / Bot","ex":"Maquinas de IA nao resolvem o problema","cnt":"11 menções"},{"theme":"Receita / Documentação","ex":"Não foi o formado que era venda casada. Pago por uma consulta e sou encaminhado ao site para comprar medicamento importado. Minha idéia era ","cnt":"3 menções"},{"theme":"Logística / Entrega","ex":"O atendente não soube verificar sobre a entrega do meu pedido.","cnt":"3 menções"},{"theme":"Demora no Atendimento","ex":"48 dias para fazer algo simples","cnt":"2 menções"}],[{"theme":"Atendimento por IA / Bot","ex":"Medicação extremamente cara . Sem dúvida o médico é IA . Não encontrei o CRM . Por isso o valor da medicação é exibido após a consulta","cnt":"~40%"},{"theme":"Demora no Atendimento","ex":"Meu problema esta sendo a entrega, o meu medicamento esta parado a uma distância de 27 km de minha casa a 4 dias, esse percurso leva 25 minu","cnt":"~23%"},{"theme":"Logística / Entrega","ex":"Meu problema esta sendo a entrega, o meu medicamento esta parado a uma distância de 27 km de minha casa a 4 dias, esse percurso leva 25 minu","cnt":"~11%"},{"theme":"Sem Resposta","ex":"Demora demais pra entregar mais de um mês e não ganha nenhum desconto nem uma satisfação ou nada free pra amenizar o cliente final , pq sem ","cnt":"~9%"}]];
+
+// ═══════════════════════════════════════════════════
+// STATE & HELPERS
+// ═══════════════════════════════════════════════════
+const S = {mes:-1, semana:-1, team:"all"};
+let activePerfil = null;
+
+function setPerfil(tag, btn) {
+  document.querySelectorAll(".fb.pf").forEach(b => b.classList.remove("on"));
+  if (tag === null) {
+    document.getElementById("pb-all").classList.add("on");
+  } else {
+    btn.classList.add("on");
+  }
+  activePerfil = tag;
+  renderAll();
+}
+
+function initPerfilFilter() {
+  if (!D.perfis || !D.perfis.labels || !D.perfis.labels.length) return;
+  const container = document.getElementById("perfil-btns");
+  D.perfis.labels.forEach((label, i) => {
+    const btn = document.createElement("button");
+    btn.className = "fb pf";
+    btn.textContent = label;
+    const tag = D.perfis.ids[i];
+    btn.onclick = function() { setPerfil(tag, this); };
+    container.appendChild(btn);
+  });
+}
+
+const COL  = {ia:"#818CF8", saude:"#34D399", resolve:"#38BDF8"};
+const COLAG= {ia:"rgba(129,140,248,0.12)", saude:"rgba(52,211,153,0.12)", resolve:"rgba(56,189,248,0.12)"};
+const COLD = {ia:"#6366F1", saude:"#10B981", resolve:"#0EA5E9"};
+const CFG  = {responsive:true, displayModeBar:false};
+const BL   = {
+  paper_bgcolor:"transparent", plot_bgcolor:"transparent",
+  font:{family:"Inter,system-ui,sans-serif", color:"#7B8BA8", size:13},
+  margin:{t:10, b:50, l:55, r:15},
+  xaxis:{gridcolor:"rgba(255,255,255,0.05)", zerolinecolor:"rgba(255,255,255,0.06)", tickfont:{color:"#7B8BA8",size:12}},
+  yaxis:{gridcolor:"rgba(255,255,255,0.05)", zerolinecolor:"rgba(255,255,255,0.06)", tickfont:{color:"#7B8BA8",size:12}},
+  legend:{bgcolor:"transparent", font:{color:"#B8C4D8",size:13}, orientation:"h", y:-0.22}
+};
+const COLORS_M = ["#818CF8","#38BDF8","#34D399","#FBBF24","#F43F5E","#A78BFA","#22D3EE","#84CC16","#FB923C"];
+
+function activeTeams(){return S.team==="all"?["ia","saude","resolve"]:[S.team]}
+function activeMesIndices(){return S.mes===-1?[0,1,2,3,4]:[S.mes]}
+function ticketsFor(team){
+  if(S.semana!==-1) return D.semanas[team][S.semana]||0;
+  return activeMesIndices().reduce((a,i)=>a+(D.tickets[team][i]||0),0);
+}
+function statusFor(team,key){
+  if(S.mes!==-1 && D.status_monthly && D.status_monthly[team])
+    return activeMesIndices().reduce((a,i)=>a+(D.status_monthly[team][i][key]||0),0);
+  return D.status[team][key]||0;
+}
+function sumFor(arr,teams){const mi=activeMesIndices();return(teams||activeTeams()).reduce((a,t)=>a+mi.reduce((b,i)=>b+(D.tickets[t][i]||0),0),0)}
+function sumArr(arr){const mi=activeMesIndices();return mi.reduce((a,i)=>a+(arr[i]||0),0)}
+function semIndices(){if(S.semana!==-1)return[S.semana];if(S.mes===-1)return D.semanas.mesIdx.map((_,i)=>i);return D.semanas.mesIdx.map((m,i)=>m===S.mes?i:-1).filter(i=>i>=0)}
+function fmtN(n){return n==null?"—":n>=1000?n.toLocaleString("pt-BR"):String(n)}
+function delta(arr,mi){if(mi<=0)return null;const c=arr[mi],p=arr[mi-1];if(!p)return null;return((c-p)/p*100).toFixed(1)}
+function fmt(v,pct){return v==null?"—":(v>0?"▲":"▼")+Math.abs(v)+(pct?"%":"")}
+
+function buildWsel(){
+  const sel=document.getElementById("wsel");
+  const saved=S.semana;
+  sel.innerHTML='<option value="-1">Todas</option>';
+  D.semanas.labels.forEach((l,i)=>{
+    if(S.mes!==-1 && D.semanas.mesIdx[i]!==S.mes) return;
+    const o=document.createElement("option");
+    o.value=i; o.textContent=`${l} · ${D.semanas.datas[i]}`;
+    if(i===saved) o.selected=true;
+    sel.appendChild(o);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ═══════════════════════════════════════════════════
+
+function renderKPIs(){
+  const teams=activeTeams();
+  const isSemana=S.semana!==-1;
+  let total=0,ia=0,saude=0,resolve=0,solved=0,open_=0;
+  teams.forEach(t=>{
+    const tv=ticketsFor(t);
+    total+=tv; if(t==="ia")ia=tv; if(t==="saude")saude=tv; if(t==="resolve")resolve=tv;
+    solved+=statusFor(t,"closed")+statusFor(t,"solved");
+    open_+=statusFor(t,"open")+statusFor(t,"pending")+statusFor(t,"new_");
+  });
+  const solvedPct=total>0?(solved/total*100).toFixed(1):0;
+  const periodoLabel=isSemana
+    ?`${D.semanas.labels[S.semana]} · ${D.semanas.datas[S.semana]}`
+    :S.mes===-1?"Jan – Mai 2026":MONTHS[S.mes];
+  let momTotal="";
+  if(!isSemana && S.mes>0){
+    const curr=teams.reduce((a,t)=>a+(D.tickets[t][S.mes]||0),0);
+    const prev=teams.reduce((a,t)=>a+(D.tickets[t][S.mes-1]||0),0);
+    if(prev>0){const d=((curr-prev)/prev*100).toFixed(1);momTotal=`<div class="kdelta ${+d>=0?'up':'dn'}">${+d>0?'▲':'▼'} ${Math.abs(d)}% vs ${MSHORT[S.mes-1]}</div>`;}
+  }
+  document.getElementById("kpis").innerHTML=`
+    <div class="kc ct"><div class="kl">Total de Tickets</div><div class="kv">${fmtN(total)}</div>${momTotal}<div class="ks">${periodoLabel}</div></div>
+    <div class="kc cg"><div class="kl">Resolvidos / Fechados</div><div class="kv">${fmtN(solved)}</div><div class="ks"><span class="badge bg">${solvedPct}%</span></div></div>
+    <div class="kc cw"><div class="kl">Em Andamento</div><div class="kv">${fmtN(open_)}</div><div class="ks">abertos · pendentes · novos</div></div>
+    <div class="kc ci"><div class="kl">Cloud Humans IA</div><div class="kv">${fmtN(ia)}</div><div class="ks"><span class="badge bp">${total>0?(ia/total*100).toFixed(1):0}%</span> ativo desde mar/26</div></div>
+    <div class="kc cs"><div class="kl">Blis Saude</div><div class="kv">${fmtN(saude)}</div><div class="ks"><span class="badge bg">${total>0?(saude/total*100).toFixed(1):0}%</span></div></div>
+    <div class="kc cr"><div class="kl">Blis Resolve</div><div class="kv">${fmtN(resolve)}</div><div class="ks"><span class="badge bl">${total>0?(resolve/total*100).toFixed(1):0}%</span></div></div>`;
+}
+
+function renderMensal(){
+  const teams=activeTeams(); const mi=activeMesIndices(); const lbs=mi.map(i=>MONTHS[i]);
+  const traces=teams.map(t=>({name:t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve",type:"bar",x:lbs,y:mi.map(i=>D.tickets[t][i]||0),marker:{color:COL[t]+"BB",line:{color:COL[t],width:1}},text:mi.map(i=>fmtN(D.tickets[t][i]||0)),textposition:"outside",textfont:{size:10,color:COL[t]}}));
+  Plotly.newPlot("ch-mensal",traces,{...BL,barmode:"group",showlegend:true},CFG);
+}
+
+function renderPie(){
+  const teams=["ia","saude","resolve"]; const lbs=["Cloud Humans IA","Blis Saude","Blis Resolve"];
+  const vals=teams.map(t=>ticketsFor(t));
+  Plotly.newPlot("ch-pie",[{type:"pie",labels:lbs,values:vals,marker:{colors:Object.values(COL)},textinfo:"percent+label",textfont:{size:11,color:"#B8C4D8"},hole:0.42,hovertemplate:"<b>%{label}</b><br>%{value:,}<br>%{percent}<extra></extra>"}],{...BL,showlegend:false,margin:{t:10,b:10,l:10,r:10}},CFG);
+}
+
+function renderSemanas(){
+  const teams=activeTeams(); const si=semIndices(); const lbs=si.map(i=>D.semanas.datas[i]);
+  const traces=teams.map(t=>({name:t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve",type:"bar",x:lbs,y:si.map(i=>D.semanas[t][i]||0),marker:{color:COL[t]+"BB",line:{color:COL[t],width:1}}}));
+  const tit=S.mes===-1?"Todos os Meses":MONTHS[S.mes];
+  document.getElementById("sem-title").textContent=`Tickets por Semana — ${tit}`;
+  Plotly.newPlot("ch-semanas",traces,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,b:55}},CFG);
+}
+
+function renderTeamCards(){
+  const teams=activeTeams(); const mi=activeMesIndices(); const lbs=mi.map(i=>MSHORT[i]);
+  const INFO={
+    ia:{nome:"Cloud Humans IA",desc:"Atendimento autonomo · WhatsApp · desde 23/mar/26",cl:"ci"},
+    saude:{nome:"Blis Saude",desc:"Esclarecimentos clinicos · maior volume",cl:"cs"},
+    resolve:{nome:"Blis Resolve",desc:"N1 · duvidas operacionais · grupo padrao",cl:"cr"}
+  };
+  document.getElementById("team-cards").innerHTML=teams.map(t=>{
+    const vol=ticketsFor(t);
+    const sv=statusFor(t,"closed")+statusFor(t,"solved");
+    const op=statusFor(t,"open")+statusFor(t,"pending")+statusFor(t,"new_");
+    const cg=sumArr(D.csat[t].good); const cb=sumArr(D.csat[t].bad);
+    const cpct=(cg+cb)>0?((cg/(cg+cb))*100).toFixed(1):"—";
+    const I=INFO[t];
+    return `<div class="tc2">
+      <div class="th" style="background:linear-gradient(135deg,${COLAG[t]},transparent)">
+        <div class="tdot" style="background:${COL[t]};box-shadow:0 0 6px ${COL[t]}"></div>
+        <div><div class="tn" style="color:${COL[t]}">${I.nome}</div><div class="td">${I.desc}</div></div>
+      </div>
+      <div class="tkpis">
+        <div class="tkpi"><div class="tkl">${S.semana!==-1?"Volume Semana":"Volume Periodo"}</div><div class="tkv" style="color:${COL[t]}">${fmtN(vol)}</div></div>
+        <div class="tkpi"><div class="tkl">Fechados</div><div class="tkv" style="color:var(--good)">${fmtN(sv)}</div><div class="tks">${vol>0?(sv/vol*100).toFixed(1):0}%</div></div>
+        <div class="tkpi"><div class="tkl">Em Aberto</div><div class="tkv" style="color:var(--warn)">${fmtN(op)}</div></div>
+        <div class="tkpi"><div class="tkl">CSAT Periodo</div><div class="tkv" style="color:${COL[t]}">${cpct}${cpct!=="—"?"%":""}</div><div class="tks">${cg} bom · ${cb} ruim</div></div>
+      </div>
+      <div style="padding:12px 16px 16px">
+        <div id="mini-${t}" style="height:150px"></div>
+      </div>
+    </div>`;
+  }).join("");
+  teams.forEach(t=>{
+    Plotly.newPlot(`mini-${t}`,[{type:"bar",x:lbs,y:mi.map(i=>D.tickets[t][i]||0),marker:{color:COL[t]+"99",line:{color:COL[t],width:1}},showlegend:false,text:mi.map(i=>fmtN(D.tickets[t][i]||0)),textposition:"outside",textfont:{size:10,color:COL[t]}}],{paper_bgcolor:"transparent",plot_bgcolor:"transparent",margin:{t:5,b:28,l:38,r:8},xaxis:{gridcolor:"rgba(255,255,255,0.05)",tickfont:{size:10,color:"#7B8BA8"},zeroline:false},yaxis:{gridcolor:"rgba(255,255,255,0.05)",tickfont:{size:10,color:"#7B8BA8"},zeroline:false}},CFG);
+  });
+}
+
+function renderStatus(){
+  const teams=activeTeams(); const lbs=teams.map(t=>t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve");
+  const SLBLS=["Fechado","Resolvido","Aberto","Pendente","Novo"]; const SKEYS=["closed","solved","open","pending","new_"];
+  const SCOLS=["#818CF8","#34D399","#FBBF24","#F43F5E","#7B8BA8"];
+  const traces=SKEYS.map((k,i)=>({name:SLBLS[i],type:"bar",x:lbs,y:teams.map(t=>statusFor(t,k)||0),marker:{color:SCOLS[i]+"BB"},text:teams.map(t=>fmtN(statusFor(t,k)||0)),textposition:"outside",textfont:{size:10}}));
+  Plotly.newPlot("ch-status",traces,{...BL,barmode:"stack",showlegend:true,margin:{...BL.margin,b:55}},CFG);
+}
+
+function renderCanal(){
+  const teams=activeTeams(); const lbs=teams.map(t=>t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve");
+  function chanFor(t,c){
+    if(S.mes!==-1 && D.channels_monthly && D.channels_monthly[t])
+      return activeMesIndices().reduce((a,i)=>a+(D.channels_monthly[t][i][c]||0),0);
+    return D.channels[t][c]||0;
+  }
+  const allC=[...new Set(teams.flatMap(t=>Object.keys(D.channels[t])))];
+  const CCOLS=["#818CF8","#34D399","#38BDF8","#FBBF24","#7B8BA8"];
+  const traces=allC.map((c,ci)=>({name:c,type:"bar",x:lbs,y:teams.map(t=>chanFor(t,c)),marker:{color:CCOLS[ci]+"BB"},text:teams.map(t=>fmtN(chanFor(t,c))),textposition:"outside",textfont:{size:10}}));
+  Plotly.newPlot("ch-canal",traces,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,b:55}},CFG);
+}
+
+function renderGauges(){
+  const teams=activeTeams();
+  let tG=0,tB=0;
+  teams.forEach(t=>{tG+=sumArr(D.csat[t].good);tB+=sumArr(D.csat[t].bad);});
+  const gPct=(tG+tB)>0?((tG/(tG+tB))*100).toFixed(1):"—";
+  function ghtml(pct,lbl,sub,cls,cg,cb){
+    return `<div class="gauge"><div class="gcircle ${cls}"><span>${pct}${pct!=="—"?"%":""}</span><span class="gsub">CSAT</span></div><div class="glabel">${lbl}</div><div class="gmini">${cg} bom · ${cb} ruim</div><div class="gmini" style="margin-top:4px">${sub}</div></div>`;
+  }
+  let html=ghtml(gPct,"CSAT Geral","Periodo selecionado","gg",tG,tB);
+  teams.forEach(t=>{
+    const g=sumArr(D.csat[t].good),b=sumArr(D.csat[t].bad);
+    const p=(g+b)>0?((g/(g+b))*100).toFixed(1):"—";
+    const lbl=t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve";
+    html+=ghtml(p,lbl,`${g+b} avaliacoes`,`g${t[0]}`,g,b);
+  });
+  document.getElementById("gauges").innerHTML=html;
+}
+
+function renderCSATCharts(){
+  const teams=activeTeams(); const mi=activeMesIndices(); const lbs=mi.map(i=>MONTHS[i]);
+  const tvol=[];
+  teams.forEach(t=>{
+    tvol.push({name:(t==="ia"?"IA":t==="saude"?"Saude":"Resolve")+" Positivo",type:"bar",x:lbs,y:mi.map(i=>D.csat[t].good[i]||0),marker:{color:COL[t]+"99",line:{color:COL[t],width:1}},legendgroup:t});
+    tvol.push({name:(t==="ia"?"IA":t==="saude"?"Saude":"Resolve")+" Negativo",type:"bar",x:lbs,y:mi.map(i=>D.csat[t].bad[i]||0),marker:{color:"rgba(244,63,94,0.4)",line:{color:"#F43F5E",width:1}},legendgroup:t,showlegend:false});
+  });
+  Plotly.newPlot("ch-csat-vol",tvol,{...BL,barmode:"group",showlegend:true},CFG);
+  const tpct=teams.map(t=>({name:t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve",type:"scatter",mode:"lines+markers",x:lbs,y:mi.map(i=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;}),line:{color:COL[t],width:3},marker:{size:9,color:COL[t]}}));
+  tpct.push({name:"Meta 90%",type:"scatter",mode:"lines",x:lbs,y:lbs.map(()=>90),line:{color:"rgba(255,255,255,0.2)",width:2,dash:"dash"},showlegend:true});
+  Plotly.newPlot("ch-csat-pct",tpct,{...BL,yaxis:{...BL.yaxis,range:[60,100],ticksuffix:"%"},showlegend:true},CFG);
+}
+
+function renderCSATAudit(){
+  const TNAMES={ia:"Cloud Humans IA",saude:"Blis Saude",resolve:"Blis Resolve"};
+  const teams=activeTeams(); const mi=activeMesIndices();
+  const thCols=mi.map(i=>`<th style="text-align:center;min-width:70px;padding:6px 8px">${MONTHS[i]}</th>`).join("");
+  let tbody="";
+  teams.forEach(t=>{
+    const g=D.csat[t].good; const b=D.csat[t].bad;
+    const dataCells=(arr,col)=>mi.map(i=>`<td style="text-align:center;font-size:12px;padding:5px 8px;color:${col}">${fmtN(arr[i]||0)}</td>`).join("");
+    const pctCells=mi.map(i=>{
+      const gv=g[i]||0,bv=b[i]||0,tot=gv+bv;
+      const pct=tot>0?(gv/tot*100).toFixed(1):null;
+      const col=pct==null?"var(--text-dim)":+pct>=90?"var(--good)":+pct>=80?"var(--warn)":"var(--bad)";
+      return`<td style="text-align:center;font-size:13px;font-weight:700;padding:5px 8px;color:${col}">${pct!=null?pct+"%":"—"}</td>`;
+    }).join("");
+    tbody+=`
+      <tr><td rowspan="3" style="padding:6px 10px;font-weight:600;color:${COL[t]};border-right:1px solid var(--border);vertical-align:middle">${TNAMES[t]}</td>
+        <td style="padding:5px 8px;font-size:11px;color:var(--good)">Positivas</td>${dataCells(g,"var(--good)")}</tr>
+      <tr><td style="padding:5px 8px;font-size:11px;color:var(--bad)">Negativas</td>${dataCells(b,"var(--bad)")}</tr>
+      <tr style="border-bottom:2px solid var(--border-hi)"><td style="padding:5px 8px;font-size:11px;font-weight:700;color:var(--text-sec)">CSAT %</td>${pctCells}</tr>`;
+  });
+  const note=`<div style="font-size:10px;color:var(--text-dim);padding:12px 16px 4px">Formula: positivas / (positivas + negativas) x 100 · avaliacoes "offered" excluidas · Resolve Jan validado: 347 pos / 56 neg = 86.1%</div>`;
+  document.getElementById("csat-audit").innerHTML=`${note}<div style="overflow-x:auto;padding:8px 16px 16px">
+    <table style="width:100%;border-collapse:collapse;font-size:13px;font-family:Inter,system-ui,sans-serif">
+      <thead><tr style="border-bottom:1px solid var(--border-hi)">
+        <th style="text-align:left;padding:6px 10px;min-width:130px;color:var(--text-sec)">Time</th>
+        <th style="text-align:left;padding:6px 10px;min-width:80px;color:var(--text-sec)">Metrica</th>
+        ${thCols}
+      </tr></thead>
+      <tbody>${tbody}</tbody>
+    </table>
+  </div>`;
+}
+
+function renderOffenders(){
+  const idx=S.mes===-1?0:S.mes+1;
+  const list=OFFENDERS[idx]||OFFENDERS[0];
+  const note=S.team!=="all"?`<div style="font-size:10px;color:var(--text-dim);margin-bottom:8px">Temas extraidos do volume consolidado — filtro de time nao aplicado nesta analise qualitativa</div>`:"";
+  document.getElementById("offenders").innerHTML=note+list.map((o,i)=>`
+    <div class="offrow">
+      <div class="ofrank">${i+1}</div>
+      <div class="ofinfo"><div class="oftheme">${o.theme}</div><div class="ofexample">"${o.ex}"</div></div>
+      <div class="ofbadge">${o.cnt}</div>
+    </div>`).join("");
+}
+
+function renderComments(){
+  const mi=activeMesIndices(); const teams=activeTeams();
+  function filter(arr){return arr.filter(c=>mi.includes(c.m)&&teams.includes(c.team))}
+  const bad=filter(COMMENTS.bad); const good=filter(COMMENTS.good);
+  document.getElementById("cnt-bad").textContent=bad.length;
+  document.getElementById("cnt-good").textContent=good.length;
+  const tmap={ia:"IA",saude:"Saude",resolve:"Resolve"};
+  const tcls={ia:"ti",saude:"ts",resolve:"tr"};
+  function card(c,cls){return`<div class="citem ${cls}"><div class="ctxt">${c.t}</div><div class="cmeta"><span class="ctag ${tcls[c.team]}">${tmap[c.team]}</span><span>${MSHORT[c.m]}</span></div></div>`;}
+  document.getElementById("list-bad").innerHTML=bad.map(c=>card(c,"bd")).join("");
+  document.getElementById("list-good").innerHTML=good.map(c=>card(c,"gd")).join("");
+  renderWordCloud(bad);
+}
+
+function renderWordCloud(badComments){
+  const stop=new Set(["que","não","muito","para","uma","com","por","mas","foi","do","da","de","em","o","a","os","as","um","ao","na","no","se","me","já","mais","quando","pra","pra","só","até","também","tudo","isso","como","isso","sobre","numa","num","uns","umas","ter","tem","vai","fui","ser","está","pelo","pela","esse","essa","este","esta","isso","aqui","bem","sim","não"]);
+  const txt=(badComments||[]).map(c=>c.t).join(" ").toLowerCase();
+  const words=txt.match(/[a-záéíóúâêîôûãõçàèìòùñü]+/g)||[];
+  const freq={};
+  words.forEach(w=>{if(w.length>3&&!stop.has(w))freq[w]=(freq[w]||0)+1;});
+  const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,40);
+  if(!sorted.length){document.getElementById("wordcloud").innerHTML="<span style='color:var(--text-dim);font-size:12px'>Nenhum comentario no periodo</span>";return;}
+  const max=sorted[0][1];
+  document.getElementById("wordcloud").innerHTML=sorted.map(([w,c])=>{
+    const sz=Math.round(12+((c/max)*20));
+    const op=Math.round(60+((c/max)*95));
+    return`<span class="ww" style="font-size:${sz}px;opacity:${op/100}" title="${w}: ${c}x">${w}</span>`;
+  }).join("");
+}
+
+function renderMotivosList(){
+  const mi=activeMesIndices(); const teams=activeTeams();
+  const getMotVol=(m,ts)=>ts.reduce((acc,t)=>acc+sumArr(m[t]||[0,0,0,0,0]),0);
+  const perfilAllow=activePerfil&&D.perfis?.motivos?.[activePerfil]?new Set(D.perfis.motivos[activePerfil]):null;
+  const perfilCounts=activePerfil&&D.perfis?.counts?.[activePerfil]||null;
+  const monthFactor=(arr)=>{const tot=arr.reduce((a,b)=>a+b,0);if(!tot||S.mes===-1)return 1;return mi.reduce((a,i)=>a+(arr[i]||0),0)/tot;};
+  const rows=(D.motivos||[])
+    .filter(m=>!perfilAllow||perfilAllow.has(m.id))
+    .map(m=>{
+      let vtot,rVol,sVol,iVol;
+      if(perfilCounts&&perfilCounts[m.id]){
+        const pc=perfilCounts[m.id];
+        rVol=Math.round((pc.resolve||0)*monthFactor(m.resolve));
+        sVol=Math.round((pc.saude||0)*monthFactor(m.saude));
+        iVol=Math.round((pc.ia||0)*monthFactor(m.ia));
+        vtot=teams.reduce((a,t)=>a+(t==="resolve"?rVol:t==="saude"?sVol:iVol),0);
+      } else {
+        vtot=getMotVol(m,teams);
+        rVol=sumArr(m.resolve); sVol=sumArr(m.saude); iVol=sumArr(m.ia);
+      }
+      let momHtml="";
+      if(S.mes>0){const d=delta(m.monthly,S.mes);if(d!=null){const isUp=+d>0;momHtml=`<span class="mdelta ${isUp?"delta-up":"delta-dn"}">${isUp?"▲":"▼"}${Math.abs(d)}%</span>`;}}
+      return{nome:m.nome,vol:vtot,rVol,sVol,iVol,momHtml,id:m.id};
+    }).sort((a,b)=>b.vol-a.vol);
+  if(!rows.length){document.getElementById("motivos-list").innerHTML="<div style='color:var(--text-sec);padding:20px'>Sem motivos para o perfil selecionado.</div>";return;}
+  const maxV=rows[0].vol;
+  const totalAll=rows.reduce((a,r)=>a+r.vol,0);
+  document.getElementById("motivos-list").innerHTML=rows.map((r,i)=>`
+    <div class="mrow">
+      <div class="mrank" style="color:${COLORS_M[i]}">${i+1}</div>
+      <div class="minfo">
+        <div class="mname">${r.nome} ${r.momHtml}</div>
+        <div class="mteams">
+          <span class="mtbadge" style="background:rgba(56,189,248,0.1);color:#38BDF8">Resolve: ${fmtN(r.rVol)}</span>
+          <span class="mtbadge" style="background:rgba(52,211,153,0.1);color:#34D399">Saude: ${fmtN(r.sVol)}</span>
+          <span class="mtbadge" style="background:rgba(129,140,248,0.1);color:#818CF8">IA: ${fmtN(r.iVol)}</span>
+        </div>
+      </div>
+      <div class="mbar"><div class="mbg"><div class="mfill" style="width:${Math.round(r.vol/maxV*100)}%;background:${COLORS_M[i]}"></div></div></div>
+      <div class="mnums"><div class="mvol">${fmtN(r.vol)}</div><div class="mpct">${totalAll>0?(r.vol/totalAll*100).toFixed(1):0}%</div></div>
+    </div>`).join("");
+}
+
+function renderMotivosColCharts(){
+  const activeT=activeTeams();
+  const mi=activeMesIndices();
+  const perfilAllow=activePerfil&&D.perfis?.motivos?.[activePerfil]?new Set(D.perfis.motivos[activePerfil]):null;
+  const perfilCounts=activePerfil&&D.perfis?.counts?.[activePerfil]||null;
+  const getTeamVol=(m,t)=>{
+    const arr=m[t]||[0,0,0,0,0];
+    if(perfilCounts&&perfilCounts[m.id]){
+      const pc=perfilCounts[m.id][t]||0;
+      const tot=arr.reduce((a,b)=>a+b,0);
+      if(!tot) return 0;
+      return S.mes===-1?pc:Math.round(pc*mi.reduce((a,i)=>a+(arr[i]||0),0)/tot);
+    }
+    return sumArr(arr);
+  };
+  const getVol=(m)=>activeT.reduce((acc,t)=>acc+getTeamVol(m,t),0);
+  const visibleM=(D.motivos||[]).filter(m=>!perfilAllow||perfilAllow.has(m.id));
+
+  // Grafico 1: volume por motivo (colunas verticais)
+  const sorted=[...visibleM].sort((a,b)=>getVol(b)-getVol(a));
+  const xMot=sorted.map(m=>m.nome);
+  const yMot=sorted.map(m=>getVol(m));
+  Plotly.newPlot("ch-mot-col",[{
+    type:"bar", x:xMot, y:yMot,
+    marker:{color:COLORS_M.slice(0,xMot.length).map(c=>c+"CC"), line:{color:COLORS_M.slice(0,xMot.length),width:1}},
+    text:yMot.map(v=>fmtN(v)),
+    textposition:"outside",
+    textfont:{size:11, color:"#DDE4F5"},
+    cliponaxis:false
+  }],{
+    ...BL,
+    margin:{t:30,b:100,l:45,r:15},
+    xaxis:{...BL.xaxis, tickangle:-35, tickfont:{size:10,color:"#7B8BA8"}, automargin:true},
+    yaxis:{...BL.yaxis, tickfont:{size:11,color:"#7B8BA8"}}
+  },CFG);
+
+  // Grafico 2: volume por time (colunas verticais)
+  const TNAMES={ia:"Cloud Humans IA", saude:"Blis Saude", resolve:"Blis Resolve"};
+  const xTime=activeT.map(t=>TNAMES[t]);
+  const yTime=activeT.map(t=>visibleM.reduce((a,m)=>a+getTeamVol(m,t),0));
+  const tCols=activeT.map(t=>COL[t]);
+  Plotly.newPlot("ch-time-col",[{
+    type:"bar", x:xTime, y:yTime,
+    marker:{color:tCols.map(c=>c+"CC"), line:{color:tCols,width:1}},
+    text:yTime.map(v=>fmtN(v)),
+    textposition:"outside",
+    textfont:{size:13, color:"#DDE4F5", family:"Inter,system-ui,sans-serif"},
+    cliponaxis:false
+  }],{
+    ...BL,
+    margin:{t:30,b:60,l:45,r:15},
+    xaxis:{...BL.xaxis, tickfont:{size:12,color:"#B8C4D8"}},
+    yaxis:{...BL.yaxis, tickfont:{size:11,color:"#7B8BA8"}}
+  },CFG);
+}
+
+function renderSubMotivos(){
+  const mi=activeMesIndices();
+  const SUB_META={
+    appblis:  {idx:1,nome:"AppBlis",             icon:"A",col:"#818CF8",motKey:"appblis"},
+    cadastros:{idx:2,nome:"Cadastros",            icon:"C",col:"#38BDF8",motKey:"cadastros"},
+    medicos:  {idx:3,nome:"Blis Medicos",         icon:"M",col:"#34D399",motKey:"medicos"},
+    docs:     {idx:4,nome:"Documentos",           icon:"D",col:"#FBBF24",motKey:"docs"},
+    logistica:{idx:5,nome:"Logistica",            icon:"L",col:"#F43F5E",motKey:"logistica"},
+    pagamento:{idx:6,nome:"Pagamentos",           icon:"P",col:"#F472B6",motKey:"pagamento"},
+    estoque:  {idx:7,nome:"Estoque",              icon:"E",col:"#A78BFA",motKey:"estoque"},
+    receitas: {idx:8,nome:"Receitas",             icon:"R",col:"#22D3EE",motKey:"receitas"},
+    cancela:  {idx:9,nome:"Cancelar Tratamento",  icon:"X",col:"#FB923C",motKey:"cancela"}
+  };
+  const perfilAllowSub=activePerfil&&D.perfis?.motivos?.[activePerfil]?new Set(D.perfis.motivos[activePerfil]):null;
+  const totalGeral=(D.motivos||[]).reduce((a,m)=>a+sumArr(m.monthly),0);
+  document.getElementById("submotivos").innerHTML=Object.entries(SUB_META).filter(([key,meta])=>!perfilAllowSub||perfilAllowSub.has(meta.motKey)).map(([key,meta])=>{
+    const subs=D.sub[key]; if(!subs||!subs.length) return "";
+    const rows=subs.map(s=>{
+      const v=sumArr(s.monthly);
+      let momHtml="";
+      if(S.mes>0){const d=delta(s.monthly,S.mes);if(d!=null){const up=+d>0;momHtml=`<span style="font-size:10px;font-weight:700;color:${up?"#F43F5E":"#34D399"}">${up?"▲":"▼"}${Math.abs(d)}%</span>`;}}
+      return{...s,vol:v,momHtml};
+    }).sort((a,b)=>b.vol-a.vol);
+    const maxV=rows[0]?.vol||1;
+    const catVol=sumArr((D.motivos||[]).find(m=>m.id===meta.motKey)?.monthly||[0,0,0,0,0]);
+    const subTotal=rows.reduce((a,r)=>a+r.vol,0);
+    const pctTotal=totalGeral>0?(catVol/totalGeral*100).toFixed(1):"—";
+    const monthCols=mi.map(i=>`<th>${MSHORT[i]}</th>`).join("");
+    const tableRows=rows.map((r,ri)=>{
+      const pctCat=subTotal>0?(r.vol/subTotal*100).toFixed(0):"0";
+      const monthVals=mi.map(i=>{
+        const v=r.monthly[i]||0;
+        const isActive=S.mes===-1||S.mes===i;
+        return `<td style="text-align:center;font-size:12px;color:${isActive?"var(--text)":"var(--text-dim)"};font-weight:${isActive?600:400}">${v>0?fmtN(v):"—"}</td>`;
+      }).join("");
+      return `<tr>
+        <td style="padding:9px 12px 9px 16px">
+          <div style="display:flex;align-items:center;gap:7px">
+            <span style="font-size:12px;font-weight:600;color:var(--text)">${r.nome}</span>
+            ${r.momHtml}
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+            <div style="flex:1;height:4px;background:var(--surface-3);border-radius:2px;max-width:140px">
+              <div style="width:${Math.round(r.vol/maxV*100)}%;height:100%;background:${meta.col}99;border-radius:2px"></div>
+            </div>
+            <span style="font-size:9.5px;color:var(--text-dim)">${pctCat}%</span>
+          </div>
+        </td>
+        ${monthVals}
+        <td style="text-align:right;padding:9px 16px 9px 8px;font-size:13px;font-weight:700;color:${meta.col}">${fmtN(r.vol)}</td>
+      </tr>`;
+    }).join("");
+    return `<div class="smot">
+      <div class="smhead" onclick="toggleSM(this)" style="border-left:3px solid ${meta.col}">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:28px;height:28px;border-radius:7px;background:${meta.col}18;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:${meta.col};flex-shrink:0">${meta.icon}</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--text)">${meta.nome}</div>
+            <div style="font-size:10.5px;color:var(--text-sec);margin-top:1px">${rows.length} sub-motivos · ${fmtN(catVol)} tickets</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:4px;background:${meta.col}14;color:${meta.col}">${pctTotal}%</span>
+          <span style="color:var(--text-dim);font-size:14px">▼</span>
+        </div>
+      </div>
+      <div class="smbody">
+        <table>
+          <thead><tr>
+            <th style="text-align:left;padding-left:16px">Sub-motivo</th>
+            ${monthCols}
+            <th style="text-align:right;padding-right:16px">Total</th>
+          </tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function toggleSM(el){
+  const body=el.nextElementSibling;
+  const isOpen=body.style.display==="block";
+  body.style.display=isOpen?"none":"block";
+  el.querySelector("span:last-child").textContent=isOpen?"▼":"▲";
+}
+
+function renderTrends(){
+  const lbs=MONTHS;
+  // Volume por time
+  const ttv=["ia","saude","resolve"].map(t=>({name:t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve",type:"scatter",mode:"lines+markers+text",x:lbs,y:D.tickets[t],text:D.tickets[t].map(v=>v>0?fmtN(v):""),textposition:"top center",textfont:{size:11,color:COL[t]},line:{color:COL[t],width:3,shape:"spline"},marker:{size:9,color:COL[t]}}));
+  Plotly.newPlot("ch-trend-vol",ttv,{...BL,showlegend:true,margin:{...BL.margin,t:28}},CFG);
+  // Motivos
+  const ttm=(D.motivos||[]).map((m,i)=>({name:m.nome,type:"scatter",mode:"lines+markers+text",x:lbs,y:m.monthly,text:m.monthly.map(v=>v>0?fmtN(v):""),textposition:"top center",textfont:{size:10,color:COLORS_M[i]},line:{color:COLORS_M[i],width:2,shape:"spline"},marker:{size:6,color:COLORS_M[i]}}));
+  Plotly.newPlot("ch-trend-mot",ttm,{...BL,showlegend:true,legend:{...BL.legend,orientation:"v",x:1.01,y:1},margin:{t:28,b:50,l:55,r:165}},CFG);
+  // CSAT %
+  const ttc=["ia","saude","resolve"].map(t=>{
+    const yv=MONTHS.map((_,i)=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;});
+    return{name:t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve",type:"scatter",mode:"lines+markers+text",x:lbs,y:yv,text:yv.map(v=>v!=null?v+"%":""),textposition:"top center",textfont:{size:11,color:COL[t]},line:{color:COL[t],width:3,shape:"spline"},marker:{size:9,color:COL[t]}};
+  });
+  ttc.push({name:"Meta 90%",type:"scatter",mode:"lines",x:lbs,y:lbs.map(()=>90),line:{color:"rgba(255,255,255,0.15)",width:2,dash:"dash"}});
+  Plotly.newPlot("ch-trend-csat",ttc,{...BL,yaxis:{...BL.yaxis,range:[0,105],ticksuffix:"%"},showlegend:true,margin:{...BL.margin,t:28}},CFG);
+  // Avaliações negativas
+  const ttb=["ia","saude","resolve"].map(t=>({name:t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve",type:"bar",x:lbs,y:D.csat[t].bad,text:D.csat[t].bad.map(v=>v>0?fmtN(v):""),textposition:"outside",textfont:{size:11,color:COL[t]},marker:{color:COL[t]+"99",line:{color:COL[t],width:1}}}));
+  Plotly.newPlot("ch-trend-bad",ttb,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,t:28}},CFG);
+  renderTrendTable();
+}
+
+function renderTrendTable(){
+  const rows=(D.motivos||[]).map(m=>{
+    const cells=m.monthly.map((v,i)=>{
+      if(i===0) return `<td>${fmtN(v)}</td>`;
+      const d=m.monthly[i-1]>0?((v-m.monthly[i-1])/m.monthly[i-1]*100).toFixed(0):null;
+      const cls=d==null?"":+d>0?"delta-up":"delta-dn";
+      return `<td>${fmtN(v)} ${d!=null?`<span class="${cls}">${+d>0?"▲":"▼"}${Math.abs(d)}%</span>`:"—"}</td>`;
+    });
+    return `<tr><td><b>${m.nome}</b></td>${cells.join("")}</tr>`;
+  });
+  document.getElementById("trend-table").innerHTML=`
+    <div style="overflow-x:auto">
+    <table class="ttable">
+      <thead><tr><th>Motivo</th>${MONTHS.map(m=>`<th>${m}</th>`).join("")}</tr></thead>
+      <tbody>${rows.join("")}</tbody>
+    </table></div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// TEMPOS DE ATENDIMENTO
+// ═══════════════════════════════════════════════════
+function renderTempos(){
+  const mi   = activeMesIndices();
+  const wks  = D.semanas.mesIdx;
+  const team = S.team;
+
+  // IA não tem métrica de horas úteis
+  if(team==="ia"){
+    document.getElementById("tempos-kpis").innerHTML=`
+      <div class="kc ci" style="grid-column:1/-1;text-align:center;padding:28px">
+        <div class="kl" style="justify-content:center">Cloud Humans IA</div>
+        <div style="font-size:13px;color:var(--text-sec);margin-top:10px">
+          A IA opera 24/7 de forma automatizada — métricas de horas úteis (Seg–Sex) não se aplicam.
+        </div>
+      </div>`;
+    ["ch-tma-semana","ch-tmr-semana","ch-tempos-col"].forEach(id=>{
+      Plotly.newPlot(id,[],{...BL,annotations:[{text:"Sem dados para IA",showarrow:false,font:{color:"#4A566E",size:13},xref:"paper",yref:"paper",x:0.5,y:0.5}]},CFG);
+    });
+    return;
+  }
+
+  const showR = (team==="all"||team==="resolve");
+  const showS = (team==="all"||team==="saude");
+
+  const idxs = wks.map((_,i)=>i).filter(i=> mi.length===5 || mi.includes(wks[i]));
+  const labs  = idxs.map(i=>D.semanas.labels[i]);
+  const filt  = arr => idxs.map(i=>(arr&&arr[i]!=null)?arr[i]:null);
+
+  const tmaR = filt(D.tempos.tma.resolve);
+  const tmaS = filt(D.tempos.tma.saude);
+  const tmrR = filt(D.tempos.tmr.resolve);
+  const tmrS = filt(D.tempos.tmr.saude);
+
+  const avg = arr => { const v=arr.filter(x=>x!=null); return v.length?+(v.reduce((a,b)=>a+b,0)/v.length).toFixed(2):null; };
+
+  // Formata horas decimais com unidade automática
+  const fmtTempo = h => {
+    if(h==null) return "—";
+    if(h < 1)   return Math.round(h*60)+" min";
+    if(h < 24)  return h.toFixed(1)+" h";
+    return (h/24).toFixed(1)+" dias";
+  };
+
+  // Para tooltips nos gráficos de linha
+  const hoverFmt = arr => arr.map(h => h!=null ? fmtTempo(h) : "—");
+
+  // ── KPI cards (apenas times visíveis) ─────────────
+  const kpiR = showR ? `
+    <div class="kc cr"><div class="kl">Resolucao — Blis Resolve</div>
+      <div class="kv" style="font-size:26px;color:var(--res)">${fmtTempo(avg(tmaR))}</div>
+      <div class="ks">Mediana · tempo para fechar o ticket · dias úteis</div></div>
+    <div class="kc cr"><div class="kl">1ª Resposta — Blis Resolve</div>
+      <div class="kv" style="font-size:26px;color:var(--res)">${fmtTempo(avg(tmrR))}</div>
+      <div class="ks">Mediana · tempo até o agente responder pela 1ª vez · dias úteis</div></div>
+` : "";
+  const kpiS = showS ? `
+    <div class="kc cs"><div class="kl">Resolucao — Blis Saude</div>
+      <div class="kv" style="font-size:26px;color:var(--saude)">${fmtTempo(avg(tmaS))}</div>
+      <div class="ks">Mediana · tempo para fechar o ticket · dias úteis</div></div>
+    <div class="kc cs"><div class="kl">1ª Resposta — Blis Saude</div>
+      <div class="kv" style="font-size:26px;color:var(--saude)">${fmtTempo(avg(tmrS))}</div>
+      <div class="ks">Mediana · tempo até o agente responder pela 1ª vez · dias úteis</div></div>
+` : "";
+  document.getElementById("tempos-kpis").innerHTML = kpiR + kpiS;
+
+  const lineLayout = (ytitle) => ({...BL,
+    margin:{t:20,b:65,l:60,r:20},
+    showlegend:true, legend:{orientation:"h",x:0,y:-0.25,font:{size:11,color:"#7B8BA8"}},
+    xaxis:{...BL.xaxis, tickangle:-35, tickfont:{size:10,color:"#7B8BA8"}},
+    yaxis:{...BL.yaxis, title:{text:ytitle||"horas",font:{size:10,color:"#7B8BA8"},standoff:8},
+           tickfont:{size:11,color:"#7B8BA8"}}
+  });
+
+  const trR = (y,customdata,dash,sz) => ({
+    name:"Blis Resolve",type:"scatter",mode:"lines+markers+text",x:labs,y,
+    text:customdata, textposition:"top center", textfont:{size:10,color:"#38BDF8"},
+    customdata, hovertemplate:"%{x}<br><b>%{customdata}</b><extra>Blis Resolve</extra>",
+    line:{color:"#38BDF8",width:2.5,dash:dash||"solid"},marker:{color:"#38BDF8",size:sz||6}
+  });
+  const trS = (y,customdata,dash,sz) => ({
+    name:"Blis Saude",type:"scatter",mode:"lines+markers+text",x:labs,y,
+    text:customdata, textposition:"bottom center", textfont:{size:10,color:"#34D399"},
+    customdata, hovertemplate:"%{x}<br><b>%{customdata}</b><extra>Blis Saúde</extra>",
+    line:{color:"#34D399",width:2.5,dash:dash||"solid"},marker:{color:"#34D399",size:sz||6}
+  });
+
+  Plotly.newPlot("ch-tma-semana",
+    [...(showR?[trR(tmaR,hoverFmt(tmaR))]:[]  ), ...(showS?[trS(tmaS,hoverFmt(tmaS))]:[] )],
+    lineLayout("horas"), CFG);
+  Plotly.newPlot("ch-tmr-semana",
+    [...(showR?[trR(tmrR,hoverFmt(tmrR),"dot",5)]:[] ), ...(showS?[trS(tmrS,hoverFmt(tmrS),"dot",5)]:[] )],
+    lineLayout("horas"), CFG);
+  // ── Colunas comparativas com unidade automática ────
+  const metricas = ["Resolucao","1ª Resposta"];
+  const valsR = [avg(tmaR),avg(tmrR)];
+  const valsS = [avg(tmaS),avg(tmrS)];
+  Plotly.newPlot("ch-tempos-col",[
+    ...(showR?[{name:"Blis Resolve",type:"bar",x:metricas,
+      y:valsR,
+      marker:{color:"#38BDF8CC",line:{color:"#38BDF8",width:1}},
+      text:valsR.map(fmtTempo),
+      textposition:"outside",textfont:{size:12,color:"#DDE4F5"},cliponaxis:false,
+      hovertemplate:"%{x}<br><b>%{text}</b><extra>Blis Resolve</extra>"}]:[]),
+    ...(showS?[{name:"Blis Saude",type:"bar",x:metricas,
+      y:valsS,
+      marker:{color:"#34D399CC",line:{color:"#34D399",width:1}},
+      text:valsS.map(fmtTempo),
+      textposition:"outside",textfont:{size:12,color:"#DDE4F5"},cliponaxis:false,
+      hovertemplate:"%{x}<br><b>%{text}</b><extra>Blis Saúde</extra>"}]:[]),
+  ],{...BL,barmode:"group",
+    margin:{t:40,b:70,l:50,r:20},
+    showlegend:true,legend:{orientation:"h",x:0,y:-0.2,font:{size:11,color:"#7B8BA8"}},
+    xaxis:{...BL.xaxis,tickfont:{size:11,color:"#B8C4D8"}},
+    yaxis:{...BL.yaxis,title:{text:"horas",font:{size:10,color:"#7B8BA8"}},tickfont:{size:11,color:"#7B8BA8"}}
+  },CFG);
+}
+
+// ═══════════════════════════════════════════════════
+// MASTER RENDER
+// ═══════════════════════════════════════════════════
+function renderAll(){
+  const tab=document.querySelector(".tc.on")?.id||"tab-geral";
+  if(tab==="tab-geral"){
+    renderKPIs();renderMensal();renderPie();renderSemanas();renderTeamCards();renderStatus();renderCanal();
+  } else if(tab==="tab-csat"){
+    renderGauges();renderCSATCharts();renderCSATAudit();renderOffenders();renderComments();
+  } else if(tab==="tab-motivos"){
+    renderMotivosList();renderMotivosColCharts();renderSubMotivos();
+  } else if(tab==="tab-trend"){
+    renderTrends();
+  } else if(tab==="tab-tempos"){
+    renderTempos();
+  }
+}
+
+function setMes(idx,btn){
+  document.querySelectorAll(".fbar .fb").forEach(b=>{if(["Todos","Jan","Fev","Mar","Abr","Mai"].includes(b.textContent.trim()))b.classList.remove("on");});
+  btn.classList.add("on");
+  S.mes=idx; S.semana=-1;
+  buildWsel(); renderAll();
+}
+function setSemana(v){
+  S.semana=v;
+  if(v!==-1){
+    const mIdx=D.semanas.mesIdx[v];
+    if(S.mes!==mIdx){
+      S.mes=mIdx;
+      const MLBLS=["Jan","Fev","Mar","Abr","Mai"];
+      document.querySelectorAll(".fbar .fb").forEach(b=>{
+        const txt=b.textContent.trim();
+        if(["Todos",...MLBLS].includes(txt)) b.classList.remove("on");
+        if(txt===MLBLS[mIdx]) b.classList.add("on");
+      });
+      buildWsel();
+    }
+  }
+  renderAll();
+}
+function setTeam(t,btn){
+  document.querySelectorAll(".fbar .fb").forEach(b=>{if(["Todos","Cloud Humans IA","Blis Saude","Blis Resolve"].includes(b.textContent.trim()))b.classList.remove("on","gs","gr");});
+  btn.classList.add("on");
+  if(t==="saude") btn.classList.add("gs");
+  if(t==="resolve") btn.classList.add("gr");
+  S.team=t; renderAll();
+}
+function showTab(id,el){
+  document.querySelectorAll(".ntab").forEach(t=>t.classList.remove("on"));
+  document.querySelectorAll(".tc").forEach(t=>t.classList.remove("on"));
+  el.classList.add("on");
+  document.getElementById("tab-"+id).classList.add("on");
+  setTimeout(()=>{renderAll();window.dispatchEvent(new Event("resize"));},30);
+}
+
+// ── Sync indicator ────────────────────────────────────────────────────────────
+// ── Theme toggle ─────────────────────────────────────────────────────────────
+const THEME_KEY = "zd_theme";
+
+function refreshBL(){
+  const light = document.documentElement.getAttribute("data-theme")==="light";
+  const gc = light?"rgba(0,0,0,0.07)":"rgba(255,255,255,0.05)";
+  const tc = light?"#475569":"#7B8BA8";
+  const lc = light?"#334155":"#B8C4D8";
+  BL.font.color = tc;
+  BL.xaxis.gridcolor = BL.xaxis.zerolinecolor = gc;
+  BL.yaxis.gridcolor = BL.yaxis.zerolinecolor = gc;
+  BL.xaxis.tickfont  = {color:tc,size:11};
+  BL.yaxis.tickfont  = {color:tc,size:11};
+  BL.legend.font     = {color:lc,size:12};
+}
+
+function applyTheme(theme){
+  const html  = document.documentElement;
+  const light = theme==="light";
+  html.setAttribute("data-theme", light?"light":"dark");
+  document.getElementById("icon-sol").style.display = light?"none":"block";
+  document.getElementById("icon-lua").style.display = light?"block":"none";
+  document.getElementById("theme-label").textContent = light?"Escuro":"Claro";
+  try{localStorage.setItem(THEME_KEY,theme);}catch(_){}
+  refreshBL();
+}
+
+function toggleTheme(){
+  const current = document.documentElement.getAttribute("data-theme")||"dark";
+  applyTheme(current==="light"?"dark":"light");
+  renderAll();
+}
+
+const SYNC_KEY = "zd_last_sync";
+function syncSetOK(ts){
+  const lbl = document.getElementById("sync-label");
+  const dot = document.getElementById("sync-dot");
+  const pill= document.getElementById("sync-pill");
+  if(lbl) lbl.textContent = "Atualizado " + ts;
+  if(dot) dot.style.background = "#34D399";
+  if(pill) pill.style.borderColor = "rgba(52,211,153,0.4)";
+  try{localStorage.setItem(SYNC_KEY, ts);}catch(_){}
+}
+function syncSetError(){
+  const lbl = document.getElementById("sync-label");
+  const dot = document.getElementById("sync-dot");
+  const pill= document.getElementById("sync-pill");
+  if(lbl) lbl.textContent = "Erro na sincronizacao";
+  if(dot){ dot.style.background="#F43F5E"; dot.style.animation="none"; }
+  if(pill) pill.style.borderColor = "rgba(244,63,94,0.4)";
+}
+function syncSetLoading(){
+  const lbl = document.getElementById("sync-label");
+  if(lbl) lbl.textContent = "Sincronizando...";
+}
+function forceSyncUI(){
+  syncSetLoading();
+  // Em ambiente com updater.py, dispararia fetch ao endpoint local.
+  // Aqui simula confirmacao e registra horario.
+  setTimeout(()=>{
+    const now = new Date();
+    const ts = now.toLocaleDateString("pt-BR") + " " + now.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+    syncSetOK(ts);
+  }, 800);
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  // Aplica tema salvo antes de renderizar (evita flash)
+  let savedTheme; try{savedTheme=localStorage.getItem(THEME_KEY);}catch(_){}
+  if(savedTheme==="light") applyTheme("light");
+  else refreshBL(); // garante BL correto no dark (padrão)
+
+  initPerfilFilter(); buildWsel(); renderAll();
+
+  let lastSync; try{lastSync=localStorage.getItem(SYNC_KEY);}catch(_){}
+  syncSetOK(lastSync||"26/05/2026 15:40");
+});
+window.addEventListener("resize",()=>{
+  ["ch-mensal","ch-pie","ch-semanas","ch-status","ch-canal","ch-csat-vol","ch-csat-pct","ch-mot-col","ch-time-col","ch-trend-vol","ch-trend-mot","ch-trend-csat","ch-trend-bad","ch-tma-semana","ch-tmr-semana","ch-tempos-col"].forEach(id=>{try{Plotly.Plots.resize(id)}catch(_){}});
+  document.querySelectorAll("[id^='mini-']").forEach(el=>{try{Plotly.Plots.resize(el.id)}catch(_){}});
+});
+</script>
+</body>
+</html>
