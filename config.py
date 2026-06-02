@@ -8,7 +8,7 @@ BASE_URL          = f"https://{ZENDESK_SUBDOMAIN}.zendesk.com/api/v2"
 
 # ── Período 2026 ───────────────────────────────────────────────────────────────
 START_DATE = "2026-01-01"
-END_DATE   = "2026-05-31"
+END_DATE   = "2026-06-30"
 
 MESES_2026 = {
     "2026-01": "Janeiro",
@@ -16,6 +16,7 @@ MESES_2026 = {
     "2026-03": "Março",
     "2026-04": "Abril",
     "2026-05": "Maio",
+    "2026-06": "Junho",
 }
 
 # ── Grupos confirmados via API /api/v2/groups.json ─────────────────────────────

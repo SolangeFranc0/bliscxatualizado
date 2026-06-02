@@ -70,6 +70,14 @@ MB_CARD_IDS = {
     "consultasPorMedico":   402,
     "tempoMensal":          498,
     "tempoAtual":           503,
+    "clientesUnicos":       462,
+    "recompraProtocolo":    264,
+    "pedidosProtocolo":     445,
+    "consultasProtocolo":    41,
+    "recompraMoM":          110,
+    "cohortPedidos":        201,
+    "recompraConsulta":     499,
+    "funilCanal":           282,
 }
 MB_ROW_LIMITS = {"statusTemporal": 600, "reviewsMedicos": 2000, "conversaoCoupons": 200, "cancelamentosPeriodo": 200}
 
@@ -892,6 +900,158 @@ def fetch_metabase_data():
             log.info(f"Metabase couponsGasto: OK ({len(rows_export)} pedidos, {len(result['couponsGasto']['data']['rows'])} cupons)")
         except Exception as e:
             log.warning(f"Metabase couponsGasto: {e}")
+
+        # baseRecompra — card 404: dados completos de recompra por cliente (agregados + métricas avançadas)
+        try:
+            from collections import defaultdict
+            from datetime import date as _date
+            rows_export_404 = mb_export_json(404, token)
+            today_d = _date.today()
+            safra_map = defaultdict(lambda: {
+                'total': 0, 'com_recompra': 0, 'total_pedidos': 0,
+                'dias_1_2_sum': 0, 'dias_1_2_cnt': 0,
+                'ativou_90d': 0, 'inativos': 0,
+            })
+            tipo_map  = defaultdict(lambda: {'total': 0, 'total_pedidos': 0, 'receita': 0.0})
+            TIPOS = [('Novo', 1, 1), ('Recorrente', 2, 3), ('Fiel', 4, 6), ('Alta Frequência', 7, 9999)]
+            user_tipo = {}  # user_id → tipo (para join com card 203)
+
+            for r in rows_export_404:
+                tot   = int(r.get('total_orders') or 1)
+                first = str(r.get('first_order_date') or '')[:7]
+                uid   = str(r.get('user_id') or '')
+                tipo  = next((t for t,lo,hi in TIPOS if lo <= tot <= hi), 'Alta Frequência')
+                if uid:
+                    user_tipo[uid] = tipo
+
+                if first and len(first) == 7:
+                    sd = safra_map[first]
+                    sd['total']        += 1
+                    sd['com_recompra'] += (1 if tot > 1 else 0)
+                    sd['total_pedidos'] += tot
+
+                    # Dias até segunda compra
+                    d1 = str(r.get('first_order_date') or '')[:10]
+                    d2 = str(r.get('second_order_date') or '')[:10]
+                    if d2 and d2 != 'None' and len(d2) == 10:
+                        try:
+                            diff = (_date.fromisoformat(d2) - _date.fromisoformat(d1)).days
+                            if 0 < diff < 1000:
+                                sd['dias_1_2_sum'] += diff
+                                sd['dias_1_2_cnt'] += 1
+                                if diff <= 90:
+                                    sd['ativou_90d'] += 1
+                        except Exception:
+                            pass
+
+                    # Inativos: 1 pedido + primeira compra > 90 dias atrás
+                    if tot == 1 and len(d1) == 10:
+                        try:
+                            age = (today_d - _date.fromisoformat(d1)).days
+                            if age > 90:
+                                sd['inativos'] += 1
+                        except Exception:
+                            pass
+
+                tipo_map[tipo]['total']        += 1
+                tipo_map[tipo]['total_pedidos'] += tot
+
+            # Safra card
+            safra_cols = [{'name': c} for c in [
+                'safra','total_usuarios','com_recompra','pct_recompra','media_pedidos',
+                'avg_dias_1_2','inativos','pct_ativou_90d',
+            ]]
+            safra_rows = []
+            for safra in sorted(safra_map.keys()):
+                d = safra_map[safra]
+                avg_d12 = round(d['dias_1_2_sum'] / d['dias_1_2_cnt'], 1) if d['dias_1_2_cnt'] else None
+                pct90   = round(d['ativou_90d'] / d['com_recompra'], 4) if d['com_recompra'] else None
+                safra_rows.append([
+                    safra, d['total'], d['com_recompra'],
+                    round(d['com_recompra'] / d['total'], 4) if d['total'] else 0,
+                    round(d['total_pedidos'] / d['total'], 2) if d['total'] else 0,
+                    avg_d12, d['inativos'], pct90,
+                ])
+            result['safraAnalise'] = {'data': {'cols': safra_cols, 'rows': safra_rows}}
+
+            # Receita por tipo — card 203 (RFM base)
+            try:
+                rows_203 = mb_export_json(203, token)
+                for r203 in rows_203:
+                    st  = str(r203.get('status') or '').lower()
+                    if 'cancelad' in st or 'reembolsad' in st:
+                        continue
+                    uid203  = str(r203.get('User_id') or r203.get('user_id') or '')
+                    total203 = float(r203.get('Total') or r203.get('total') or 0)
+                    if uid203 and total203 > 0:
+                        t = user_tipo.get(uid203)
+                        if t:
+                            tipo_map[t]['receita'] += total203
+                log.info(f"Metabase card 203: {len(rows_203)} pedidos processados para ticket_medio")
+            except Exception as e:
+                log.warning(f"Metabase card 203 (receita): {e}")
+
+            # Tipo cliente card (com receita/ticket_medio)
+            total_clientes = sum(d['total'] for d in tipo_map.values()) or 1
+            tipo_cols = [{'name': c} for c in ['tipo_cliente','qtd_usuarios','pct_do_total','media_pedidos','receita_total','ticket_medio']]
+            tipo_rows = []
+            for tipo, lo, hi in TIPOS:
+                d = tipo_map.get(tipo, {'total': 0, 'total_pedidos': 0, 'receita': 0.0})
+                if d['total']:
+                    ticket = round(d['receita'] / d['total_pedidos'], 2) if d['total_pedidos'] else None
+                    tipo_rows.append([
+                        tipo, d['total'],
+                        round(d['total'] / total_clientes, 4),
+                        round(d['total_pedidos'] / d['total'], 2),
+                        round(d['receita'], 2) if d['receita'] else None,
+                        ticket,
+                    ])
+            result['tipoCliente'] = {'data': {'cols': tipo_cols, 'rows': tipo_rows}}
+
+            # KPIs globais de comportamento
+            all_dias = [(safra_map[s]['dias_1_2_sum'], safra_map[s]['dias_1_2_cnt']) for s in safra_map]
+            total_sum = sum(x[0] for x in all_dias)
+            total_cnt = sum(x[1] for x in all_dias)
+            global_avg_d12 = round(total_sum / total_cnt, 1) if total_cnt else None
+            inativos_total  = sum(safra_map[s]['inativos'] for s in safra_map)
+            ativou90_total  = sum(safra_map[s]['ativou_90d'] for s in safra_map)
+            com_rec_total   = sum(safra_map[s]['com_recompra'] for s in safra_map)
+            pct_ativou_90   = round(ativou90_total / com_rec_total, 4) if com_rec_total else None
+            bk_cols = [{'name': c} for c in ['id','avg_dias_1_2','pct_ativou_90d','inativos_global']]
+            result['comportamentoKpis'] = {'data': {'cols': bk_cols, 'rows': [['global', global_avg_d12, pct_ativou_90, inativos_total]]}}
+
+            log.info(f"Metabase baseRecompra (404): {len(rows_export_404)} clientes → {len(safra_rows)} safras, {len(tipo_rows)} tipos | inativos={inativos_total} avg_d12={global_avg_d12}d")
+        except Exception as e:
+            log.warning(f"Metabase baseRecompra (404): {e}")
+
+        # intervaloPedidos — cards 82+191: média de dias entre pedidos
+        try:
+            r82  = mb_post(f"/api/card/82/query",  {}, token=token)
+            r191 = mb_post(f"/api/card/191/query", {}, token=token)
+            rows82  = r82.get('data',{}).get('rows',[])
+            rows191 = r191.get('data',{}).get('rows',[])
+            avg12 = rows82[0][1]  if rows82  else None
+            avg23 = rows191[0][2] if rows191 else None
+            ik_cols = [{'name': c} for c in ['avg_dias_1_2','avg_dias_2_3']]
+            result['intervaloPedidos'] = {'data': {'cols': ik_cols, 'rows': [[avg12, avg23]]}}
+            log.info(f"Metabase intervaloPedidos: 1→2={avg12:.1f}d  2→3={avg23:.1f}d" if avg12 else "Metabase intervaloPedidos: sem dados")
+        except Exception as e:
+            log.warning(f"Metabase intervaloPedidos (82/191): {e}")
+
+        # churnMensal — card 209: agrega churn por mês
+        try:
+            rows_209 = mb_export_json(209, token)
+            churn_map = defaultdict(int)
+            for r in rows_209:
+                mes = str(r.get('churn_mês') or r.get('churn_mes') or '')[:7]
+                if mes and len(mes) == 7:
+                    churn_map[mes] += 1
+            churn_cols = [{'name': c} for c in ['churn_mes','qtd_churn']]
+            churn_rows = [[m, churn_map[m]] for m in sorted(churn_map)]
+            result['churnMensal'] = {'data': {'cols': churn_cols, 'rows': churn_rows}}
+            log.info(f"Metabase churnMensal: {len(churn_rows)} meses ({len(rows_209)} clientes em churn)")
+        except Exception as e:
+            log.warning(f"Metabase churnMensal (209): {e}")
 
         # performanceMedicosMensal — card 143 via dashboard API filtrado por mês
         try:

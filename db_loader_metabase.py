@@ -488,6 +488,243 @@ def load_performance_medicos_mensal(sb: Client, mb: dict) -> None:
     log.info(f"mb_performance_medicos_mes → {sent} registros")
 
 
+def load_clientes_resumo(sb: Client, mb: dict) -> None:
+    """KPIs globais de clientes: total único, taxa de recompra, etc."""
+    clientes_unicos = None
+    card = mb.get("clientesUnicos")
+    if card:
+        rows = get_rows(card)
+        if rows:
+            clientes_unicos = safe_int(rows[0][0])
+
+    recompra_mensal_total = None
+    card_mom = mb.get("recompraMoM")
+    if card_mom:
+        rows = get_rows(card_mom)
+        recompra_mensal_total = sum(safe_int(r[1]) or 0 for r in rows if len(r) > 1)
+
+    record = {
+        "data_carga":              TODAY,
+        "clientes_unicos":         clientes_unicos,
+        "total_recompras_periodo": recompra_mensal_total,
+    }
+    sb.table("mb_clientes_resumo").upsert(record, on_conflict="data_carga").execute()
+    log.info(f"mb_clientes_resumo       → 1 registro (únicos={clientes_unicos})")
+
+
+def load_protocolo_analise(sb: Client, mb: dict) -> None:
+    """Análise por protocolo: recompra + pedidos + consultas."""
+    card_recompra = mb.get("recompraProtocolo")
+    card_pedidos  = mb.get("pedidosProtocolo")
+    card_consult  = mb.get("consultasProtocolo")
+    if not card_recompra and not card_pedidos:
+        return
+
+    # Mapa recompra por protocolo: {name: {qtd_recompras, total_usuarios, pct_recompra}}
+    rc_map: dict = {}
+    if card_recompra:
+        for r in get_rows(card_recompra):
+            if len(r) >= 4 and r[0]:
+                rc_map[str(r[0])] = {
+                    'qtd_recompras':   safe_int(r[1]),
+                    'total_usuarios':  safe_int(r[2]),
+                    'pct_recompra':    safe_float(r[3]),
+                }
+
+    # Mapa pedidos por protocolo: {Protocolo: {soma_receita, qtd_pedidos, ticket_medio}}
+    pd_map: dict = {}
+    if card_pedidos:
+        for r in get_rows(card_pedidos):
+            if len(r) >= 4 and r[0]:
+                pd_map[str(r[0])] = {
+                    'soma_receita': safe_float(r[1]),
+                    'qtd_pedidos':  safe_int(r[2]),
+                    'ticket_medio': safe_float(r[3]),
+                }
+
+    # Mapa consultas por protocolo
+    cn_map: dict = {}
+    if card_consult:
+        for r in get_rows(card_consult):
+            if len(r) >= 2 and r[0]:
+                cn_map[str(r[0])] = safe_int(r[1])
+
+    all_protos = set(rc_map) | set(pd_map)
+    records = []
+    for proto in all_protos:
+        rc = rc_map.get(proto, {})
+        pd = pd_map.get(proto, {})
+        records.append({
+            "protocolo":      proto,
+            "qtd_recompras":  rc.get('qtd_recompras'),
+            "total_usuarios": rc.get('total_usuarios'),
+            "pct_recompra":   rc.get('pct_recompra'),
+            "soma_receita":   pd.get('soma_receita'),
+            "qtd_pedidos":    pd.get('qtd_pedidos'),
+            "ticket_medio":   pd.get('ticket_medio'),
+            "qtd_consultas":  cn_map.get(proto),
+            "data_carga":     TODAY,
+        })
+    n = upsert_batch(sb, "mb_protocolo_analise", records, "protocolo")
+    log.info(f"mb_protocolo_analise     → {n} protocolos")
+
+
+def load_safra_analise(sb: Client, mb: dict) -> None:
+    """Análise por safra (coorte) — derivada do card 404 já pré-agregado."""
+    card = mb.get("safraAnalise")
+    if not card:
+        return
+    rows = get_rows(card)
+    records = []
+    for r in rows:
+        if len(r) < 5 or not r[0]:
+            continue
+        records.append({
+            "safra":          str(r[0]),
+            "total_usuarios": safe_int(r[1]),
+            "com_recompra":   safe_int(r[2]),
+            "pct_recompra":   safe_float(r[3]),
+            "media_pedidos":  safe_float(r[4]),
+            "avg_dias_1_2":   safe_float(r[5]) if len(r) > 5 else None,
+            "inativos":       safe_int(r[6])   if len(r) > 6 else None,
+            "pct_ativou_90d": safe_float(r[7]) if len(r) > 7 else None,
+            "data_carga":     TODAY,
+        })
+    n = upsert_batch(sb, "mb_safra_analise", records, "safra")
+    log.info(f"mb_safra_analise         → {n} safras")
+
+
+def load_tipo_cliente(sb: Client, mb: dict) -> None:
+    """Análise por tipo de cliente — derivada do card 404 + card 203."""
+    card = mb.get("tipoCliente")
+    if not card:
+        return
+    rows = get_rows(card)
+    records = []
+    for r in rows:
+        if len(r) < 4 or not r[0]:
+            continue
+        records.append({
+            "tipo_cliente":  str(r[0]),
+            "qtd_usuarios":  safe_int(r[1]),
+            "pct_do_total":  safe_float(r[2]),
+            "media_pedidos": safe_float(r[3]),
+            "receita_total": safe_float(r[4]) if len(r) > 4 else None,
+            "ticket_medio":  safe_float(r[5]) if len(r) > 5 else None,
+            "data_carga":    TODAY,
+        })
+    n = upsert_batch(sb, "mb_tipo_cliente", records, "tipo_cliente")
+    log.info(f"mb_tipo_cliente          → {n} tipos")
+
+
+def load_comportamento_kpis(sb: Client, mb: dict) -> None:
+    """KPIs globais de comportamento de compra — derivados do card 404."""
+    card = mb.get("comportamentoKpis")
+    if not card:
+        return
+    rows = get_rows(card)
+    records = []
+    for r in rows:
+        if len(r) < 1:
+            continue
+        records.append({
+            "id":              str(r[0]) if r[0] else "global",
+            "avg_dias_1_2":    safe_float(r[1]) if len(r) > 1 else None,
+            "pct_ativou_90d":  safe_float(r[2]) if len(r) > 2 else None,
+            "inativos_global": safe_int(r[3])   if len(r) > 3 else None,
+            "data_carga":      TODAY,
+        })
+    n = upsert_batch(sb, "mb_comportamento_kpis", records, "id")
+    log.info(f"mb_comportamento_kpis    → {n} linha(s)")
+
+
+def load_churn_mensal(sb: Client, mb: dict) -> None:
+    """Churn mensal — card 209 agregado por mês."""
+    card = mb.get("churnMensal")
+    if not card:
+        return
+    rows = get_rows(card)
+    records = []
+    for r in rows:
+        if len(r) < 2 or not r[0]:
+            continue
+        records.append({
+            "churn_mes":  str(r[0]),
+            "qtd_churn":  safe_int(r[1]),
+            "data_carga": TODAY,
+        })
+    n = upsert_batch(sb, "mb_churn_mensal", records, "churn_mes")
+    log.info(f"mb_churn_mensal          → {n} meses")
+
+
+def load_funil_canal(sb: Client, mb: dict) -> None:
+    """Funil de performance por canal — card 282."""
+    card = mb.get("funilCanal")
+    if not card:
+        return
+    cols = [c["name"] if isinstance(c, dict) else c for c in (card.get("data", {}).get("cols") or [])]
+    rows = get_rows(card)
+    records = []
+    for r in rows:
+        if not r or r[0] is None:
+            continue
+        records.append({
+            "canal":        str(r[0]),
+            "pre_cadastro": safe_int(r[1])   if len(r) > 1 else None,
+            "cadastro":     safe_int(r[2])   if len(r) > 2 else None,
+            "consulta":     safe_int(r[4])   if len(r) > 4 else None,
+            "pedido":       safe_int(r[5])   if len(r) > 5 else None,
+            "recompra":     safe_int(r[6])   if len(r) > 6 else None,
+            "pct_consulta": safe_float(r[8]) if len(r) > 8 else None,
+            "pct_pedido":   safe_float(r[9]) if len(r) > 9 else None,
+            "pct_recompra": safe_float(r[10]) if len(r) > 10 else None,
+            "data_carga":   TODAY,
+        })
+    n = upsert_batch(sb, "mb_funil_canal", records, "canal")
+    log.info(f"mb_funil_canal           → {n} canais")
+
+
+def load_recompra_mensal(sb: Client, mb: dict) -> None:
+    """Evolução mensal de recompras — combina recompraMoM + recompraConsulta."""
+    card_mom    = mb.get("recompraMoM")
+    card_consult = mb.get("recompraConsulta")
+
+    mom_map: dict = {}
+    if card_mom:
+        for r in get_rows(card_mom):
+            p = parse_period(r[0])
+            if p:
+                mom_map[p] = safe_int(r[1]) if len(r) > 1 else None
+
+    consult_map: dict = {}
+    if card_consult:
+        for r in get_rows(card_consult):
+            p = parse_period(r[0])
+            if p:
+                consult_map[p] = {
+                    'consultas_criadas': safe_int(r[1]) if len(r) > 1 else None,
+                    'pedidos_recompra':  safe_int(r[2]) if len(r) > 2 else None,
+                    'pedidos':           safe_int(r[3]) if len(r) > 3 else None,
+                    'pct_recompra':      safe_float(r[4]) if len(r) > 4 else None,
+                }
+
+    all_periods = set(mom_map) | set(consult_map)
+    records = []
+    for p in sorted(all_periods):
+        c = consult_map.get(p, {})
+        records.append({
+            "periodo":          p,
+            "qtd_recompras":    mom_map.get(p),
+            "consultas_criadas": c.get('consultas_criadas'),
+            "pedidos_recompra":  c.get('pedidos_recompra'),
+            "pedidos":           c.get('pedidos'),
+            "pct_recompra":      c.get('pct_recompra'),
+            "data_carga":        TODAY,
+        })
+    n = upsert_batch(sb, "mb_recompra_mensal", records, "periodo")
+    log.info(f"mb_recompra_mensal       → {n} meses")
+
+
 # ── Ponto de entrada ───────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -507,6 +744,14 @@ def main() -> None:
     load_conversao_coupons(sb, mb)
     load_totais_diarios(sb, mb)
     load_performance_medicos_mensal(sb, mb)
+    load_clientes_resumo(sb, mb)
+    load_protocolo_analise(sb, mb)
+    load_safra_analise(sb, mb)
+    load_tipo_cliente(sb, mb)
+    load_recompra_mensal(sb, mb)
+    load_comportamento_kpis(sb, mb)
+    load_churn_mensal(sb, mb)
+    load_funil_canal(sb, mb)
 
     log.info("=== db_loader_metabase concluído ===")
 
