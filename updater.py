@@ -1527,55 +1527,42 @@ def sync_saude_recompra() -> bool:
             offset += batch
         log.info(f"sync_saude_recompra: {len(all_tickets)} tickets Blis Saúde no Supabase")
 
-        # Primeiro contato (mês "YYYY-MM") por requester_id
-        first_contact = {}
+        # Snapshot mensal: usuários únicos que contataram Saúde em cada mês
+        # (independente de ser 1º ou nº contato) — espelha lógica Metabase
+        monthly_contacts = defaultdict(set)  # mes → set(requester_id)
         for t in all_tickets:
             rid = str(t.get("requester_id") or "")
             if not rid or rid == "None":
                 continue
             mes = str(t.get("criado_em") or "")[:7]
-            if len(mes) == 7 and (rid not in first_contact or mes < first_contact[rid]):
-                first_contact[rid] = mes
+            if len(mes) == 7:
+                monthly_contacts[mes].add(rid)
 
-        # Agrupar por mês do primeiro contato (um registro por user único)
-        cohort = defaultdict(lambda: {"total": 0, "com_app": 0, "recompraram": 0, "receita": 0.0})
-        seen_users = set()
-        for t in all_tickets:
-            rid = str(t.get("requester_id") or "")
-            if not rid or rid == "None" or rid in seen_users:
-                continue
-            seen_users.add(rid)
-
-            mes = first_contact.get(rid, "")
-            if not mes:
-                continue
-            cohort[mes]["total"] += 1
-
-            user = zendesk_map.get(rid)
-            if not user:
-                continue
-            cohort[mes]["com_app"] += 1
-
-            last_ord = user["last_order_date"][:7] if len(user["last_order_date"]) >= 7 else ""
-            if user["total_orders"] >= 2 and last_ord > mes:
-                cohort[mes]["recompraram"] += 1
-                cohort[mes]["receita"]     += user["receita_total"]
-
-        # Montar registros para upsert
+        # Para cada mês: dos usuários que contataram, quantos têm ≥2 pedidos no app
         now_ts = _dt.now(tz=timezone(timedelta(hours=-3))).isoformat()
         records = []
-        for mes in sorted(cohort.keys()):
-            c = cohort[mes]
-            com_app = c["com_app"]
-            recomp  = c["recompraram"]
+        for mes in sorted(monthly_contacts.keys()):
+            users    = monthly_contacts[mes]
+            total    = len(users)
+            com_app  = 0
+            recomp   = 0
+            receita  = 0.0
+            for rid in users:
+                user = zendesk_map.get(rid)
+                if not user:
+                    continue
+                com_app += 1
+                if user["total_orders"] >= 2:
+                    recomp  += 1
+                    receita += user["receita_total"]
             records.append({
                 "mes":                     mes,
-                "total_contatos_saude":    c["total"],
+                "total_contatos_saude":    total,
                 "clientes_com_app":        com_app,
                 "clientes_recompraram":    recomp,
                 "taxa_recompra_pct":       round(recomp / com_app * 100, 2) if com_app else 0.0,
                 "taxa_recompra_geral_pct": taxa_geral_por_mes.get(mes, taxa_geral_fallback),
-                "receita_recompradores":   round(c["receita"], 2),
+                "receita_recompradores":   round(receita, 2),
                 "atualizado_em":           now_ts,
             })
 
