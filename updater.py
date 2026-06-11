@@ -1472,51 +1472,23 @@ def sync_saude_recompra() -> bool:
             rows_733 = json.loads(r.read())
         log.info(f"sync_saude_recompra: card 733 → {len(rows_733)} usuários")
 
-        # Taxa geral fallback (todos users com ≥1 pedido no card 733)
-        total_geral  = len(rows_733)
-        recomp_geral = sum(1 for r in rows_733 if int(r.get("total_orders") or 0) >= 2)
-        taxa_geral_fallback = round(recomp_geral / total_geral * 100, 2) if total_geral else 0.0
+        # Comparação A/B:
+        # Grupo A (com_contato):  usuários do card 733 que abriram ticket em Blis Saúde
+        # Grupo B (sem_contato):  usuários do card 733 que NUNCA abriram ticket em Blis Saúde
+        # Agrupamento: mês do primeiro pedido (first_order_date) → safra de compra
+        # Métrica:     % com total_orders >= 2 em cada grupo
 
-        # Taxa geral mensal: busca mb_recompra_mensal no Supabase para ter variação mês a mês
-        import db_loader_metabase as _dbl2
-        _sb2 = _dbl2.get_client()
-        recompra_mensal_rows = _sb2.table("mb_recompra_mensal").select("periodo,pct_recompra").order("periodo").execute().data or []
-        taxa_geral_por_mes = {}
-        for rm in recompra_mensal_rows:
-            mes_key = str(rm.get("periodo") or "")[:7]
-            pct     = rm.get("pct_recompra")
-            if mes_key and pct is not None:
-                taxa_geral_por_mes[mes_key] = round(float(pct) * 100, 2)
-
-        # Índice: zendesk_id (str) → dados do usuário
-        zendesk_map = {}
-        for r in rows_733:
-            zid = r.get("zendesk_id")
-            if not zid:
-                continue
-            try:
-                zid_str = str(int(float(zid)))
-            except (ValueError, TypeError):
-                continue
-            zendesk_map[zid_str] = {
-                "total_orders":    int(r.get("total_orders") or 0),
-                "last_order_date": str(r.get("last_order_date") or "")[:10],
-                "receita_total":   float(r.get("receita_total") or 0.0),
-            }
-        log.info(f"sync_saude_recompra: {len(zendesk_map)} users com zendesk_id no card 733")
-
-        # Buscar tickets Blis Saúde do Supabase (paginado)
         import db_loader_metabase as _dbl
         _sb = _dbl.get_client()
 
+        # 1. Zendesk IDs que contataram Saúde (qualquer época)
         all_tickets = []
         batch, offset = 1000, 0
         while True:
             rows = (
                 _sb.table("tickets")
-                   .select("ticket_id,requester_id,criado_em")
+                   .select("requester_id")
                    .eq("group_id", 43771604769299)
-                   .order("criado_em")
                    .range(offset, offset + batch - 1)
                    .execute()
                    .data
@@ -1525,49 +1497,61 @@ def sync_saude_recompra() -> bool:
             if len(rows) < batch:
                 break
             offset += batch
-        log.info(f"sync_saude_recompra: {len(all_tickets)} tickets Blis Saúde no Supabase")
+        saude_contact_ids = {
+            str(t["requester_id"]) for t in all_tickets
+            if t.get("requester_id") and str(t["requester_id"]) != "None"
+        }
+        log.info(f"sync_saude_recompra: {len(saude_contact_ids)} zendesk_ids únicos contataram Saúde")
 
-        # Snapshot mensal: usuários únicos que contataram Saúde em cada mês
-        # (independente de ser 1º ou nº contato) — espelha lógica Metabase
-        monthly_contacts = defaultdict(set)  # mes → set(requester_id)
-        for t in all_tickets:
-            rid = str(t.get("requester_id") or "")
-            if not rid or rid == "None":
+        # 2. Para cada usuário do card 733: grupo A ou B por first_order_date
+        monthly = defaultdict(lambda: {
+            "com_total": 0, "com_recomp": 0, "com_receita": 0.0,
+            "sem_total": 0, "sem_recomp": 0,
+        })
+        for r in rows_733:
+            first = str(r.get("first_order_date") or "")[:7]
+            if not first or len(first) != 7:
                 continue
-            mes = str(t.get("criado_em") or "")[:7]
-            if len(mes) == 7:
-                monthly_contacts[mes].add(rid)
+            orders   = int(r.get("total_orders") or 0)
+            receita  = float(r.get("receita_total") or 0.0)
+            zid_raw  = r.get("zendesk_id")
+            try:
+                zid = str(int(float(zid_raw))) if zid_raw else None
+            except (ValueError, TypeError):
+                zid = None
 
-        # Para cada mês: dos usuários que contataram, quantos têm ≥2 pedidos no app
+            if zid and zid in saude_contact_ids:
+                monthly[first]["com_total"]  += 1
+                if orders >= 2:
+                    monthly[first]["com_recomp"]  += 1
+                    monthly[first]["com_receita"] += receita
+            else:
+                monthly[first]["sem_total"] += 1
+                if orders >= 2:
+                    monthly[first]["sem_recomp"] += 1
+
+        # 3. Montar registros — filtrar safras com ≥20 usuários em cada grupo
         now_ts = _dt.now(tz=timezone(timedelta(hours=-3))).isoformat()
         records = []
-        for mes in sorted(monthly_contacts.keys()):
-            users    = monthly_contacts[mes]
-            total    = len(users)
-            com_app  = 0
-            recomp   = 0
-            receita  = 0.0
-            for rid in users:
-                user = zendesk_map.get(rid)
-                if not user:
-                    continue
-                com_app += 1
-                if user["total_orders"] >= 2:
-                    recomp  += 1
-                    receita += user["receita_total"]
+        for mes in sorted(monthly.keys()):
+            m = monthly[mes]
+            if m["com_total"] < 20 or m["sem_total"] < 20:
+                continue
+            taxa_com = round(m["com_recomp"] / m["com_total"] * 100, 2)
+            taxa_sem = round(m["sem_recomp"] / m["sem_total"] * 100, 2)
             records.append({
                 "mes":                     mes,
-                "total_contatos_saude":    total,
-                "clientes_com_app":        com_app,
-                "clientes_recompraram":    recomp,
-                "taxa_recompra_pct":       round(recomp / com_app * 100, 2) if com_app else 0.0,
-                "taxa_recompra_geral_pct": taxa_geral_por_mes.get(mes, taxa_geral_fallback),
-                "receita_recompradores":   round(receita, 2),
+                "total_contatos_saude":    m["com_total"],   # usuários COM contato Saúde
+                "clientes_com_app":        m["sem_total"],   # usuários SEM contato Saúde
+                "clientes_recompraram":    m["com_recomp"],
+                "taxa_recompra_pct":       taxa_com,         # % recompra COM contato
+                "taxa_recompra_geral_pct": taxa_sem,         # % recompra SEM contato
+                "receita_recompradores":   round(m["com_receita"], 2),
                 "atualizado_em":           now_ts,
             })
 
         n = _dbl.upsert_batch(_sb, "mb_saude_recompra", records, "mes")
-        log.info(f"mb_saude_recompra → {n} meses | taxa_geral_fallback={taxa_geral_fallback}% | {len(taxa_geral_por_mes)} meses com taxa mensal")
+        log.info(f"mb_saude_recompra → {n} safras A/B | contato vs sem contato")
         log.info("=== sync_saude_recompra: concluído ===")
         return True
 
