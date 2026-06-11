@@ -569,6 +569,28 @@ def load_protocolo_analise(sb: Client, mb: dict) -> None:
     log.info(f"mb_protocolo_analise     → {n} protocolos")
 
 
+def load_protocolo_mensal(sb: Client, mb: dict) -> None:
+    """Receita por protocolo por mês — card 445 filtrado por data."""
+    card = mb.get("protocoloMensal")
+    if not card:
+        return
+    rows = get_rows(card)
+    records = []
+    for r in rows:
+        if len(r) < 5 or not r[0] or not r[1]:
+            continue
+        records.append({
+            "periodo":      parse_period(r[0]),
+            "protocolo":    str(r[1]),
+            "soma_receita": safe_float(r[2]),
+            "qtd_pedidos":  safe_int(r[3]),
+            "ticket_medio": safe_float(r[4]),
+            "data_carga":   TODAY,
+        })
+    n = upsert_batch(sb, "mb_protocolo_mensal", records, "periodo,protocolo")
+    log.info(f"mb_protocolo_mensal      → {n} registros")
+
+
 def load_safra_analise(sb: Client, mb: dict) -> None:
     """Análise por safra (coorte) — derivada do card 404 já pré-agregado."""
     card = mb.get("safraAnalise")
@@ -595,26 +617,41 @@ def load_safra_analise(sb: Client, mb: dict) -> None:
 
 
 def load_tipo_cliente(sb: Client, mb: dict) -> None:
-    """Análise por tipo de cliente — derivada do card 404 + card 203."""
+    """Análise por tipo de cliente — card 404+203; ticket_medio calculado de pedidosProtocolo."""
     card = mb.get("tipoCliente")
     if not card:
         return
+
+    # Ticket médio global: soma_receita / qtd_pedidos de todos os protocolos (card 445)
+    global_ticket: float | None = None
+    card_ped = mb.get("pedidosProtocolo")
+    if card_ped:
+        pd_rows = get_rows(card_ped)
+        total_rec = sum((safe_float(r[1]) or 0.0) for r in pd_rows if len(r) > 1)
+        total_ped = sum((safe_int(r[2])   or 0)   for r in pd_rows if len(r) > 2)
+        if total_ped > 0:
+            global_ticket = round(total_rec / total_ped, 2)
+
     rows = get_rows(card)
     records = []
     for r in rows:
         if len(r) < 4 or not r[0]:
             continue
+        qtd     = safe_int(r[1]) or 0
+        med_ped = safe_float(r[3]) or 0.0
+        # Receita estimada: qtd_usuarios × media_pedidos × ticket_global
+        est_rec = round(qtd * med_ped * global_ticket, 2) if global_ticket else None
         records.append({
             "tipo_cliente":  str(r[0]),
             "qtd_usuarios":  safe_int(r[1]),
             "pct_do_total":  safe_float(r[2]),
             "media_pedidos": safe_float(r[3]),
-            "receita_total": safe_float(r[4]) if len(r) > 4 else None,
-            "ticket_medio":  safe_float(r[5]) if len(r) > 5 else None,
+            "receita_total": est_rec,
+            "ticket_medio":  global_ticket,
             "data_carga":    TODAY,
         })
     n = upsert_batch(sb, "mb_tipo_cliente", records, "tipo_cliente")
-    log.info(f"mb_tipo_cliente          → {n} tipos")
+    log.info(f"mb_tipo_cliente          → {n} tipos (ticket≈R${global_ticket or '?'})")
 
 
 def load_comportamento_kpis(sb: Client, mb: dict) -> None:
@@ -725,7 +762,33 @@ def load_recompra_mensal(sb: Client, mb: dict) -> None:
     log.info(f"mb_recompra_mensal       → {n} meses")
 
 
+def load_cohort_pedidos(sb: Client, mb: dict) -> None:
+    """Distribuição de clientes por número de pedidos (card 201)."""
+    card = mb.get("cohortPedidos")
+    if not card:
+        return
+    records = []
+    for r in get_rows(card):
+        if not r or not r[0]:
+            continue
+        records.append({
+            "faixa_pedidos": str(r[0]),
+            "qtd_usuarios":  safe_int(r[1]),
+            "data_carga":    TODAY,
+        })
+    n = upsert_batch(sb, "mb_cohort_pedidos", records, "faixa_pedidos")
+    log.info(f"mb_cohort_pedidos        → {n} faixas")
+
+
 # ── Ponto de entrada ───────────────────────────────────────────────────────────
+
+def _run(fn, sb, mb) -> None:
+    """Executa um loader logando o erro sem interromper os demais."""
+    try:
+        fn(sb, mb)
+    except Exception as e:
+        log.error(f"{fn.__name__} falhou: {e}")
+
 
 def main() -> None:
     log.info("=== db_loader_metabase iniciado ===")
@@ -733,25 +796,26 @@ def main() -> None:
     mb = load_mb_data()
     log.info(f"Cards disponíveis: {list(mb.keys())}")
 
-    load_consultas_status(sb, mb)
-    load_status_temporal(sb, mb)
-    load_performance_medicos(sb, mb)
-    load_reviews_medicos(sb, mb)
-    load_cancelamentos(sb, mb)
-    load_nps_periodo(sb, mb)
-    load_tempo_consulta(sb, mb)
-    load_coupons(sb, mb)
-    load_conversao_coupons(sb, mb)
-    load_totais_diarios(sb, mb)
-    load_performance_medicos_mensal(sb, mb)
-    load_clientes_resumo(sb, mb)
-    load_protocolo_analise(sb, mb)
-    load_safra_analise(sb, mb)
-    load_tipo_cliente(sb, mb)
-    load_recompra_mensal(sb, mb)
-    load_comportamento_kpis(sb, mb)
-    load_churn_mensal(sb, mb)
-    load_funil_canal(sb, mb)
+    _run(load_consultas_status,          sb, mb)
+    _run(load_status_temporal,           sb, mb)
+    _run(load_performance_medicos,       sb, mb)
+    _run(load_reviews_medicos,           sb, mb)
+    _run(load_cancelamentos,             sb, mb)
+    _run(load_nps_periodo,               sb, mb)
+    _run(load_tempo_consulta,            sb, mb)
+    _run(load_coupons,                   sb, mb)
+    _run(load_conversao_coupons,         sb, mb)
+    _run(load_totais_diarios,            sb, mb)
+    _run(load_performance_medicos_mensal,sb, mb)
+    _run(load_clientes_resumo,           sb, mb)
+    _run(load_protocolo_analise,         sb, mb)
+    _run(load_safra_analise,             sb, mb)
+    _run(load_tipo_cliente,              sb, mb)
+    _run(load_recompra_mensal,           sb, mb)
+    _run(load_comportamento_kpis,        sb, mb)
+    _run(load_churn_mensal,              sb, mb)
+    _run(load_funil_canal,               sb, mb)
+    _run(load_cohort_pedidos,            sb, mb)
 
     log.info("=== db_loader_metabase concluído ===")
 

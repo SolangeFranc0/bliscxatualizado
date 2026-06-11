@@ -25,7 +25,7 @@ jobs:
       - name: Criar pasta output
         run: mkdir -p output
 
-      - name: Buscar dados e atualizar dashboard (Zendesk + Metabase + FTP)
+      - name: Pipeline completo (Zendesk + Metabase + Supabase + FTP)
         env:
           ZENDESK_EMAIL:        ${{ secrets.ZENDESK_EMAIL }}
           ZENDESK_TOKEN:        ${{ secrets.ZENDESK_TOKEN }}
@@ -38,15 +38,3 @@ jobs:
           SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: python3 updater.py
-
-      - name: Carregar Zendesk → Supabase
-        env:
-          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-        run: python3 db_loader_zendesk.py
-
-      - name: Carregar Metabase → Supabase
-        env:
-          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-        run: python3 db_loader_metabase.py

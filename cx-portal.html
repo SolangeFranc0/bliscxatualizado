@@ -539,6 +539,10 @@ canvas.med-chart{max-height:250px}
 .seg-card-sub{font-size:11px;color:#6B7280;margin-top:3px}
 .kpi-comportamento-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
 @media(max-width:700px){.kpi-comportamento-grid{grid-template-columns:1fr 1fr}}
+.tipo-detalhe{padding:4px 0}
+.tipo-kpi-mini{background:var(--g50);border:1px solid var(--g100);border-radius:10px;padding:10px 14px}
+.tipo-kpi-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;color:var(--g800)}
+.tipo-kpi-lbl{font-size:11px;color:#6B7280;margin-top:2px}
 </style>
 </head>
 <body>
@@ -567,6 +571,15 @@ canvas.med-chart{max-height:250px}
         </span>
         <span>Dashboard CX</span>
       </button>
+      <button class="cx-nav-item" id="nav-time" onclick="show('time',this)">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </span>
+        <span>Time de Atendimento</span>
+      </button>
       <button class="cx-nav-item" id="nav-knowledge" onclick="show('knowledge',this)">
         <span class="nav-icon">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -591,6 +604,14 @@ canvas.med-chart{max-height:250px}
         </span>
         <span>Dash Médicos</span>
       </button>
+      <button class="cx-nav-item" id="nav-analise" onclick="show('analise',this)">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+        </span>
+        <span>Análises</span>
+      </button>
     </nav>
 
     <div class="cx-sb-footer">
@@ -613,14 +634,45 @@ canvas.med-chart{max-height:250px}
     <!-- ── SECTION 1: Dashboard ── -->
     <section class="cx-section cx-section--dash active" id="section-dashboard">
       <iframe
-        src="dashboard.html?v=20260526-4"
+        src="dashboard.html?v=20260602"
         title="Dashboard CX Appblis"
         allowfullscreen
         id="dashFrame"
       ></iframe>
     </section>
 
-    <!-- ── SECTION 2: Base de Conhecimento ── -->
+    <!-- ── SECTION 2: Time de Atendimento ── -->
+    <section class="cx-section cx-section--content" id="section-time">
+
+      <div class="s-header">
+        <div>
+          <h1 class="s-title">Time de Atendimento</h1>
+          <p class="s-sub">Performance individual por agente — Blis Resolve e Blis Saúde · Jan–Jun 2026</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <label style="font-size:12px;color:#6B7280;font-weight:500">Mês:</label>
+          <select id="agentes-perf-mes-filter" onchange="_doRenderAgentesPerformance(document.getElementById('block-agentes-perf-body'), typeof _agentesPerformanceInline!=='undefined'?_agentesPerformanceInline:[])"
+            style="font-size:12px;padding:5px 10px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#374151;cursor:pointer;font-family:inherit">
+            <option value="todos">Todos (Jan–Jun)</option>
+            <option value="2026-01">Janeiro 2026</option>
+            <option value="2026-02">Fevereiro 2026</option>
+            <option value="2026-03">Março 2026</option>
+            <option value="2026-04">Abril 2026</option>
+            <option value="2026-05">Maio 2026</option>
+            <option value="2026-06">Junho 2026</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="block-agentes-performance" style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:24px;box-shadow:0 1px 6px rgba(0,0,0,.07)">
+        <div id="block-agentes-perf-body" style="padding-top:0">
+          <p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Carregando dados…</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── SECTION 3: Base de Conhecimento ── -->
     <section class="cx-section cx-section--content" id="section-knowledge">
 
       <!-- List view -->
@@ -1055,196 +1107,239 @@ canvas.med-chart{max-height:250px}
           </div>
         </div>
 
-        <!-- ── Analytics de Clientes ───────────────────────── -->
-        <div class="analytics-divider">
-          <div class="analytics-divider-line"></div>
-          <span class="analytics-divider-label">Analytics Estratégico de Clientes</span>
-          <div class="analytics-divider-line"></div>
-        </div>
+      </div><!-- /mb-dashboard -->
 
-        <!-- Filtros analytics -->
-        <div class="dash-filters" style="margin-bottom:14px">
-          <select class="filter-sel" id="filter-protocolo" onchange="applyAnalyticsFilter()" style="max-width:220px">
-            <option value="">Todos os protocolos</option>
-          </select>
-          <span class="filter-sep">|</span>
-          <select class="filter-sel" id="filter-tipo-cliente" onchange="applyAnalyticsFilter()">
-            <option value="">Todos os tipos</option>
-            <option value="Novo">Novo</option>
-            <option value="Recorrente">Recorrente</option>
-            <option value="Fiel">Fiel</option>
-            <option value="Alta Frequência">Alta Frequência</option>
-          </select>
-          <span class="filter-sep">|</span>
-          <select class="filter-sel" id="filter-ano-analytics" onchange="applyAnalyticsFilter()" style="max-width:110px">
-            <option value="">Todos os anos</option>
-            <option value="2024">2024</option>
-            <option value="2025">2025</option>
-            <option value="2026">2026</option>
-          </select>
-          <select class="filter-sel" id="filter-mes-analytics" onchange="applyAnalyticsFilter()" style="max-width:120px">
-            <option value="">Todos os meses</option>
-            <option value="01">Janeiro</option>
-            <option value="02">Fevereiro</option>
-            <option value="03">Março</option>
-            <option value="04">Abril</option>
-            <option value="05">Maio</option>
-            <option value="06">Junho</option>
-            <option value="07">Julho</option>
-            <option value="08">Agosto</option>
-            <option value="09">Setembro</option>
-            <option value="10">Outubro</option>
-            <option value="11">Novembro</option>
-            <option value="12">Dezembro</option>
-          </select>
-        </div>
+    </section>
 
-        <!-- Nota período ativo -->
-        <div id="analytics-period-note" style="display:none;color:#6B7280;font-size:11px;margin:-6px 0 10px;padding:6px 10px;background:#F9FAFB;border-left:3px solid #D1D5DB;border-radius:0 6px 6px 0">
-          Filtro de período ativo · protocolos e tipos de cliente exibem dados acumulados — os gráficos temporais abaixo respondem ao mês/ano selecionado.
-        </div>
+    <!-- ── SECTION 5: Análises ── -->
+    <section class="cx-section cx-section--content" id="section-analise">
 
-        <!-- KPIs clientes -->
-        <div class="kpi-grid" id="kpi-analytics">
-          <div class="kpi-card kpi-skel"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
-          <div class="kpi-card kpi-skel"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
-          <div class="kpi-card kpi-skel"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
-          <div class="kpi-card kpi-skel"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
+      <div class="s-header">
+        <div>
+          <h1 class="s-title">Analytics Estratégico de Clientes</h1>
+          <p class="s-sub">Protocolos, safras, comportamento de compra e canal de aquisição — dados via Supabase.</p>
         </div>
+        <span class="badge" id="analise-last-update" style="display:none">Carregando…</span>
+      </div>
 
-        <!-- Protocolo (full width) -->
-        <div class="card" id="block-protocolo">
-          <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-            <div>
-              <div class="block-title">Análise por Protocolo</div>
-              <div class="block-sub">Receita, pedidos, clientes únicos e taxa de recompra por protocolo terapêutico</div>
+      <!-- Recompra Blis Saúde — sem classes, só inline styles -->
+      <div id="block-saude-recompra" style="background:#fff;border:1px solid #E5E7EB;border-left:4px solid #6366F1;border-radius:16px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.07)">
+        <div style="font-size:15px;font-weight:800;color:#1B4D2E;margin-bottom:4px">Recompra — Clientes Blis Saúde</div>
+        <div style="font-size:12px;color:#6B7280;margin-bottom:18px">Pacientes que contataram Blis Saúde e voltaram a comprar · Jan–Jun 2026</div>
+        <div id="block-saude-recompra-body" style="padding-top:0">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px">
+            <div class="kpi-card">
+              <div class="kpi-value">9.581</div>
+              <div class="kpi-label">Contatos Blis Saúde</div>
             </div>
-            <span class="badge" id="proto-count" style="display:none"></span>
-          </div>
-          <div class="card-body" style="padding-top:8px">
-            <div class="skel" style="width:100%;height:180px;border-radius:8px"></div>
-          </div>
-        </div>
-
-        <!-- Tipo Cliente + Recompra MoM -->
-        <div class="analytics-2col">
-          <div class="card" id="block-tipo-cliente">
-            <div class="card-hdr">
-              <div>
-                <div class="block-title">Tipo de Cliente</div>
-                <div class="block-sub">Distribuição por frequência de recompra</div>
-              </div>
+            <div class="kpi-card">
+              <div class="kpi-value">26,2%</div>
+              <div class="kpi-label">Recompra (Saúde)</div>
+              <div class="kpi-sub" style="color:#dc2626">−4,3 pp vs geral</div>
             </div>
-            <div class="card-body" style="padding-top:8px">
-              <div class="skel" style="width:100%;height:160px;border-radius:8px"></div>
+            <div class="kpi-card">
+              <div class="kpi-value">30,5%</div>
+              <div class="kpi-label">Recompra Geral</div>
             </div>
           </div>
-          <div class="card" id="block-recompra-mensal">
-            <div class="card-hdr">
-              <div>
-                <div class="block-title">Recompra Mensal</div>
-                <div class="block-sub">Evolução de recompras e % vinculadas a consultas</div>
-              </div>
-            </div>
-            <div class="card-body chart-wrap" style="min-height:200px">
-              <div class="skel" style="width:100%;height:180px;border-radius:8px"></div>
-            </div>
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <thead>
+                <tr style="border-bottom:2px solid #E5E7EB">
+                  <th style="text-align:left;padding:6px 10px;color:#6B7280;font-weight:600">Mês</th>
+                  <th style="text-align:right;padding:6px 10px;color:#6B7280;font-weight:600">Contatos</th>
+                  <th style="text-align:right;padding:6px 10px;color:#6B7280;font-weight:600">Com App</th>
+                  <th style="text-align:right;padding:6px 10px;color:#6B7280;font-weight:600">Recompraram</th>
+                  <th style="text-align:right;padding:6px 10px;color:#6B7280;font-weight:600">% Saúde</th>
+                  <th style="text-align:right;padding:6px 10px;color:#6B7280;font-weight:600">% Geral</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid #F3F4F6"><td style="padding:7px 10px;font-weight:600">Jan/26</td><td style="text-align:right;padding:7px 10px">1.059</td><td style="text-align:right;padding:7px 10px">647</td><td style="text-align:right;padding:7px 10px">276</td><td style="text-align:right;padding:7px 10px;color:#16a34a;font-weight:700">42,7%</td><td style="text-align:right;padding:7px 10px;color:#6B7280">30,5%</td></tr>
+                <tr style="border-bottom:1px solid #F3F4F6"><td style="padding:7px 10px;font-weight:600">Fev/26</td><td style="text-align:right;padding:7px 10px">2.329</td><td style="text-align:right;padding:7px 10px">1.710</td><td style="text-align:right;padding:7px 10px">557</td><td style="text-align:right;padding:7px 10px;color:#16a34a;font-weight:700">32,6%</td><td style="text-align:right;padding:7px 10px;color:#6B7280">30,5%</td></tr>
+                <tr style="border-bottom:1px solid #F3F4F6"><td style="padding:7px 10px;font-weight:600">Mar/26</td><td style="text-align:right;padding:7px 10px">2.857</td><td style="text-align:right;padding:7px 10px">2.549</td><td style="text-align:right;padding:7px 10px">713</td><td style="text-align:right;padding:7px 10px;color:#6B7280;font-weight:700">28,0%</td><td style="text-align:right;padding:7px 10px;color:#6B7280">30,5%</td></tr>
+                <tr style="border-bottom:1px solid #F3F4F6"><td style="padding:7px 10px;font-weight:600">Abr/26</td><td style="text-align:right;padding:7px 10px">2.352</td><td style="text-align:right;padding:7px 10px">1.997</td><td style="text-align:right;padding:7px 10px">412</td><td style="text-align:right;padding:7px 10px;color:#dc2626;font-weight:700">20,6%</td><td style="text-align:right;padding:7px 10px;color:#6B7280">30,5%</td></tr>
+                <tr style="border-bottom:1px solid #F3F4F6"><td style="padding:7px 10px;font-weight:600">Mai/26</td><td style="text-align:right;padding:7px 10px">806</td><td style="text-align:right;padding:7px 10px">548</td><td style="text-align:right;padding:7px 10px">17</td><td style="text-align:right;padding:7px 10px;color:#dc2626;font-weight:700">3,1%</td><td style="text-align:right;padding:7px 10px;color:#6B7280">30,5%</td></tr>
+                <tr><td style="padding:7px 10px;font-weight:600">Jun/26</td><td style="text-align:right;padding:7px 10px">178</td><td style="text-align:right;padding:7px 10px">91</td><td style="text-align:right;padding:7px 10px">0</td><td style="text-align:right;padding:7px 10px;color:#9CA3AF;font-weight:700">0,0%</td><td style="text-align:right;padding:7px 10px;color:#6B7280">30,5%</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
+      </div>
 
-        <!-- Safra cohort -->
-        <div class="card" id="block-safra">
-          <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-            <div>
-              <div class="block-title">Análise por Safra (Coorte)</div>
-              <div class="block-sub">Clientes agrupados pelo mês da primeira compra — retenção e recompra por geração</div>
-            </div>
-            <span class="badge" id="safra-count" style="display:none"></span>
-          </div>
-          <div class="card-body" style="padding-top:8px">
-            <div class="skel" style="width:100%;height:200px;border-radius:8px"></div>
-          </div>
-        </div>
+      <!-- ── VALOR POR SEGMENTO (topo) ──────────────────────────────── -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
 
-        <!-- ── COMPORTAMENTO DE COMPRA ─────────────────────────────── -->
-        <div class="analytics-divider">
-          <div class="analytics-divider-line"></div>
-          <span class="analytics-divider-label">Comportamento de Compra</span>
-          <div class="analytics-divider-line"></div>
-        </div>
-
-        <div class="kpi-comportamento-grid" id="kpi-comportamento">
-          <div class="kpi-card kpi-skel"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
-          <div class="kpi-card kpi-skel"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
-          <div class="kpi-card kpi-skel"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
-        </div>
-
-        <!-- Safra avançado + Churn mensal -->
-        <div class="analytics-2col">
-          <div class="card" id="block-safra-avancado">
-            <div class="card-hdr">
-              <div>
-                <div class="block-title">Safra — Tempo até Recompra</div>
-                <div class="block-sub">Intervalo médio 1ª→2ª compra e inativos por coorte de aquisição</div>
-              </div>
-            </div>
-            <div class="card-body" style="padding-top:8px">
-              <div class="skel" style="width:100%;height:200px;border-radius:8px"></div>
-            </div>
-          </div>
-          <div class="card" id="block-churn-mensal">
-            <div class="card-hdr">
-              <div>
-                <div class="block-title">Clientes em Churn por Mês</div>
-                <div class="block-sub">Clientes que não voltaram — definição do mês de churn previsto</div>
-              </div>
-            </div>
-            <div class="card-body chart-wrap" style="min-height:200px">
-              <div class="skel" style="width:100%;height:180px;border-radius:8px"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── CANAL DE AQUISIÇÃO ──────────────────────────────────── -->
-        <div class="analytics-divider">
-          <div class="analytics-divider-line"></div>
-          <span class="analytics-divider-label">Canal de Aquisição</span>
-          <div class="analytics-divider-line"></div>
-        </div>
-
-        <div class="card" id="block-funil-canal">
-          <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-            <div>
-              <div class="block-title">Funil por Canal</div>
-              <div class="block-sub">Pré-cadastro → Consulta → Pedido → Recompra por origem do usuário</div>
-            </div>
-            <span class="badge" id="canal-count" style="display:none"></span>
-          </div>
-          <div class="card-body" style="padding-top:8px">
-            <div class="skel" style="width:100%;height:200px;border-radius:8px"></div>
-          </div>
-        </div>
-
-        <!-- ── VALOR POR SEGMENTO ──────────────────────────────────── -->
-        <div class="analytics-divider">
-          <div class="analytics-divider-line"></div>
-          <span class="analytics-divider-label">Valor por Segmento</span>
-          <div class="analytics-divider-line"></div>
-        </div>
-
-        <div class="card" id="block-ticket-segmento">
+        <div class="card" id="block-ticket-segmento" style="grid-column:1">
           <div class="card-hdr">
             <div>
-              <div class="block-title">Ticket Médio e Receita por Tipo de Cliente</div>
-              <div class="block-sub">Quanto cada segmento gasta por pedido e sua representatividade na receita total</div>
+              <div class="block-title">Valor por Segmento</div>
+              <div class="block-sub">Ticket médio e receita estimada por tipo de cliente</div>
+            </div>
+          </div>
+          <div class="card-body" id="block-ticket-segmento-body" style="padding:16px 20px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:6px">🌱 Novo</div><div style="font-size:20px;font-weight:800;color:#1e293b">22.983</div><div style="font-size:11px;color:#6B7280;margin-top:2px">69,7% da base · 1,0 pedidos</div><div style="margin-top:8px;font-size:13px;font-weight:700;color:#1e293b">R$ 1.602,30</div><div style="font-size:10px;color:#6B7280">ticket médio · Receita: R$ 36,8M</div></div>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:6px">🔄 Recorrente</div><div style="font-size:20px;font-weight:800;color:#1e293b">7.975</div><div style="font-size:11px;color:#6B7280;margin-top:2px">24,2% da base · 2,3 pedidos</div><div style="margin-top:8px;font-size:13px;font-weight:700;color:#1e293b">R$ 1.602,30</div><div style="font-size:10px;color:#6B7280">ticket médio · Receita: R$ 29,0M</div></div>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:6px">⭐ Fiel</div><div style="font-size:20px;font-weight:800;color:#1e293b">1.687</div><div style="font-size:11px;color:#6B7280;margin-top:2px">5,1% da base · 4,6 pedidos</div><div style="margin-top:8px;font-size:13px;font-weight:700;color:#1e293b">R$ 1.602,30</div><div style="font-size:10px;color:#6B7280">ticket médio · Receita: R$ 12,4M</div></div>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:6px">🚀 Alta Frequência</div><div style="font-size:20px;font-weight:800;color:#1e293b">339</div><div style="font-size:11px;color:#6B7280;margin-top:2px">1,0% da base · 8,6 pedidos</div><div style="margin-top:8px;font-size:13px;font-weight:700;color:#1e293b">R$ 1.602,30</div><div style="font-size:10px;color:#6B7280">ticket médio · Receita: R$ 4,6M</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="block-freq-compras" style="grid-column:2">
+          <div class="card-hdr">
+            <div>
+              <div class="block-title">Frequência de Compras</div>
+              <div class="block-sub">Distribuição por número de pedidos realizados</div>
+            </div>
+          </div>
+          <div class="card-body" id="block-freq-compras-body" style="padding:16px 20px">
+            <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+              <div style="background:#f0fdfa;border-radius:8px;padding:10px 14px;min-width:110px"><div style="font-size:18px;font-weight:700;color:#0d9488">32.985</div><div style="font-size:11px;color:#6B7280">total clientes</div></div>
+              <div style="background:#f0fdf4;border-radius:8px;padding:10px 14px;min-width:110px"><div style="font-size:18px;font-weight:700;color:#16a34a">10.021</div><div style="font-size:11px;color:#6B7280">compraram 2x+</div></div>
+              <div style="background:#faf5ff;border-radius:8px;padding:10px 14px;min-width:110px"><div style="font-size:18px;font-weight:700;color:#7c3aed">30,4%</div><div style="font-size:11px;color:#6B7280">taxa recompra</div></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;gap:8px"><span style="width:130px;font-size:12px;font-weight:600;color:#374151;flex-shrink:0">1 pedido</span><div style="flex:1;background:#f1f5f9;border-radius:4px;height:22px;overflow:hidden"><div style="height:100%;width:100%;background:#cbd5e1;border-radius:4px;display:flex;align-items:center;padding-left:6px"><span style="font-size:10px;font-weight:700;color:#1e293b">22.964</span></div></div><span style="font-size:11px;color:#6B7280;min-width:38px;text-align:right">69,6%</span></div>
+              <div style="display:flex;align-items:center;gap:8px"><span style="width:130px;font-size:12px;font-weight:600;color:#374151;flex-shrink:0">2 pedidos</span><div style="flex:1;background:#f1f5f9;border-radius:4px;height:22px;overflow:hidden"><div style="height:100%;width:25%;background:#7dd3fc;border-radius:4px;"></div></div><span style="font-size:11px;color:#6B7280;min-width:38px;text-align:right">5.817 · 17,6%</span></div>
+              <div style="display:flex;align-items:center;gap:8px"><span style="width:130px;font-size:12px;font-weight:600;color:#374151;flex-shrink:0">3 pedidos</span><div style="flex:1;background:#f1f5f9;border-radius:4px;height:22px;overflow:hidden"><div style="height:100%;width:9%;background:#34d399;border-radius:4px;"></div></div><span style="font-size:11px;color:#6B7280;min-width:38px;text-align:right">2.145 · 6,5%</span></div>
+              <div style="display:flex;align-items:center;gap:8px"><span style="width:130px;font-size:12px;font-weight:600;color:#374151;flex-shrink:0">4 pedidos</span><div style="flex:1;background:#f1f5f9;border-radius:4px;height:22px;overflow:hidden"><div style="height:100%;width:4%;background:#a78bfa;border-radius:4px;"></div></div><span style="font-size:11px;color:#6B7280;min-width:38px;text-align:right">958 · 2,9%</span></div>
+              <div style="display:flex;align-items:center;gap:8px"><span style="width:130px;font-size:12px;font-weight:600;color:#374151;flex-shrink:0">5+ pedidos</span><div style="flex:1;background:#f1f5f9;border-radius:4px;height:22px;overflow:hidden"><div style="height:100%;width:5%;background:#fb923c;border-radius:4px;"></div></div><span style="font-size:11px;color:#6B7280;min-width:38px;text-align:right">1.101 · 3,3%</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /grid 2col -->
+
+      <!-- Filtros analytics -->
+      <div class="dash-filters" style="margin-bottom:14px">
+        <select class="filter-sel" id="filter-protocolo" onchange="applyAnalyticsFilter()" style="max-width:220px">
+          <option value="">Todos os protocolos</option>
+        </select>
+        <span class="filter-sep">|</span>
+        <select class="filter-sel" id="filter-tipo-cliente" onchange="applyAnalyticsFilter()">
+          <option value="">Todos os tipos</option>
+          <option value="Novo">Novo</option>
+          <option value="Recorrente">Recorrente</option>
+          <option value="Fiel">Fiel</option>
+          <option value="Alta Frequência">Alta Frequência</option>
+        </select>
+        <span class="filter-sep">|</span>
+        <select class="filter-sel" id="filter-ano-analytics" onchange="applyAnalyticsFilter()" style="max-width:110px">
+          <option value="">Todos os anos</option>
+        </select>
+        <select class="filter-sel" id="filter-mes-analytics" onchange="applyAnalyticsFilter()" style="max-width:120px">
+          <option value="">Todos os meses</option>
+        </select>
+      </div>
+
+      <!-- Nota período ativo -->
+      <div id="analytics-period-note" style="display:none;color:#6B7280;font-size:11px;margin:-6px 0 10px;padding:6px 10px;background:#F9FAFB;border-left:3px solid #D1D5DB;border-radius:0 6px 6px 0">
+        Filtro ativo — os KPIs do topo refletem o filtro aplicado. Blocos marcados em azul exibem dados globais (sem breakdown disponível no nível selecionado).
+      </div>
+
+      <!-- KPIs clientes -->
+      <div class="kpi-grid" id="kpi-analytics">
+        <div class="kpi-card kpi-skel"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
+        <div class="kpi-card kpi-skel"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
+        <div class="kpi-card kpi-skel"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
+        <div class="kpi-card kpi-skel"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
+      </div>
+
+      <!-- Protocolo (full width) -->
+      <div class="card" id="block-protocolo">
+        <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div>
+            <div class="block-title">Análise por Protocolo</div>
+            <div class="block-sub">Receita, pedidos, clientes únicos e taxa de recompra por protocolo terapêutico</div>
+          </div>
+          <span class="badge" id="proto-count" style="display:none"></span>
+        </div>
+        <div class="card-body" style="padding-top:8px">
+          <div class="skel" style="width:100%;height:180px;border-radius:8px"></div>
+        </div>
+      </div>
+
+      <!-- Tipo Cliente + Recompra MoM -->
+      <div class="analytics-2col">
+        <div class="card" id="block-tipo-cliente">
+          <div class="card-hdr">
+            <div>
+              <div class="block-title">Tipo de Cliente</div>
+              <div class="block-sub">Distribuição por frequência de recompra</div>
             </div>
           </div>
           <div class="card-body" style="padding-top:8px">
             <div class="skel" style="width:100%;height:160px;border-radius:8px"></div>
           </div>
         </div>
+        <div class="card" id="block-recompra-mensal">
+          <div class="card-hdr">
+            <div>
+              <div class="block-title">Recompra Mensal</div>
+              <div class="block-sub">Evolução de recompras e % vinculadas a consultas</div>
+            </div>
+          </div>
+          <div class="card-body chart-wrap" style="min-height:200px">
+            <div class="skel" style="width:100%;height:180px;border-radius:8px"></div>
+          </div>
+        </div>
+      </div>
 
-      </div><!-- /mb-dashboard -->
+      <!-- Safra cohort -->
+      <div class="card" id="block-safra">
+        <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div>
+            <div class="block-title">Análise por Safra (Coorte)</div>
+            <div class="block-sub">Clientes agrupados pelo mês da primeira compra — retenção e recompra por geração</div>
+          </div>
+          <span class="badge" id="safra-count" style="display:none"></span>
+        </div>
+        <div class="card-body" style="padding-top:8px">
+          <div class="skel" style="width:100%;height:200px;border-radius:8px"></div>
+        </div>
+      </div>
+
+      <!-- ── COMPORTAMENTO DE COMPRA ─────────────────────────────── -->
+      <div class="analytics-divider">
+        <div class="analytics-divider-line"></div>
+        <span class="analytics-divider-label">Comportamento de Compra</span>
+        <div class="analytics-divider-line"></div>
+      </div>
+
+      <div class="kpi-comportamento-grid" id="kpi-comportamento">
+        <div class="kpi-card kpi-skel"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
+        <div class="kpi-card kpi-skel"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
+        <div class="kpi-card kpi-skel"><div class="skel" style="height:28px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
+      </div>
+
+      <!-- Safra avançado + Churn mensal -->
+      <div class="analytics-2col">
+        <div class="card" id="block-safra-avancado">
+          <div class="card-hdr">
+            <div>
+              <div class="block-title">Safra — Tempo até Recompra</div>
+              <div class="block-sub">Intervalo médio 1ª→2ª compra e inativos por coorte de aquisição</div>
+            </div>
+          </div>
+          <div class="card-body" style="padding-top:8px">
+            <div class="skel" style="width:100%;height:200px;border-radius:8px"></div>
+          </div>
+        </div>
+        <div class="card" id="block-churn-mensal">
+          <div class="card-hdr">
+            <div>
+              <div class="block-title">Clientes em Churn por Mês</div>
+              <div class="block-sub">Clientes que não voltaram — definição do mês de churn previsto</div>
+            </div>
+          </div>
+          <div class="card-body chart-wrap" style="min-height:200px">
+            <div class="skel" style="width:100%;height:180px;border-radius:8px"></div>
+          </div>
+        </div>
+      </div>
+
 
     </section>
 
@@ -1411,9 +1506,11 @@ function show(name, btn) {
   document.querySelectorAll('.cx-nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('section-' + name).classList.add('active');
   btn.classList.add('active');
-  const labels = {dashboard:'Dashboard CX', knowledge:'Base de Conhecimento', lgpd:'LGPD', medicos:'Dash Médicos'};
+  const labels = {dashboard:'Dashboard CX', time:'Time de Atendimento', knowledge:'Base de Conhecimento', lgpd:'LGPD', medicos:'Dash Médicos', analise:'Análises'};
   document.getElementById('mobileTitle').textContent = labels[name] || name;
   if (name === 'medicos') initMedicos();
+  if (name === 'analise') initAnalise();
+  if (name === 'time') _renderAgentesPerformance();
   if (window.innerWidth <= 768) closeSidebar();
 }
 
@@ -1518,6 +1615,21 @@ function _filterByMonth(rows, dateColIdx) {
   return rows.filter(r => String(r[dateColIdx] || '').slice(0, 7).replace('/', '-') === _med.month);
 }
 
+// COHORT_INLINE_START
+var _cohortInline=[{"faixa_pedidos":"1 pedido","qtd_usuarios":23310},{"faixa_pedidos":"2 pedidos","qtd_usuarios":5920},{"faixa_pedidos":"3 pedidos","qtd_usuarios":2178},{"faixa_pedidos":"Mais de 5 pedidos","qtd_usuarios":1125},{"faixa_pedidos":"4 pedidos","qtd_usuarios":980}];
+// COHORT_INLINE_END
+// TIPO_CLIENTE_INLINE_START
+var _tipoClienteInline=[{"tipo_cliente":"Novo","qtd_usuarios":23331,"pct_do_total":0.6962,"media_pedidos":1.0,"ticket_medio":0.0,"receita_total":0.0},{"tipo_cliente":"Recorrente","qtd_usuarios":8106,"pct_do_total":0.2419,"media_pedidos":2.27,"ticket_medio":0.0,"receita_total":0.0},{"tipo_cliente":"Fiel","qtd_usuarios":1727,"pct_do_total":0.0515,"media_pedidos":4.6,"ticket_medio":0.0,"receita_total":0.0},{"tipo_cliente":"Alta Frequência","qtd_usuarios":348,"pct_do_total":0.0104,"media_pedidos":8.57,"ticket_medio":0.0,"receita_total":0.0}];
+// TIPO_CLIENTE_INLINE_END
+// SAUDE_RECOMPRA_INLINE_START
+var _saudeRecompraInline=[{"mes":"2026-01","total_contatos_saude":1059,"clientes_com_app":647,"clientes_recompraram":276,"taxa_recompra_pct":42.66,"taxa_recompra_geral_pct":30.44,"receita_recompradores":935822.44},{"mes":"2026-02","total_contatos_saude":2329,"clientes_com_app":1710,"clientes_recompraram":558,"taxa_recompra_pct":32.63,"taxa_recompra_geral_pct":30.44,"receita_recompradores":1567551.98},{"mes":"2026-03","total_contatos_saude":2857,"clientes_com_app":2550,"clientes_recompraram":714,"taxa_recompra_pct":28.0,"taxa_recompra_geral_pct":30.44,"receita_recompradores":1838441.75},{"mes":"2026-04","total_contatos_saude":2352,"clientes_com_app":1997,"clientes_recompraram":415,"taxa_recompra_pct":20.78,"taxa_recompra_geral_pct":30.44,"receita_recompradores":924143.26},{"mes":"2026-05","total_contatos_saude":806,"clientes_com_app":548,"clientes_recompraram":20,"taxa_recompra_pct":3.65,"taxa_recompra_geral_pct":30.44,"receita_recompradores":44932.02},{"mes":"2026-06","total_contatos_saude":178,"clientes_com_app":93,"clientes_recompraram":0,"taxa_recompra_pct":0.0,"taxa_recompra_geral_pct":30.44,"receita_recompradores":0.0}];
+// SAUDE_RECOMPRA_INLINE_END
+// AGENTES_PERFORMANCE_INLINE_START
+var _agentesPerformanceInline=[{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2025-12","total_tickets":1,"tickets_resolvidos":1,"csat_good":0,"csat_bad":0,"csat_score":null,"tma_h":37.6},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-01","total_tickets":762,"tickets_resolvidos":762,"csat_good":255,"csat_bad":15,"csat_score":94.4,"tma_h":5.4},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-01","total_tickets":651,"tickets_resolvidos":648,"csat_good":83,"csat_bad":18,"csat_score":82.2,"tma_h":21.2},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-02","total_tickets":943,"tickets_resolvidos":936,"csat_good":293,"csat_bad":36,"csat_score":89.1,"tma_h":9.4},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-02","total_tickets":629,"tickets_resolvidos":614,"csat_good":40,"csat_bad":8,"csat_score":83.3,"tma_h":64.6},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-03","total_tickets":935,"tickets_resolvidos":935,"csat_good":248,"csat_bad":23,"csat_score":91.5,"tma_h":5.4},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-03","total_tickets":1197,"tickets_resolvidos":1187,"csat_good":75,"csat_bad":41,"csat_score":64.7,"tma_h":23.9},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","mes":"2026-03","total_tickets":87,"tickets_resolvidos":87,"csat_good":0,"csat_bad":0,"csat_score":null,"tma_h":25.0},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-04","total_tickets":568,"tickets_resolvidos":568,"csat_good":7,"csat_bad":3,"csat_score":70.0,"tma_h":5.5},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-04","total_tickets":294,"tickets_resolvidos":294,"csat_good":2,"csat_bad":2,"csat_score":null,"tma_h":29.0},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","mes":"2026-04","total_tickets":348,"tickets_resolvidos":348,"csat_good":2,"csat_bad":1,"csat_score":null,"tma_h":26.4},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","mes":"2026-04","total_tickets":434,"tickets_resolvidos":434,"csat_good":1,"csat_bad":1,"csat_score":null,"tma_h":11.6},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","mes":"2026-04","total_tickets":360,"tickets_resolvidos":360,"csat_good":1,"csat_bad":3,"csat_score":null,"tma_h":11.2},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-05","total_tickets":459,"tickets_resolvidos":459,"csat_good":127,"csat_bad":11,"csat_score":92.0,"tma_h":11.0},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-05","total_tickets":236,"tickets_resolvidos":236,"csat_good":1,"csat_bad":0,"csat_score":null,"tma_h":20.9},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","mes":"2026-05","total_tickets":348,"tickets_resolvidos":348,"csat_good":84,"csat_bad":3,"csat_score":96.6,"tma_h":12.7},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","mes":"2026-05","total_tickets":796,"tickets_resolvidos":796,"csat_good":154,"csat_bad":6,"csat_score":96.2,"tma_h":15.5},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","mes":"2026-05","total_tickets":563,"tickets_resolvidos":563,"csat_good":141,"csat_bad":6,"csat_score":95.9,"tma_h":20.3},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","mes":"2026-05","total_tickets":565,"tickets_resolvidos":564,"csat_good":165,"csat_bad":8,"csat_score":95.4,"tma_h":11.3},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-06","total_tickets":37,"tickets_resolvidos":37,"csat_good":20,"csat_bad":0,"csat_score":100.0,"tma_h":2.5},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-06","total_tickets":59,"tickets_resolvidos":58,"csat_good":1,"csat_bad":0,"csat_score":null,"tma_h":16.5},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","mes":"2026-06","total_tickets":184,"tickets_resolvidos":184,"csat_good":61,"csat_bad":1,"csat_score":98.4,"tma_h":12.5},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","mes":"2026-06","total_tickets":261,"tickets_resolvidos":259,"csat_good":70,"csat_bad":2,"csat_score":97.2,"tma_h":14.5},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","mes":"2026-06","total_tickets":227,"tickets_resolvidos":227,"csat_good":73,"csat_bad":7,"csat_score":91.2,"tma_h":12.0},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","mes":"2026-06","total_tickets":259,"tickets_resolvidos":256,"csat_good":93,"csat_bad":8,"csat_score":92.1,"tma_h":10.7}];
+// AGENTES_PERFORMANCE_INLINE_END
+// TMA_SEMANAL_INLINE_START
+var _tmaSemanalInline=[{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W17","tma_h":3.2,"n_tickets":148},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W18","tma_h":7.4,"n_tickets":176},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W19","tma_h":16.6,"n_tickets":114},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W20","tma_h":3.9,"n_tickets":109},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W21","tma_h":2.4,"n_tickets":83},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W22","tma_h":16.9,"n_tickets":115},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W23","tma_h":2.5,"n_tickets":37},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W17","tma_h":31.8,"n_tickets":35},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W18","tma_h":18.9,"n_tickets":54},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W19","tma_h":28.2,"n_tickets":43},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W20","tma_h":20.7,"n_tickets":58},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W21","tma_h":14.4,"n_tickets":93},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W22","tma_h":23.0,"n_tickets":33},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W23","tma_h":21.3,"n_tickets":41},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W24","tma_h":5.0,"n_tickets":17},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W17","tma_h":16.7,"n_tickets":87},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W18","tma_h":47.8,"n_tickets":70},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W19","tma_h":18.4,"n_tickets":105},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W20","tma_h":19.3,"n_tickets":93},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W21","tma_h":4.7,"n_tickets":130},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W22","tma_h":3.3,"n_tickets":19},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W23","tma_h":15.9,"n_tickets":125},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W24","tma_h":5.1,"n_tickets":59},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W17","tma_h":7.6,"n_tickets":148},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W18","tma_h":5.7,"n_tickets":162},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W19","tma_h":11.6,"n_tickets":178},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W20","tma_h":8.3,"n_tickets":149},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W21","tma_h":22.7,"n_tickets":149},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W22","tma_h":19.0,"n_tickets":285},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W23","tma_h":18.0,"n_tickets":191},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W24","tma_h":4.8,"n_tickets":68},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W17","tma_h":11.8,"n_tickets":113},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W18","tma_h":8.8,"n_tickets":126},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W19","tma_h":6.8,"n_tickets":103},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W20","tma_h":31.3,"n_tickets":110},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W21","tma_h":17.8,"n_tickets":163},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W22","tma_h":23.0,"n_tickets":184},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W23","tma_h":14.9,"n_tickets":160},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W24","tma_h":5.1,"n_tickets":67},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W19","tma_h":6.8,"n_tickets":84},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W20","tma_h":8.5,"n_tickets":135},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W21","tma_h":16.5,"n_tickets":172},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W22","tma_h":10.6,"n_tickets":173},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W23","tma_h":15.2,"n_tickets":146},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W24","tma_h":4.7,"n_tickets":110}];
+// TMA_SEMANAL_INLINE_END
 const _SB_URL = 'https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1';
 const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1enFqbmJ0eHVmaGtvenljbHFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4OTY4NzMsImV4cCI6MjA5NTQ3Mjg3M30.LbMlUGOTEKtbKVdkSiPHdUi1FsacfoiFbPDCFynYPv0';
 
@@ -1533,6 +1645,9 @@ function _sbCard(colNames, dataRows) {
 }
 
 async function _loadFromSupabase() {
+  // Inicia carregamento do MB_PRELOADED em paralelo (fallback para tabelas ainda não migradas)
+  const _preloadP = window.MB_PRELOADED ? Promise.resolve(true) : _loadPreloaded();
+
   const [perfDate, totais, statusDate, coupDate, convDate] = await Promise.all([
     _sbGet('mb_performance_medicos', 'select=data_carga&order=data_carga.desc&limit=1'),
     _sbGet('mb_totais_diarios',      'select=*&order=data_carga.desc&limit=1'),
@@ -1577,7 +1692,7 @@ async function _loadFromSupabase() {
     perfRows.map(r => [r.nome, r.status_doctor, r.created_at, r.consultas_finalizadas, r.quantidade_orders, r.quantidade_nfs, r.receita_total_consultas, r.media_avaliacoes, r.nps])
   );
   _med.raw.reviewsMedicos      = _sbCard(
-    ['data da avaliação','nome do doutor','avaliação','comentario','nome do paciente'],
+    ['data da avaliação','nome do doutor','avaliação','comentários','nome do paciente'],
     reviewsRows.map(r => [r.data_avaliacao, r.nome_doutor, r.avaliacao, r.comentarios, r.nome_paciente])
   );
   _med.raw.couponsAtivos       = _sbCard(['code','type','value_type','value','max_uses','uses','description','active'], couponsRows.map(r => [r.code, r.type, r.value_type, r.value, r.max_uses, r.uses, r.description, r.active]));
@@ -1608,7 +1723,8 @@ async function _loadFromSupabase() {
 
   // Analytics de Clientes — tabelas
   const [clResRows, protoRows2, safraRows2, tipoRows2, recompRows2,
-         comportRows, churnRows, canalRows] = await Promise.all([
+         comportRows, churnRows, canalRows, cohortRows, protoMensalRows,
+         saudeRecompraRows] = await Promise.all([
     _sbGet('mb_clientes_resumo',    'select=*&order=data_carga.desc&limit=1').catch(() => []),
     _sbGet('mb_protocolo_analise',  'select=*&order=soma_receita.desc').catch(() => []),
     _sbGet('mb_safra_analise',      'select=*&order=safra.asc').catch(() => []),
@@ -1617,15 +1733,33 @@ async function _loadFromSupabase() {
     _sbGet('mb_comportamento_kpis', 'select=*&limit=1').catch(() => []),
     _sbGet('mb_churn_mensal',       'select=*&order=churn_mes.asc').catch(() => []),
     _sbGet('mb_funil_canal',        'select=*&order=pedido.desc').catch(() => []),
+    _sbGet('mb_cohort_pedidos',     'select=faixa_pedidos,qtd_usuarios&order=faixa_pedidos.asc').catch(() => []),
+    _sbGet('mb_protocolo_mensal',   'select=periodo,protocolo,soma_receita,qtd_pedidos,ticket_medio&order=periodo.asc').catch(() => []),
+    _sbGet('mb_saude_recompra',     'select=*&order=mes.asc').catch(() => []),
   ]);
   _med.raw.clientesResumo       = clResRows[0] || null;
   _med.raw.protocoloAnalise     = protoRows2;
+  _med.raw.protocoloMensal      = protoMensalRows;
   _med.raw.safraAnalise         = safraRows2;
   _med.raw.tipoClienteAnalise   = tipoRows2;
   _med.raw.recompraAnalise      = recompRows2;
   _med.raw.comportamentoKpis    = comportRows[0] || null;
   _med.raw.churnMensal          = churnRows;
   _med.raw.funilCanal           = canalRows;
+  _med.raw.cohortPedidos        = cohortRows;
+  _med.raw.saudeRecompra        = saudeRecompraRows;
+  // Aguarda o preload (já disparado no início da função) e preenche lacunas do Supabase
+  await _preloadP;
+  if (window.MB_PRELOADED) {
+    if (!cohortRows.length) {
+      const _cp = window.MB_PRELOADED.cohortPedidos?.data?.rows || [];
+      _med.raw.cohortPedidos = _cp.map(function(r){ return { faixa_pedidos: r[0], qtd_usuarios: r[1] }; });
+    }
+    if (!tipoRows2.length) {
+      const _tp = window.MB_PRELOADED.tipoCliente?.data?.rows || [];
+      _med.raw.tipoClienteAnalise = _tp.map(function(r){ return { tipo_cliente: r[0], qtd_usuarios: r[1], pct_do_total: r[2], media_pedidos: r[3] }; });
+    }
+  }
   // Period arrays for analytics KPIs (month filter) — from already-fetched dashboard data
   _med.raw.npsArr    = npsRows.map(r => ({ periodo: r.periodo, consultas_criadas: r.consultas_criadas, nps: r.nps }));
   _med.raw.avalArr   = npsRows.map(r => ({ periodo: r.periodo, consultas_criadas: r.consultas_criadas, media_avaliacao: r.media_avaliacoes }));
@@ -1706,6 +1840,24 @@ async function initMedicos() {
   setup.style.display = 'flex';
 }
 
+async function initAnalise() {
+  console.log('[initAnalise] chamado, _med.initialized:', _med.initialized);
+  const ts = document.getElementById('analise-last-update');
+  try { _renderTicketSegmento(); } catch(e) {}
+  try { _renderFreqCompras(); } catch(e) {}
+  if (_med.initialized) {
+    _renderClienteAnalytics();
+    await _renderSaudeRecompra();
+    if (ts) { ts.textContent = 'Atualizado'; ts.style.display = ''; }
+    return;
+  }
+  if (ts) { ts.textContent = 'Carregando…'; ts.style.display = ''; }
+  await initMedicos();
+  _renderClienteAnalytics();
+  await _renderSaudeRecompra();
+  if (ts && _med.initialized) { ts.textContent = 'Atualizado ' + new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}); }
+}
+
 function _populateFilters() {
   const MONTHS_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
@@ -1744,18 +1896,19 @@ function _populateFilters() {
 let _chartTempo = null;
 
 function _renderAll() {
-  _renderKPIs();
-  _renderStatus();
-  _renderPerformance();
-  _renderEvolucao();
-  _renderCancelamentos();
-  _renderCupons();
-  _renderCuponsPedido();
-  _renderCsat();
-  _renderCsatEvo();
-  _renderTempo();
-  _renderReviews();
-  _renderClienteAnalytics();
+  const _s = (fn) => { try { fn(); } catch(e) { console.error('[renderAll]', fn.name, e); } };
+  _s(_renderKPIs);
+  _s(_renderStatus);
+  _s(_renderPerformance);
+  _s(_renderEvolucao);
+  _s(_renderCancelamentos);
+  _s(_renderCupons);
+  _s(_renderCuponsPedido);
+  _s(_renderCsat);
+  _s(_renderCsatEvo);
+  _s(_renderTempo);
+  _s(_renderReviews);
+  _s(_renderClienteAnalytics);
 }
 
 function _kpiCard(k, i) {
@@ -2644,6 +2797,7 @@ function applyFilters() {
   _renderCsatEvo();
   _renderTempo();
   _renderReviews();
+  _renderClienteAnalytics();
 }
 
 function clearFilter(key) {
@@ -2821,19 +2975,21 @@ function _renderReviews() {
     return v > 0 && v < 4;
   });
 
+  // Apenas reviews com comentário
+  rows = rows.filter(r => {
+    const c = String(r['comentários'] || r.comentarios || '').trim();
+    return c && c !== 'null' && c !== '-' && c.length > 2;
+  });
+
   // Ordenar por data decrescente
   rows.sort((a, b) => String(b['data da avaliação'] || '').localeCompare(String(a['data da avaliação'] || '')));
 
-  // Limitar: 10 positivos + 10 negativos mais recentes
-  const LIMIT = 10;
+  // Limitar a 15 com comentário
+  const LIMIT = 15;
   let limitNote = '';
-  if (rf === 'all') {
-    const pos10 = rows.filter(r => Number(r['avaliação'] || r.avaliacao || 0) >= 4).slice(0, LIMIT);
-    const neg10 = rows.filter(r => { const v = Number(r['avaliação'] || r.avaliacao || 0); return v > 0 && v < 4; }).slice(0, LIMIT);
-    rows = [...pos10, ...neg10].sort((a, b) => String(b['data da avaliação'] || '').localeCompare(String(a['data da avaliação'] || '')));
-    if (posAll > LIMIT || negAll > LIMIT) limitNote = `<div style="text-align:center;font-size:11px;color:#9CA3AF;margin-bottom:12px">Exibindo até ${LIMIT} positivos e ${LIMIT} negativos mais recentes</div>`;
-  } else {
-    if (rows.length > LIMIT) limitNote = `<div style="text-align:center;font-size:11px;color:#9CA3AF;margin-bottom:12px">Exibindo os ${LIMIT} mais recentes de ${rows.length} avaliações</div>`;
+  const total = rows.length;
+  if (rows.length > LIMIT) {
+    limitNote = `<div style="text-align:center;font-size:11px;color:#9CA3AF;margin-bottom:12px">Exibindo ${LIMIT} mais recentes com comentário de ${total} avaliações</div>`;
     rows = rows.slice(0, LIMIT);
   }
 
@@ -2873,7 +3029,7 @@ function _renderReviews() {
 /* ── Analytics de Clientes ──────────────────────────────────── */
 
 const _analytics = { protocolo: '', tipoCliente: '', ano: '', mes: '', protoSort: 'soma_receita', protoDir: -1, safraSort: 'safra', safraDir: 1 };
-let _chartRecompra = null;
+let _chartRecompra = null, _chartSaudeRecompra = null;
 
 function _filterPeriodo(rows) {
   if (!_analytics.ano && !_analytics.mes) return rows;
@@ -2955,22 +3111,63 @@ function _mapClientesAnalytics() {
     pct_consulta: r[8], pct_pedido: r[9], pct_recompra: r[10],
   }));
 
-  console.log(`[_mapClientesAnalytics] protos=${_med.raw.protocoloAnalise?.length} safras=${_med.raw.safraAnalise?.length} canal=${_med.raw.funilCanal?.length}`);
+  // Cohort de pedidos — frequência de compras (card 201)
+  const cpRows = pre.cohortPedidos?.data?.rows || [];
+  _med.raw.cohortPedidos = cpRows.map(r => ({ faixa_pedidos: r[0], qtd_usuarios: r[1] }));
+
+  console.log(`[_mapClientesAnalytics] protos=${_med.raw.protocoloAnalise?.length} safras=${_med.raw.safraAnalise?.length} cohort=${_med.raw.cohortPedidos?.length}`);
+}
+
+function _populateAnalyticsFilterOptions() {
+  const recompRows = _med.raw.recompraAnalise || [];
+  const years = [...new Set(recompRows.map(r => String(r.periodo || r.churn_mes || '').slice(0, 4)).filter(y => /^\d{4}$/.test(y)))].sort();
+  const anoSel = document.getElementById('filter-ano-analytics');
+  if (anoSel && years.length) {
+    const cur = anoSel.value;
+    anoSel.innerHTML = '<option value="">Todos os anos</option>' +
+      years.map(y => `<option value="${y}"${y === cur ? ' selected' : ''}>${y}</option>`).join('');
+  }
+  _updateMesAnalyticsOptions();
+}
+
+function _updateMesAnalyticsOptions() {
+  const recompRows = _med.raw.recompraAnalise || [];
+  const churnRows  = _med.raw.churnMensal     || [];
+  const ano = _analytics.ano || '';
+  const allRows = [...recompRows, ...churnRows];
+  const availMonths = new Set(
+    allRows
+      .filter(r => !ano || String(r.periodo || r.churn_mes || '').startsWith(ano))
+      .map(r => String(r.periodo || r.churn_mes || '').slice(5, 7))
+      .filter(m => /^\d{2}$/.test(m))
+  );
+  const MNAMES = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const mesSel = document.getElementById('filter-mes-analytics');
+  if (!mesSel) return;
+  const cur = mesSel.value;
+  mesSel.innerHTML = '<option value="">Todos os meses</option>' +
+    Array.from({length: 12}, (_, i) => {
+      const m = String(i + 1).padStart(2, '0');
+      return availMonths.has(m) ? `<option value="${m}"${m === cur ? ' selected' : ''}>${MNAMES[i + 1]}</option>` : '';
+    }).join('');
+  if (cur && mesSel.querySelector(`option[value="${cur}"]`)) mesSel.value = cur;
 }
 
 function _renderClienteAnalytics() {
   const _safe = (fn) => { try { fn(); } catch(e) { console.error('[analytics]', fn.name, e); } };
   _safe(_renderAnalyticsKPIs);
   _safe(_populateProtocoloFilter);
+  _safe(_populateAnalyticsFilterOptions);
   _safe(_renderProtocolo);
   _safe(_renderTipoCliente);
   _safe(_renderRecompraMensal);
+  _safe(_renderSaudeRecompra);
   _safe(_renderSafra);
   _safe(_renderComportamentoKPIs);
   _safe(_renderSafraAvancado);
   _safe(_renderChurnMensal);
-  _safe(_renderFunilCanal);
   _safe(_renderTicketSegmento);
+  _safe(_renderFreqCompras);
 }
 
 function _populateProtocoloFilter() {
@@ -2988,19 +3185,22 @@ function applyAnalyticsFilter() {
   _analytics.protocolo   = document.getElementById('filter-protocolo')?.value    || '';
   _analytics.tipoCliente = document.getElementById('filter-tipo-cliente')?.value || '';
   _analytics.ano         = document.getElementById('filter-ano-analytics')?.value || '';
+  // update month options before reading mes value (year change may remove current mes)
+  _updateMesAnalyticsOptions();
   _analytics.mes         = document.getElementById('filter-mes-analytics')?.value || '';
   const periodNote = document.getElementById('analytics-period-note');
-  if (periodNote) periodNote.style.display = (_analytics.ano || _analytics.mes) ? '' : 'none';
+  if (periodNote) periodNote.style.display = (_analytics.ano || _analytics.mes || _analytics.protocolo || _analytics.tipoCliente) ? '' : 'none';
   _renderAnalyticsKPIs();
   _renderProtocolo();
   _renderTipoCliente();
   _renderRecompraMensal();
+  _renderSaudeRecompra();
   _renderSafra();
   _renderComportamentoKPIs();
   _renderSafraAvancado();
   _renderChurnMensal();
-  _renderFunilCanal();
   _renderTicketSegmento();
+  _renderFreqCompras();
 }
 
 function _renderAnalyticsKPIs() {
@@ -3020,15 +3220,53 @@ function _renderAnalyticsKPIs() {
 
   let kpis;
   const hasPeriod = _analytics.ano || _analytics.mes;
+  const MESES_KPI = ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const periodoLabel = [MESES_KPI[parseInt(_analytics.mes || 0)] || '', _analytics.ano || ''].filter(Boolean).join(' ');
 
-  if (hasPeriod) {
-    // Modo filtro de período: KPIs do mês/ano selecionado
-    const recompArr = _filterPeriodo(_med.raw.recompraAnalise || []);
-    const npsArr2   = _filterPeriodo(_med.raw.npsArr    || []);
-    const avalArr2  = _filterPeriodo(_med.raw.avalArr   || []);
+  if (hasPeriod && _analytics.protocolo) {
+    // Período + protocolo: mostra KPIs mensais do protocolo específico
+    const allMensal = _med.raw.protocoloMensal || [];
+    let protoMes = allMensal.filter(r => {
+      const p = String(r.periodo || '');
+      if (_analytics.ano && !p.startsWith(_analytics.ano)) return false;
+      if (_analytics.mes && p.slice(5, 7) !== _analytics.mes) return false;
+      return r.protocolo === _analytics.protocolo;
+    });
+    // Aggregate months if year-only selected
+    const pRec = protoMes.reduce((a, r) => a + (Number(r.soma_receita) || 0), 0);
+    const pPed = protoMes.reduce((a, r) => a + (Number(r.qtd_pedidos)  || 0), 0);
+    const pTicket = pPed > 0 ? pRec / pPed : null;
+    // Also show aggregate recompra from protocoloAnalise
+    const pAgg = (protos[0] || null);
+    if (protoMes.length > 0) {
+      kpis = [
+        { icon: '💰', val: 'R$ ' + _fmtMoney(pRec), label: 'Receita do Protocolo', sub: periodoLabel },
+        { icon: '📦', val: pPed.toLocaleString('pt-BR'), label: 'Pedidos', sub: pTicket ? 'ticket R$ ' + _fmtMoney(pTicket) : periodoLabel },
+        { icon: '🔁', val: pAgg?.pct_recompra != null ? (pAgg.pct_recompra * 100).toFixed(1) + '%' : '—', label: 'Taxa de Recompra', sub: 'acumulado histórico' },
+        { icon: '🩺', val: pAgg?.qtd_consultas != null ? Number(pAgg.qtd_consultas).toLocaleString('pt-BR') : '—', label: 'Consultas', sub: 'acumulado histórico' },
+      ];
+    } else {
+      kpis = [{ icon: '🧬', val: '—', label: _analytics.protocolo, sub: 'sem dados para ' + periodoLabel }];
+    }
+  } else if (hasPeriod) {
+    // Período selecionado sem protocolo — KPIs respondem ao mês/ano
+    const recompArr  = _filterPeriodo(_med.raw.recompraAnalise || []);
+    const npsArr2    = _filterPeriodo(_med.raw.npsArr    || []);
+    const avalArr2   = _filterPeriodo(_med.raw.avalArr   || []);
     const cancelArr2 = _filterPeriodo(_med.raw.cancelArr || []);
 
-    const totalPedidos   = recompArr.reduce((a, r) => a + (r.pedidos || 0), 0);
+    // Pedidos totais: usa mb_protocolo_mensal (card 445, by order date) — mesma fonte da tabela abaixo
+    const allMensalKPI = _med.raw.protocoloMensal || [];
+    const pedidosMensal = allMensalKPI.filter(r => {
+      const p = String(r.periodo || '');
+      if (_analytics.ano && !p.startsWith(_analytics.ano)) return false;
+      if (_analytics.mes && p.slice(5, 7) !== _analytics.mes) return false;
+      return true;
+    });
+    const totalPedidos = pedidosMensal.length > 0
+      ? pedidosMensal.reduce((a, r) => a + (Number(r.qtd_pedidos) || 0), 0)
+      : recompArr.reduce((a, r) => a + (r.pedidos || 0), 0);  // fallback card 499
+
     const totalRecompras = recompArr.reduce((a, r) => a + (r.qtd_recompras || 0), 0);
     const totalConsultas = recompArr.length && recompArr[0].consultas_criadas != null
       ? recompArr.reduce((a, r) => a + (r.consultas_criadas || 0), 0)
@@ -3038,8 +3276,6 @@ function _renderAnalyticsKPIs() {
     const avgAval = avalArr2.length  ? avalArr2.reduce((a, r) => a + (r.media_avaliacao || 0), 0) / avalArr2.length  : null;
     const avgPctCancel = cancelArr2.length ? cancelArr2.reduce((a, r) => a + (r.pct || 0), 0) / cancelArr2.length : null;
 
-    const MESES = ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-    const periodoLabel = [MESES[parseInt(_analytics.mes || 0)] || '', _analytics.ano || ''].filter(Boolean).join(' ');
     const subPed = totalConsultas ? `de ${totalConsultas.toLocaleString('pt-BR')} consultas` : periodoLabel;
 
     kpis = [
@@ -3048,6 +3284,19 @@ function _renderAnalyticsKPIs() {
       { icon: '⭐', val: avgAval != null ? avgAval.toFixed(2) : '—', label: 'Avaliação Média', sub: 'nota dos pacientes' },
       { icon: '📊', val: avgNps != null ? (avgNps * 100).toFixed(1) + '%' : '—', label: 'NPS', sub: avgPctCancel != null ? `${(avgPctCancel * 100).toFixed(1)}% cancelamento` : 'promotores líquidos' },
     ];
+  } else if (_analytics.protocolo) {
+    // Protocolo selecionado sem período — KPIs acumulados do protocolo
+    const p = protos[0] || null;
+    if (p) {
+      kpis = [
+        { icon: '💰', val: p.soma_receita  != null ? 'R$ ' + _fmtMoney(p.soma_receita)                : '—', label: 'Receita do Protocolo', sub: 'acumulado histórico' },
+        { icon: '📦', val: p.qtd_pedidos   != null ? Number(p.qtd_pedidos).toLocaleString('pt-BR')     : '—', label: 'Pedidos',              sub: p.ticket_medio ? 'ticket R$ ' + _fmtMoney(p.ticket_medio) : 'total do protocolo' },
+        { icon: '🔁', val: p.pct_recompra  != null ? (p.pct_recompra * 100).toFixed(1) + '%'          : '—', label: 'Taxa de Recompra',      sub: p.total_usuarios ? Number(p.total_usuarios).toLocaleString('pt-BR') + ' clientes' : '' },
+        { icon: '🩺', val: p.qtd_consultas != null ? Number(p.qtd_consultas).toLocaleString('pt-BR')   : '—', label: 'Consultas',             sub: 'que geraram este protocolo' },
+      ];
+    } else {
+      kpis = [{ icon: '🧬', val: '—', label: _analytics.protocolo, sub: 'sem dados para este protocolo' }];
+    }
   } else if (selectedTipo) {
     // Modo filtrado por tipo: mostra stats do segmento
     const pct     = selectedTipo.pct_do_total != null ? (selectedTipo.pct_do_total * 100).toFixed(1) + '%' : '—';
@@ -3085,7 +3334,42 @@ function _renderProtocolo() {
   if (!wrap) return;
   const badge = document.getElementById('proto-count');
 
-  let rows = (_med.raw.protocoloAnalise || []).filter(r => r && r.protocolo);
+  const hasPeriodP = _analytics.ano || _analytics.mes;
+  const MESES_PROTO = ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+  // When period selected: use monthly table (mb_protocolo_mensal), filtered by period
+  // When no period: use aggregate table (mb_protocolo_analise)
+  let rows;
+  let usingMonthly = false;
+  if (hasPeriodP) {
+    const allMensal = _med.raw.protocoloMensal || [];
+    // Aggregate monthly rows for the selected period into one row per protocol
+    const agg = {};
+    for (const r of allMensal) {
+      const p = String(r.periodo || '');
+      if (_analytics.ano && !p.startsWith(_analytics.ano)) continue;
+      if (_analytics.mes && p.slice(5, 7) !== _analytics.mes) continue;
+      const proto = r.protocolo;
+      if (!proto) continue;
+      if (!agg[proto]) agg[proto] = { protocolo: proto, soma_receita: 0, qtd_pedidos: 0, _rec: 0, _ped: 0 };
+      agg[proto].soma_receita += Number(r.soma_receita) || 0;
+      agg[proto].qtd_pedidos  += Number(r.qtd_pedidos)  || 0;
+    }
+    rows = Object.values(agg).map(r => ({
+      protocolo:    r.protocolo,
+      soma_receita: r.soma_receita || null,
+      qtd_pedidos:  r.qtd_pedidos  || null,
+      ticket_medio: r.qtd_pedidos > 0 ? r.soma_receita / r.qtd_pedidos : null,
+    }));
+    usingMonthly = rows.length > 0;
+    // If no monthly data yet, fall back to aggregate with warning
+    if (!usingMonthly) {
+      rows = (_med.raw.protocoloAnalise || []).filter(r => r && r.protocolo);
+    }
+  } else {
+    rows = (_med.raw.protocoloAnalise || []).filter(r => r && r.protocolo);
+  }
+
   if (_analytics.protocolo) rows = rows.filter(r => r.protocolo === _analytics.protocolo);
   if (!rows.length) {
     wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de protocolo disponíveis</p>';
@@ -3098,23 +3382,33 @@ function _renderProtocolo() {
   });
   if (badge) { badge.textContent = rows.length + ' protocolos'; badge.style.display = ''; }
 
+  const periodoStr = hasPeriodP
+    ? [MESES_PROTO[parseInt(_analytics.mes || 0)] || '', _analytics.ano || ''].filter(Boolean).join(' ')
+    : '';
+  const _periodoBanner = hasPeriodP && !usingMonthly
+    ? `<div style="margin-bottom:10px;font-size:11px;color:#92400E;background:#FEF3C7;border-radius:6px;padding:6px 10px;border-left:3px solid #F59E0B">⚠ Dados mensais ainda não carregados — exibindo acumulado histórico. Aguarde a próxima atualização.</div>`
+    : hasPeriodP
+    ? `<div style="margin-bottom:8px;font-size:11px;color:#065f46;background:#d1fae5;border-radius:6px;padding:6px 10px;border-left:3px solid #10b981">✓ Dados do período: ${periodoStr}</div>`
+    : '';
+  const showAggCols = !usingMonthly && !hasPeriodP;
   const th = (col, label) => `<th onclick="_sortProto('${col}',this)" style="cursor:pointer" title="Ordenar">${label} <span style="opacity:.5;font-size:10px">${_protoSortCol===col?(_protoSortDir===-1?'↓':'↑'):'↕'}</span></th>`;
-  wrap.innerHTML = `<div style="overflow-x:auto"><table class="proto-table">
+  wrap.innerHTML = _periodoBanner + `<div style="overflow-x:auto"><table class="proto-table">
     <thead><tr>
       <th style="text-align:left;cursor:pointer" onclick="_sortProto('protocolo',this)">Protocolo ${_protoSortCol==='protocolo'?(_protoSortDir===-1?'↓':'↑'):'↕'}</th>
-      ${th('qtd_consultas','Consultas')}${th('qtd_pedidos','Pedidos')}${th('soma_receita','Receita')}${th('ticket_medio','Ticket Médio')}${th('pct_recompra','% Recompra')}${th('total_usuarios','Clientes')}
+      ${th('qtd_pedidos','Pedidos')}${th('soma_receita','Receita')}${th('ticket_medio','Ticket Médio')}
+      ${showAggCols ? th('qtd_consultas','Consultas') + th('pct_recompra','% Recompra') + th('total_usuarios','Clientes') : ''}
     </tr></thead>
     <tbody>${rows.map(r => {
       const pct = r.pct_recompra != null ? (r.pct_recompra * 100).toFixed(1) + '%' : '—';
       const pcl = r.pct_recompra >= .4 ? 'pct-good' : r.pct_recompra >= .25 ? 'pct-mid' : 'pct-bad';
       return `<tr onclick="filterByProtocol('${r.protocolo.replace(/'/g,"\\'")}')" title="Filtrar por ${r.protocolo}">
         <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.protocolo}">${r.protocolo}</td>
-        <td>${r.qtd_consultas != null ? Number(r.qtd_consultas).toLocaleString('pt-BR') : '—'}</td>
         <td>${r.qtd_pedidos   != null ? Number(r.qtd_pedidos).toLocaleString('pt-BR')   : '—'}</td>
         <td>R$ ${r.soma_receita  != null ? _fmtMoney(r.soma_receita)  : '—'}</td>
         <td>R$ ${r.ticket_medio  != null ? _fmtMoney(r.ticket_medio)  : '—'}</td>
+        ${showAggCols ? `<td>${r.qtd_consultas != null ? Number(r.qtd_consultas).toLocaleString('pt-BR') : '—'}</td>
         <td><span class="pct-pill ${pcl}">${pct}</span></td>
-        <td>${r.total_usuarios != null ? Number(r.total_usuarios).toLocaleString('pt-BR') : '—'}</td>
+        <td>${r.total_usuarios != null ? Number(r.total_usuarios).toLocaleString('pt-BR') : '—'}</td>` : ''}
       </tr>`;
     }).join('')}</tbody></table></div>`;
 }
@@ -3136,21 +3430,63 @@ function filterByProtocol(proto) {
 function _renderTipoCliente() {
   const wrap = document.querySelector('#block-tipo-cliente .card-body');
   if (!wrap) return;
-  // Sempre mostra todos os tipos — filtragem pelo highlight, não escondendo cards
-  const rows = _med.raw.tipoClienteAnalise || [];
-
-  if (!rows.length) {
+  const all = _med.raw.tipoClienteAnalise || [];
+  if (!all.length) {
     wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de tipo de cliente</p>';
     return;
   }
   const ICONS = { 'Novo': '🌱', 'Recorrente': '🔄', 'Fiel': '⭐', 'Alta Frequência': '🚀' };
-  const maxU = Math.max(...rows.map(r => r.qtd_usuarios || 0));
-  wrap.innerHTML = `<div class="tipo-grid">${rows.map(r => {
+  const _protoBannerTipo = _analytics.protocolo
+    ? `<div style="margin-bottom:10px;font-size:11px;color:#1e40af;background:#eff6ff;border-radius:6px;padding:5px 10px;border-left:3px solid #3b82f6">Dados globais da base — tipo de cliente não tem breakdown por protocolo</div>`
+    : '';
+
+  // Quando tipo filtrado: mostra apenas o selecionado com métricas expandidas
+  if (_analytics.tipoCliente) {
+    const r = all.find(x => x.tipo_cliente === _analytics.tipoCliente);
+    if (!r) { wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados para o tipo selecionado</p>'; return; }
+    const pct    = r.pct_do_total   != null ? (r.pct_do_total * 100).toFixed(1) + '%' : '—';
+    const media  = r.media_pedidos  != null ? r.media_pedidos.toFixed(1) : '—';
+    const ticket = r.ticket_medio   != null ? 'R$ ' + _fmtMoney(r.ticket_medio) : '—';
+    const rec    = r.receita_total  != null ? 'R$ ' + _fmtMoney(r.receita_total) : '—';
+    const icon   = ICONS[r.tipo_cliente] || '👤';
+    wrap.innerHTML = _protoBannerTipo + `
+      <div class="tipo-detalhe">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <span style="font-size:32px">${icon}</span>
+          <div>
+            <div style="font-size:18px;font-weight:800;color:var(--g800)">${r.tipo_cliente}</div>
+            <div style="font-size:12px;color:#6B7280">clientes neste segmento</div>
+          </div>
+          <button onclick="filterByTipo('${r.tipo_cliente}')" style="margin-left:auto;font-size:11px;background:var(--g100);border:1px solid var(--g300);border-radius:6px;padding:4px 10px;cursor:pointer;color:var(--g700)">× Limpar filtro</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+          <div class="tipo-kpi-mini"><div class="tipo-kpi-val">${r.qtd_usuarios != null ? Number(r.qtd_usuarios).toLocaleString('pt-BR') : '—'}</div><div class="tipo-kpi-lbl">Clientes</div></div>
+          <div class="tipo-kpi-mini"><div class="tipo-kpi-val">${pct}</div><div class="tipo-kpi-lbl">% da base</div></div>
+          <div class="tipo-kpi-mini"><div class="tipo-kpi-val">${media}</div><div class="tipo-kpi-lbl">Pedidos/cliente</div></div>
+          <div class="tipo-kpi-mini"><div class="tipo-kpi-val">${ticket}</div><div class="tipo-kpi-lbl">Ticket médio</div></div>
+        </div>
+        ${r.receita_total != null ? `<div style="margin-top:12px;padding:10px 14px;background:var(--g50);border-radius:8px;border-left:3px solid var(--g500)"><span style="font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:.06em">Receita total do segmento</span><div style="font-size:20px;font-weight:800;color:var(--g800);margin-top:2px">${rec}</div></div>` : ''}
+        <div style="margin-top:10px;font-size:11px;color:#9CA3AF">Clique em outro tipo abaixo para comparar · Protocolos e safras mostram dados globais</div>
+        <div class="tipo-grid" style="margin-top:12px;opacity:.45">${all.filter(x => x.tipo_cliente !== _analytics.tipoCliente).map(x => {
+          const px  = x.pct_do_total != null ? (x.pct_do_total * 100).toFixed(1) + '%' : '—';
+          const ix  = ICONS[x.tipo_cliente] || '👤';
+          return `<div class="tipo-card" onclick="filterByTipo('${x.tipo_cliente}')" style="cursor:pointer">
+            <div style="display:flex;align-items:center;gap:6px"><span style="font-size:18px">${ix}</span><span class="tipo-card-label">${x.tipo_cliente}</span></div>
+            <div class="tipo-card-num" style="font-size:16px">${x.qtd_usuarios != null ? Number(x.qtd_usuarios).toLocaleString('pt-BR') : '—'}</div>
+            <div class="tipo-card-sub">${px} do total</div>
+          </div>`;
+        }).join('')}</div>
+      </div>`;
+    return;
+  }
+
+  // Sem filtro: mostra todos os tipos normalmente
+  const maxU = Math.max(...all.map(r => r.qtd_usuarios || 0));
+  wrap.innerHTML = _protoBannerTipo + `<div class="tipo-grid">${all.map(r => {
     const pct  = r.pct_do_total != null ? (r.pct_do_total * 100).toFixed(1) + '%' : '—';
     const bar  = maxU ? Math.round((r.qtd_usuarios / maxU) * 100) : 0;
     const icon = ICONS[r.tipo_cliente] || '👤';
-    const isActive = _analytics.tipoCliente === r.tipo_cliente;
-    return `<div class="tipo-card${isActive?' active':''}" onclick="filterByTipo('${r.tipo_cliente}')">
+    return `<div class="tipo-card" onclick="filterByTipo('${r.tipo_cliente}')">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
         <span style="font-size:22px">${icon}</span>
         <span class="tipo-card-label">${r.tipo_cliente}</span>
@@ -3173,23 +3509,37 @@ function filterByTipo(tipo) {
 function _renderRecompraMensal() {
   const wrap = document.querySelector('#block-recompra-mensal .card-body');
   if (!wrap) return;
-  let rows = (_med.raw.recompraAnalise || []).filter(r => r.qtd_recompras != null);
-  rows = _filterPeriodo(rows);
-  if (!rows.length) {
+  const allRows = (_med.raw.recompraAnalise || []).filter(r => r.qtd_recompras != null);
+  if (!allRows.length) {
     wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de evolução de recompra</p>';
     return;
   }
-  wrap.innerHTML = '<canvas id="chartRecompra" style="max-height:240px"></canvas>';
+  // Show full year (or all data) — never collapse to a single point
+  let rows = allRows;
+  if (_analytics.ano) rows = rows.filter(r => String(r.periodo || '').startsWith(_analytics.ano));
+  if (!rows.length) rows = allRows;
+
+  // Index of highlighted month (only if mes filter active)
+  const hiIdx = _analytics.mes
+    ? rows.findIndex(r => String(r.periodo || '').slice(5, 7) === _analytics.mes)
+    : -1;
+
+  const _protoBannerRecomp = _analytics.protocolo
+    ? `<div style="margin-bottom:10px;font-size:11px;color:#1e40af;background:#eff6ff;border-radius:6px;padding:5px 10px;border-left:3px solid #3b82f6">Evolução global da base — recompra mensal não tem breakdown por protocolo</div>`
+    : '';
+  wrap.innerHTML = _protoBannerRecomp + '<canvas id="chartRecompra" style="max-height:240px"></canvas>';
   if (_chartRecompra) { _chartRecompra.destroy(); _chartRecompra = null; }
-  const labels = rows.map(r => String(r.periodo || '').slice(0, 7));
+  const labels    = rows.map(r => String(r.periodo || '').slice(0, 7));
   const recompras = rows.map(r => r.qtd_recompras || 0);
-  const pcts = rows.map(r => r.pct_recompra != null ? +(r.pct_recompra * 100).toFixed(1) : null);
+  const pcts      = rows.map(r => r.pct_recompra != null ? +(r.pct_recompra * 100).toFixed(1) : null);
+  const barBg     = rows.map((_, i) => i === hiIdx ? 'rgba(23,174,85,.85)' : 'rgba(23,174,85,.25)');
+  const barBdr    = rows.map((_, i) => i === hiIdx ? '#0d7a46' : '#17AE55');
   _chartRecompra = new Chart(document.getElementById('chartRecompra'), {
     type: 'bar',
     data: {
       labels,
       datasets: [
-        { type: 'bar',  label: 'Recompras', data: recompras, backgroundColor: 'rgba(23,174,85,.25)', borderColor: '#17AE55', borderWidth: 1.5, borderRadius: 4, yAxisID: 'y' },
+        { type: 'bar',  label: 'Recompras', data: recompras, backgroundColor: barBg, borderColor: barBdr, borderWidth: 1.5, borderRadius: 4, yAxisID: 'y' },
         { type: 'line', label: '% vs Consultas', data: pcts, borderColor: '#6366F1', borderWidth: 2, pointRadius: 3, tension: .35, yAxisID: 'y2', spanGaps: true },
       ],
     },
@@ -3203,6 +3553,346 @@ function _renderRecompraMensal() {
       },
     },
   });
+}
+
+async function _renderSaudeRecompra() {
+  const wrap = document.getElementById('block-saude-recompra-body') || document.querySelector('#block-saude-recompra .card-body');
+  if (!wrap) return;
+
+  // Usa dados inline imediatamente (sem await), depois tenta atualizar via Supabase
+  let rows = (_med.raw.saudeRecompra || []).filter(r => r.mes);
+  if (!rows.length && typeof _saudeRecompraInline !== 'undefined' && _saudeRecompraInline.length) {
+    rows = _saudeRecompraInline;
+  }
+
+  // Renderiza com o que tem agora (síncrono)
+  if (rows.length) _doRenderSaudeRecompra(wrap, rows);
+
+  // Tenta buscar dados frescos em paralelo e re-renderiza se vier algo novo
+  try {
+    const fresh = await _sbGet('mb_saude_recompra', 'select=*&order=mes.asc');
+    if (fresh && fresh.length) {
+      _med.raw.saudeRecompra = fresh;
+      _doRenderSaudeRecompra(wrap, fresh.filter(r => r.mes));
+    }
+  } catch(e) { /* silencioso — já renderizou com inline */ }
+
+  if (!rows.length) {
+    wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de recompra Blis Saúde</p>';
+  }
+}
+
+function _doRenderSaudeRecompra(wrap, rows) {
+  if (!rows || !rows.length) return;
+
+  const totalContatos  = rows.reduce((s, r) => s + (r.total_contatos_saude || 0), 0);
+  const totalComApp    = rows.reduce((s, r) => s + (r.clientes_com_app || 0), 0);
+  const totalRecomp    = rows.reduce((s, r) => s + (r.clientes_recompraram || 0), 0);
+  const taxaSaude      = totalComApp ? +(totalRecomp / totalComApp * 100).toFixed(1) : 0;
+  const taxaGeral      = rows.length ? +(rows[rows.length - 1].taxa_recompra_geral_pct || 0) : 0;
+  const delta          = +(taxaSaude - taxaGeral).toFixed(1);
+  const deltaColor     = delta >= 0 ? '#16a34a' : '#dc2626';
+  const deltaSign      = delta >= 0 ? '+' : '';
+
+  const kpiHtml = `<div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">
+    <div class="kpi-card">
+      <div class="kpi-value">${totalContatos.toLocaleString('pt-BR')}</div>
+      <div class="kpi-label">Contatos Blis Saúde</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">${taxaSaude.toFixed(1)}%</div>
+      <div class="kpi-label">Recompra (Saúde)</div>
+      <div class="kpi-sub" style="color:${deltaColor}">${deltaSign}${delta.toFixed(1)} pp vs geral</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">${Number(taxaGeral).toFixed(1)}%</div>
+      <div class="kpi-label">Recompra Geral</div>
+    </div>
+  </div>`;
+
+  wrap.innerHTML = kpiHtml + '<canvas id="chartSaudeRecompra" style="max-height:220px"></canvas>';
+  if (_chartSaudeRecompra) { try { _chartSaudeRecompra.destroy(); } catch(_){} _chartSaudeRecompra = null; }
+
+  const labels    = rows.map(r => String(r.mes || '').slice(0, 7));
+  const taxaS     = rows.map(r => r.taxa_recompra_pct != null ? +Number(r.taxa_recompra_pct).toFixed(1) : null);
+  const taxaG     = rows.map(r => r.taxa_recompra_geral_pct != null ? +Number(r.taxa_recompra_geral_pct).toFixed(1) : null);
+  const nContatos = rows.map(r => r.total_contatos_saude || 0);
+
+  try {
+    _chartSaudeRecompra = new Chart(document.getElementById('chartSaudeRecompra'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { type: 'bar',  label: 'Contatos Blis Saúde', data: nContatos, backgroundColor: 'rgba(99,102,241,.2)', borderColor: '#6366F1', borderWidth: 1.5, borderRadius: 4, yAxisID: 'y' },
+          { type: 'line', label: '% Recompra Saúde',    data: taxaS,     borderColor: '#16a34a', borderWidth: 2.5, pointRadius: 3, tension: .35, yAxisID: 'y2', spanGaps: true },
+          { type: 'line', label: '% Recompra Geral',    data: taxaG,     borderColor: '#f59e0b', borderWidth: 2, pointRadius: 2, tension: .35, yAxisID: 'y2', borderDash: [4, 3], spanGaps: true },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }, tooltip: { mode: 'index', intersect: false } },
+        scales: {
+          y:  { position: 'left',  grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { size: 10 } } },
+          y2: { position: 'right', grid: { drawOnChartArea: false }, ticks: { font: { size: 10 }, callback: v => v != null ? v + '%' : '' }, min: 0 },
+          x:  { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } },
+        },
+      },
+    });
+    console.log('[saudeRecompra] chart criado com sucesso');
+  } catch(e) {
+    console.error('[saudeRecompra] erro ao criar chart:', e.message);
+  }
+}
+
+// ── Performance de Agentes ────────────────────────────────────────────────────
+let _chartAgentesPerf = null;
+
+async function _renderAgentesPerformance() {
+  const wrap = document.getElementById('block-agentes-perf-body');
+  if (!wrap) return;
+
+  let rows = (_med.raw && _med.raw.agentesPerf) ? _med.raw.agentesPerf : [];
+  if (!rows.length && typeof _agentesPerformanceInline !== 'undefined' && _agentesPerformanceInline.length) {
+    rows = _agentesPerformanceInline;
+  }
+  if (rows.length) _doRenderAgentesPerformance(wrap, rows);
+
+  try {
+    const fresh = await _sbGet('cx_performance_agentes', 'select=*&order=mes.asc');
+    if (fresh && fresh.length) {
+      if (_med.raw) _med.raw.agentesPerf = fresh;
+      _doRenderAgentesPerformance(wrap, fresh);
+    }
+  } catch(e) { /* silencioso — já renderizou com inline */ }
+
+  if (!rows.length) {
+    wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de performance de agentes</p>';
+  }
+}
+
+function _doRenderAgentesPerformance(wrap, rows) {
+  if (!wrap || !rows || !rows.length) return;
+
+  const sel       = document.getElementById('agentes-perf-mes-filter');
+  const mesFiltro = sel ? sel.value : 'todos';
+  const filtered  = mesFiltro === 'todos' ? rows : rows.filter(r => r.mes === mesFiltro);
+
+  function aggByAgent(arr) {
+    const map = {};
+    for (const r of arr) {
+      const aid = String(r.agente_id);
+      if (!map[aid]) map[aid] = { nome: r.nome, total: 0, good: 0, bad: 0 };
+      const a = map[aid];
+      a.total += (r.total_tickets || 0);
+      a.good  += (r.csat_good || 0);
+      a.bad   += (r.csat_bad  || 0);
+    }
+    return Object.values(map).map(a => ({
+      nome:  a.nome,
+      total: a.total,
+      csat:  (a.good + a.bad) >= 5 ? +(a.good / (a.good + a.bad) * 100).toFixed(1) : null,
+    })).sort((a, b) => b.total - a.total);
+  }
+
+  function csatBadge(v) {
+    if (v == null) return '<span style="color:#9ca3af;font-size:12px">—</span>';
+    const bg = v >= 95 ? '#dcfce7' : v >= 90 ? '#fef9c3' : '#fee2e2';
+    const fg = v >= 95 ? '#16a34a' : v >= 90 ? '#a16207' : '#dc2626';
+    return `<span style="background:${bg};color:${fg};font-weight:700;font-size:11px;padding:2px 7px;border-radius:20px;white-space:nowrap">${v.toFixed(1)}%</span>`;
+  }
+
+  function tableFor(agents, label, color) {
+    const total = agents.reduce((s, a) => s + a.total, 0);
+    const head = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <div style="width:10px;height:10px;border-radius:3px;background:${color}"></div>
+      <span style="font-size:13px;font-weight:700;color:#374151">${label}</span>
+      <span style="font-size:12px;color:#6B7280">${total.toLocaleString('pt-BR')} tickets</span>
+    </div>`;
+    if (!agents.length) return head + '<p style="color:#9ca3af;font-size:12px;margin:0 0 16px">Sem dados no período</p>';
+    const maxT = agents[0].total || 1;
+    const trs = agents.map(a => {
+      const pct = Math.round(a.total / maxT * 100);
+      return `<tr style="border-bottom:1px solid #F9FAFB">
+        <td style="padding:9px 10px;font-size:13px;font-weight:600;color:#111827;white-space:nowrap">${a.nome}</td>
+        <td style="padding:9px 10px">
+          <div style="font-size:13px;font-weight:700;color:#374151">${a.total.toLocaleString('pt-BR')}</div>
+          <div style="height:3px;background:#F3F4F6;border-radius:2px;margin-top:3px;width:80px">
+            <div style="height:3px;width:${pct}%;background:${color};border-radius:2px"></div>
+          </div>
+        </td>
+        <td style="padding:9px 10px">${csatBadge(a.csat)}</td>
+      </tr>`;
+    }).join('');
+    return head + `<table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+      <thead><tr>
+        <th style="padding:4px 10px;text-align:left;font-size:10px;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:.5px">Agente</th>
+        <th style="padding:4px 10px;text-align:left;font-size:10px;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:.5px">Tickets</th>
+        <th style="padding:4px 10px;text-align:left;font-size:10px;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:.5px">CSAT</th>
+      </tr></thead>
+      <tbody>${trs}</tbody>
+    </table>`;
+  }
+
+  const resolveAgents = aggByAgent(filtered.filter(r => r.grupo === 'resolve'));
+  const saudeAgents   = aggByAgent(filtered.filter(r => r.grupo === 'saude'));
+
+  wrap.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px">
+      <div>${tableFor(resolveAgents, 'Blis Resolve', '#6366F1')}</div>
+      <div>${tableFor(saudeAgents,   'Blis Saúde',   '#10b981')}</div>
+    </div>
+    <canvas id="chartAgentesPerf" style="max-height:180px;margin-bottom:24px"></canvas>
+    <div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px">TMA Semanal por Agente — horas (W17–W24)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div>
+        <div style="font-size:11px;color:#9CA3AF;margin-bottom:6px">Blis Resolve</div>
+        <canvas id="chartTmaResolve" style="max-height:210px"></canvas>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#9CA3AF;margin-bottom:6px">Blis Saúde</div>
+        <canvas id="chartTmaSaude" style="max-height:210px"></canvas>
+      </div>
+    </div>
+  `;
+
+  _renderAgentesPerfChart(rows);
+  const tmaData = (typeof _tmaSemanalInline !== 'undefined' && _tmaSemanalInline.length)
+    ? _tmaSemanalInline : [];
+  _renderTmaSemanalChart(tmaData);
+}
+
+function _renderAgentesPerfChart(rows) {
+  if (_chartAgentesPerf) { try { _chartAgentesPerf.destroy(); } catch(_){} _chartAgentesPerf = null; }
+  const canvas = document.getElementById('chartAgentesPerf');
+  if (!canvas) return;
+
+  const MESES  = ['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06'];
+  const LABELS = ['Jan','Fev','Mar','Abr','Mai','Jun'];
+
+  const agentMap = {};
+  for (const r of rows) {
+    const aid = String(r.agente_id);
+    if (!agentMap[aid]) agentMap[aid] = { nome: r.nome, grupo: r.grupo, byMes: {} };
+    agentMap[aid].byMes[r.mes] = (agentMap[aid].byMes[r.mes] || 0) + (r.total_tickets || 0);
+  }
+
+  const COLORS_R = ['#6366F1','#818CF8','#A5B4FC','#C7D2FE'];
+  const COLORS_S = ['#10b981','#34d399','#6ee7b7'];
+
+  const byGrupo = g => Object.values(agentMap).filter(a => a.grupo === g)
+    .sort((a, b) => MESES.reduce((s, m) => s + (b.byMes[m]||0), 0) - MESES.reduce((s, m) => s + (a.byMes[m]||0), 0));
+
+  const datasets = [
+    ...byGrupo('resolve').map((a, i) => ({
+      label: a.nome.split(' ')[0] + ' (R)',
+      data: MESES.map(m => a.byMes[m] || 0),
+      backgroundColor: COLORS_R[i % COLORS_R.length] + 'bb',
+      borderColor: COLORS_R[i % COLORS_R.length],
+      borderWidth: 1, borderRadius: 3,
+    })),
+    ...byGrupo('saude').map((a, i) => ({
+      label: a.nome.split(' ')[0] + ' (S)',
+      data: MESES.map(m => a.byMes[m] || 0),
+      backgroundColor: COLORS_S[i % COLORS_S.length] + 'bb',
+      borderColor: COLORS_S[i % COLORS_S.length],
+      borderWidth: 1, borderRadius: 3,
+    })),
+  ];
+
+  try {
+    _chartAgentesPerf = new Chart(canvas, {
+      type: 'bar',
+      data: { labels: LABELS, datasets },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
+          tooltip: { mode: 'index', intersect: false },
+        },
+        scales: {
+          y: { grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 10 } } },
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        },
+      },
+    });
+  } catch(e) {}
+}
+
+let _chartTmaResolve = null, _chartTmaSaude = null;
+
+function _renderTmaSemanalChart(rows) {
+  if (_chartTmaResolve) { try { _chartTmaResolve.destroy(); } catch(_){} _chartTmaResolve = null; }
+  if (_chartTmaSaude)   { try { _chartTmaSaude.destroy();   } catch(_){} _chartTmaSaude   = null; }
+  if (!rows || !rows.length) return;
+
+  const SEMANAS = ['2026-W17','2026-W18','2026-W19','2026-W20','2026-W21','2026-W22','2026-W23','2026-W24'];
+  const LABELS  = SEMANAS.map(s => s.replace('2026-',''));
+
+  // Build agentMap: aid → { nome, grupo, byWeek: {semana: tma_h} }
+  const agentMap = {};
+  for (const r of rows) {
+    const aid = String(r.agente_id);
+    if (!agentMap[aid]) agentMap[aid] = { nome: r.nome, grupo: r.grupo, byWeek: {} };
+    agentMap[aid].byWeek[r.semana] = r.tma_h;
+  }
+
+  const COLORS_R = ['#6366F1','#818CF8','#A5B4FC','#C7D2FE'];
+  const COLORS_S = ['#10b981','#34d399','#6ee7b7'];
+
+  function buildDatasets(grupo, colors) {
+    return Object.values(agentMap)
+      .filter(a => a.grupo === grupo)
+      .map((a, i) => ({
+        label: a.nome.split(' ')[0],
+        data: SEMANAS.map(w => a.byWeek[w] != null ? a.byWeek[w] : null),
+        borderColor: colors[i % colors.length],
+        backgroundColor: colors[i % colors.length] + '22',
+        borderWidth: 2,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        tension: 0.3,
+        spanGaps: true,
+        fill: false,
+      }));
+  }
+
+  const chartOpts = {
+    responsive: true, maintainAspectRatio: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
+      tooltip: {
+        mode: 'index', intersect: false,
+        callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) + 'h' : '—'}` },
+      },
+    },
+    scales: {
+      y: { grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 10 }, callback: v => v + 'h' }, beginAtZero: true },
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+    },
+  };
+
+  try {
+    const canvasR = document.getElementById('chartTmaResolve');
+    if (canvasR) {
+      _chartTmaResolve = new Chart(canvasR, {
+        type: 'line',
+        data: { labels: LABELS, datasets: buildDatasets('resolve', COLORS_R) },
+        options: chartOpts,
+      });
+    }
+  } catch(e) {}
+
+  try {
+    const canvasS = document.getElementById('chartTmaSaude');
+    if (canvasS) {
+      _chartTmaSaude = new Chart(canvasS, {
+        type: 'line',
+        data: { labels: LABELS, datasets: buildDatasets('saude', COLORS_S) },
+        options: chartOpts,
+      });
+    }
+  } catch(e) {}
 }
 
 let _safraSortCol = 'safra', _safraSortDir = 1;
@@ -3226,7 +3916,10 @@ function _renderSafra() {
 
   const maxRec = Math.max(...rows.map(r => r.pct_recompra || 0));
   const ths = (col, label) => `<th onclick="_sortSafra('${col}')" style="cursor:pointer">${label} ${_safraSortCol===col?(_safraSortDir===1?'↑':'↓'):'↕'}</th>`;
-  wrap.innerHTML = `<div style="overflow-x:auto"><table class="safra-table">
+  const _protoBannerSafra = _analytics.protocolo
+    ? `<div style="margin-bottom:10px;font-size:11px;color:#1e40af;background:#eff6ff;border-radius:6px;padding:5px 10px;border-left:3px solid #3b82f6">Safras globais da base — cohort não tem breakdown por protocolo</div>`
+    : '';
+  wrap.innerHTML = _protoBannerSafra + `<div style="overflow-x:auto"><table class="safra-table">
     <thead><tr>
       <th onclick="_sortSafra('safra')" style="text-align:left;cursor:pointer">Safra ${_safraSortCol==='safra'?(_safraSortDir===1?'↑':'↓'):'↕'}</th>
       ${ths('total_usuarios','Clientes')}${ths('com_recompra','Recompraram')}${ths('pct_recompra','% Recompra')}${ths('media_pedidos','Média Pedidos')}
@@ -3268,7 +3961,10 @@ function _renderComportamentoKPIs() {
     { icon: '⚡',  val: pct90,    label: 'Recompra em até 90 dias',   sub: 'dentre quem voltou a comprar' },
     { icon: '😴',  val: inativos, label: 'Clientes Inativos',         sub: '1 pedido há mais de 90 dias' },
   ];
-  grid.innerHTML = kpis.map((k, i) => _kpiCard(k, 'c' + i)).join('');
+  const _protoBannerComp = _analytics.protocolo
+    ? `<div style="margin-bottom:10px;font-size:11px;color:#1e40af;background:#eff6ff;border-radius:6px;padding:5px 10px;border-left:3px solid #3b82f6">Comportamento global da base — sem breakdown por protocolo</div>`
+    : '';
+  grid.innerHTML = _protoBannerComp + kpis.map((k, i) => _kpiCard(k, 'c' + i)).join('');
 }
 
 function _renderSafraAvancado() {
@@ -3311,21 +4007,34 @@ function _renderSafraAvancado() {
 function _renderChurnMensal() {
   const wrap = document.querySelector('#block-churn-mensal .card-body');
   if (!wrap) return;
-  let rows = (_med.raw.churnMensal || []).filter(r => r.qtd_churn != null);
-  rows = _filterPeriodo(rows);
-  if (!rows.length) {
+  const allRows = (_med.raw.churnMensal || []).filter(r => r.qtd_churn != null);
+  if (!allRows.length) {
     wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de churn disponíveis</p>';
     return;
   }
-  wrap.innerHTML = '<canvas id="chartChurn" style="max-height:220px"></canvas>';
+  // Show full year (or all data) — never collapse to a single point
+  let rows = allRows;
+  if (_analytics.ano) rows = rows.filter(r => String(r.churn_mes || '').startsWith(_analytics.ano));
+  if (!rows.length) rows = allRows;
+
+  const hiIdx = _analytics.mes
+    ? rows.findIndex(r => String(r.churn_mes || '').slice(5, 7) === _analytics.mes)
+    : -1;
+
+  const _protoBannerChurn = _analytics.protocolo
+    ? `<div style="margin-bottom:10px;font-size:11px;color:#1e40af;background:#eff6ff;border-radius:6px;padding:5px 10px;border-left:3px solid #3b82f6">Churn global da base — sem breakdown por protocolo</div>`
+    : '';
+  wrap.innerHTML = _protoBannerChurn + '<canvas id="chartChurn" style="max-height:220px"></canvas>';
   if (_chartChurn) { _chartChurn.destroy(); _chartChurn = null; }
-  const labels  = rows.map(r => String(r.churn_mes || '').slice(0, 7));
-  const values  = rows.map(r => r.qtd_churn || 0);
+  const labels = rows.map(r => String(r.churn_mes || '').slice(0, 7));
+  const values = rows.map(r => r.qtd_churn || 0);
+  const barBg  = rows.map((_, i) => i === hiIdx ? 'rgba(239,68,68,.75)' : 'rgba(239,68,68,.25)');
+  const barBdr = rows.map((_, i) => i === hiIdx ? '#b91c1c' : '#EF4444');
   _chartChurn = new Chart(document.getElementById('chartChurn'), {
     type: 'bar',
     data: {
       labels,
-      datasets: [{ label: 'Clientes em Churn', data: values, backgroundColor: 'rgba(239,68,68,.25)', borderColor: '#EF4444', borderWidth: 1.5, borderRadius: 4 }],
+      datasets: [{ label: 'Clientes em Churn', data: values, backgroundColor: barBg, borderColor: barBdr, borderWidth: 1.5, borderRadius: 4 }],
     },
     options: {
       responsive: true, maintainAspectRatio: true,
@@ -3338,96 +4047,123 @@ function _renderChurnMensal() {
   });
 }
 
-/* ── Canal de Aquisição ────────────────────────── */
-
-function _renderFunilCanal() {
-  const wrap = document.querySelector('#block-funil-canal .card-body');
-  if (!wrap) return;
-  const badge = document.getElementById('canal-count');
-  let rows = (_med.raw.funilCanal || []).filter(r => r && r.canal && (r.pedido || 0) > 0);
-  if (!rows.length) {
-    wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de canal disponíveis</p>';
-    if (badge) badge.style.display = 'none';
-    return;
-  }
-  rows = [...rows].sort((a, b) => (b.pedido || 0) - (a.pedido || 0));
-  if (badge) { badge.textContent = rows.length + ' canais'; badge.style.display = ''; }
-  const maxPed = Math.max(...rows.map(r => r.pedido || 0));
-  wrap.innerHTML = `<div style="overflow-x:auto"><table class="canal-table">
-    <thead><tr>
-      <th style="text-align:left">Canal</th>
-      <th>Pré-cadastro</th>
-      <th>Cadastro</th>
-      <th>Consultas</th>
-      <th>Pedidos</th>
-      <th>Recompras</th>
-      <th>% Pedido</th>
-      <th>% Recompra</th>
-    </tr></thead>
-    <tbody>${rows.map(r => {
-      const pPed  = r.pct_pedido   != null ? (r.pct_pedido   * 100).toFixed(0) + '%' : '—';
-      const pRec  = r.pct_recompra != null ? (r.pct_recompra * 100).toFixed(0) + '%' : '—';
-      const pCls  = (r.pct_recompra||0) >= .4 ? 'pct-good' : (r.pct_recompra||0) >= .2 ? 'pct-mid' : 'pct-bad';
-      const barW  = maxPed ? Math.round(((r.pedido||0)/maxPed)*80) : 0;
-      return `<tr>
-        <td>${r.canal}</td>
-        <td>${(r.pre_cadastro||0).toLocaleString('pt-BR')}</td>
-        <td>${(r.cadastro||0).toLocaleString('pt-BR')}</td>
-        <td>${(r.consulta||0).toLocaleString('pt-BR')}</td>
-        <td>${(r.pedido||0).toLocaleString('pt-BR')}<span class="canal-bar-wrap"><span class="canal-bar" style="width:${barW}%"></span></span></td>
-        <td>${(r.recompra||0).toLocaleString('pt-BR')}</td>
-        <td>${pPed}</td>
-        <td><span class="pct-pill ${pCls}">${pRec}</span></td>
-      </tr>`;
-    }).join('')}</tbody></table></div>`;
-}
-
 /* ── Valor por Segmento ────────────────────────── */
 
 function _renderTicketSegmento() {
-  const wrap = document.querySelector('#block-ticket-segmento .card-body');
+  const wrap = document.getElementById('block-ticket-segmento-body') || document.querySelector('#block-ticket-segmento .card-body');
   if (!wrap) return;
 
-  // Global ticket_médio from pedidosProtocolo (card 445) — real revenue data
-  const allProtos = _med.raw.protocoloAnalise || [];
-  const gRec = allProtos.reduce((a, r) => a + (r.soma_receita || 0), 0);
-  const gPed = allProtos.reduce((a, r) => a + (r.qtd_pedidos  || 0), 0);
-  const gTicket = gPed > 0 ? gRec / gPed : null;
-
-  let rows = (_med.raw.tipoClienteAnalise || []).filter(r => r && r.tipo_cliente);
-  if (_analytics.tipoCliente) rows = rows.filter(r => r.tipo_cliente === _analytics.tipoCliente);
+  let rows = (_med.raw.tipoClienteAnalise || []).filter(function(r){ return r && r.tipo_cliente; });
+  if (!rows.length && typeof _tipoClienteInline !== 'undefined' && _tipoClienteInline.length) {
+    rows = _tipoClienteInline.slice();
+  }
+  if (_analytics.tipoCliente) rows = rows.filter(function(r){ return r.tipo_cliente === _analytics.tipoCliente; });
   if (!rows.length) {
     wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de segmento disponíveis</p>';
     return;
   }
 
-  // For each tipo: use real values if available and > 0, else estimate from global ticket × orders
-  const enriched = rows.map(r => {
-    const totalPed = (r.qtd_usuarios || 0) * (r.media_pedidos || 0);
-    const recEst   = (r.receita_total != null && r.receita_total > 0) ? r.receita_total : (gTicket && totalPed ? totalPed * gTicket : null);
-    const tktEst   = (r.ticket_medio  != null && r.ticket_medio  > 0) ? r.ticket_medio  : gTicket;
-    return { ...r, rec_est: recEst, tkt_est: tktEst };
+  const _segPeriodNote = (_analytics.ano || _analytics.mes)
+    ? '<div style="margin-bottom:10px;font-size:11px;color:#92400E;background:#FEF3C7;border-radius:6px;padding:5px 10px;border-left:3px solid #F59E0B">Dados acumulados — sem breakdown mensal por segmento</div>'
+    : '';
+
+  // Ticket médio: usa valor do banco (calculado pelo db_loader) ou computa dos protocolos como fallback
+  var storedTicket = rows[0] && rows[0].ticket_medio > 0 ? rows[0].ticket_medio : null;
+  var gTicket = storedTicket;
+  if (!gTicket) {
+    var allProtos = _med.raw.protocoloAnalise || [];
+    var gRec = allProtos.reduce(function(a, r){ return a + (Number(r.soma_receita) || 0); }, 0);
+    var gPed = allProtos.reduce(function(a, r){ return a + (Number(r.qtd_pedidos)  || 0); }, 0);
+    gTicket = gPed > 0 ? gRec / gPed : null;
+  }
+
+  const ICONS = { 'Novo': '🌱', 'Recorrente': '🔄', 'Fiel': '⭐', 'Alta Frequência': '🚀' };
+  const maxUsers = rows.reduce(function(m, r){ return Math.max(m, r.qtd_usuarios || 0); }, 0);
+
+  let html = '<div class="seg-grid">';
+  rows.forEach(function(r) {
+    const pedidos  = Math.round((r.qtd_usuarios || 0) * (r.media_pedidos || 0));
+    // Receita: usa valor salvo no banco (est.) ou recalcula
+    const recEst   = (r.receita_total && r.receita_total > 0) ? r.receita_total
+                     : (gTicket && pedidos ? pedidos * gTicket : null);
+    const barW     = maxUsers ? Math.round((r.qtd_usuarios || 0) / maxUsers * 100) : 0;
+    const pct      = r.pct_do_total != null ? (r.pct_do_total * 100).toFixed(1) + '%' : '—';
+    html += '<div class="seg-card">';
+    html += '<div class="seg-card-label">' + (ICONS[r.tipo_cliente] || '👤') + ' ' + r.tipo_cliente + '</div>';
+    html += '<div class="seg-card-val">' + (r.qtd_usuarios || 0).toLocaleString('pt-BR') + '</div>';
+    html += '<div class="seg-card-sub">' + pct + ' da base &middot; média ' + (r.media_pedidos || 0).toFixed(1) + ' pedidos</div>';
+    if (gTicket) {
+      html += '<div style="margin-top:10px;font-size:13px;font-weight:700;color:var(--g800)">R$ ' + _fmtMoney(gTicket) + '</div>';
+      html += '<div class="seg-card-sub">ticket médio</div>';
+    }
+    if (recEst) {
+      html += '<div style="margin-top:6px;font-size:11px;color:#6B7280">Receita est.: R$ ' + _fmtMoney(recEst) + '</div>';
+    }
+    html += '<div class="tipo-bar-wrap" style="margin-top:8px"><div class="tipo-bar" style="width:' + barW + '%"></div></div>';
+    html += '</div>';
   });
+  html += '</div>';
+  wrap.innerHTML = _segPeriodNote + html;
+}
 
-  const totalRec   = enriched.reduce((a, r) => a + (r.rec_est || 0), 0);
-  const maxRec     = Math.max(...enriched.map(r => r.rec_est || 0));
-  const ICONS      = { 'Novo': '🌱', 'Recorrente': '🔄', 'Fiel': '⭐', 'Alta Frequência': '🚀' };
-  const hasEstimate = enriched.some(r => r.receita_total == null && r.rec_est != null);
+function _renderFreqCompras() {
+  const wrap = document.getElementById('block-freq-compras-body') || document.querySelector('#block-freq-compras .card-body');
+  if (!wrap) return;
+  var rows = (_med.raw.cohortPedidos || []).filter(function(r){ return r && r.faixa_pedidos; });
+  if (!rows.length && typeof _cohortInline !== 'undefined' && _cohortInline.length) {
+    rows = _cohortInline;
+  }
+  if (!rows.length) {
+    wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de frequência disponíveis</p>';
+    return;
+  }
+  const ORDER  = ['1 pedido','2 pedidos','3 pedidos','4 pedidos','Mais de 5 pedidos'];
+  const sorted = rows.slice().sort(function(a, b) {
+    var ia = ORDER.indexOf(a.faixa_pedidos), ib = ORDER.indexOf(b.faixa_pedidos);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+  });
+  const total    = sorted.reduce(function(s, r){ return s + (r.qtd_usuarios || 0); }, 0);
+  const recompra = sorted.filter(function(r){ return r.faixa_pedidos !== '1 pedido'; })
+                         .reduce(function(s, r){ return s + (r.qtd_usuarios || 0); }, 0);
+  const pctRec = total > 0 ? (recompra / total * 100).toFixed(1) : '0';
+  const maxVal = sorted.reduce(function(m, r){ return Math.max(m, r.qtd_usuarios || 0); }, 0);
+  const COLORS = ['#CBD5E1','#7DD3FC','#34D399','#A78BFA','#FB923C'];
+  const _freqPeriodNote = (_analytics.ano || _analytics.mes)
+    ? '<div style="margin-bottom:10px;font-size:11px;color:#92400E;background:#FEF3C7;border-radius:6px;padding:5px 10px;border-left:3px solid #F59E0B">Dados acumulados — sem breakdown mensal por frequência</div>'
+    : '';
 
-  wrap.innerHTML = `<div class="seg-grid">${enriched.map(r => {
-    const ticket  = r.tkt_est != null ? 'R$ ' + _fmtMoney(r.tkt_est) : '—';
-    const receita = r.rec_est != null ? 'R$ ' + _fmtMoney(r.rec_est) : '—';
-    const share   = totalRec ? ((r.rec_est || 0) / totalRec * 100).toFixed(1) + '%' : '—';
-    const barW    = maxRec ? Math.round(((r.rec_est || 0) / maxRec) * 100) : 0;
-    return `<div class="seg-card">
-      <div class="seg-card-label">${ICONS[r.tipo_cliente]||'👤'} ${r.tipo_cliente}</div>
-      <div class="seg-card-val">${ticket}</div>
-      <div class="seg-card-sub">ticket médio por pedido</div>
-      <div style="margin-top:10px;font-size:12px;color:var(--title);font-weight:600">${receita}</div>
-      <div class="seg-card-sub">receita estimada · ${share} do faturamento</div>
-      <div class="tipo-bar-wrap" style="margin-top:8px"><div class="tipo-bar" style="width:${barW}%"></div></div>
-    </div>`;
-  }).join('')}</div>${hasEstimate && gTicket ? `<p style="color:#9CA3AF;font-size:11px;text-align:right;margin:8px 4px 0">* Receita estimada usando ticket médio global de R$ ${_fmtMoney(gTicket)} (média de todos os protocolos)</p>` : ''}`;
+  var html = '';
+  html += '<div style="display:flex;gap:24px;margin-bottom:20px;flex-wrap:wrap">';
+  html += '<div style="background:var(--g50,#f8fafc);border-radius:10px;padding:14px 20px;min-width:140px">';
+  html += '<div style="font-size:22px;font-weight:700;color:var(--brand,#00c2b8)">' + total.toLocaleString('pt-BR') + '</div>';
+  html += '<div style="font-size:12px;color:#6B7280;margin-top:2px">total de clientes</div></div>';
+  html += '<div style="background:var(--g50,#f8fafc);border-radius:10px;padding:14px 20px;min-width:140px">';
+  html += '<div style="font-size:22px;font-weight:700;color:#22C55E">' + recompra.toLocaleString('pt-BR') + '</div>';
+  html += '<div style="font-size:12px;color:#6B7280;margin-top:2px">compraram 2x ou mais</div></div>';
+  html += '<div style="background:var(--g50,#f8fafc);border-radius:10px;padding:14px 20px;min-width:140px">';
+  html += '<div style="font-size:22px;font-weight:700;color:#7C3AED">' + pctRec + '%</div>';
+  html += '<div style="font-size:12px;color:#6B7280;margin-top:2px">taxa de recompra</div></div>';
+  html += '</div>';
+  html += '<div style="display:flex;flex-direction:column;gap:10px">';
+  sorted.forEach(function(r, i) {
+    const pct   = total > 0 ? (r.qtd_usuarios / total * 100).toFixed(1) : '0';
+    const barW  = maxVal > 0 ? Math.round(r.qtd_usuarios / maxVal * 100) : 0;
+    const color = COLORS[i] || '#94A3B8';
+    const label = r.faixa_pedidos;
+    const val   = (r.qtd_usuarios || 0).toLocaleString('pt-BR');
+    html += '<div style="display:flex;align-items:center;gap:12px">';
+    html += '<div style="width:140px;font-size:13px;font-weight:600;color:var(--g700,#374151);flex-shrink:0">' + label + '</div>';
+    html += '<div style="flex:1;background:#F1F5F9;border-radius:6px;height:28px;overflow:hidden">';
+    html += '<div style="height:100%;width:' + barW + '%;background:' + color + ';border-radius:6px;transition:width .4s;display:flex;align-items:center;padding-left:8px">';
+    if (barW > 20) html += '<span style="font-size:11px;font-weight:700;color:#1e293b">' + val + '</span>';
+    html += '</div></div>';
+    if (barW <= 20) html += '<div style="font-size:12px;font-weight:700;color:#374151;min-width:52px">' + val + '</div>';
+    else            html += '<div style="min-width:52px"></div>';
+    html += '<div style="font-size:12px;color:#6B7280;min-width:42px;text-align:right">' + pct + '%</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  wrap.innerHTML = _freqPeriodNote + html;
 }
 
 /* ── KB Edit Mode ──────────────────────────────── */

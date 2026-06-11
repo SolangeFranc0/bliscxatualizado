@@ -25,7 +25,8 @@
       "fez_primeira_compra_há_mais_de_30_dias_e_não_recomprou_": "Fez primeira compra há mais de 30 dias e não recomprou ",
       "fez_segunda_recompra_ou_mais": "Fez segunda recompra ou mais",
       "medicos": "Medicos",
-      "pergunta": "Pergunta"
+      "pergunta": "Pergunta",
+      "fraude": "Fraude"
     }
   },
   "43754673247379": {
@@ -209,7 +210,8 @@
       "rastreio_parado__20_dias": "Rastreio Parado +20 dias",
       "não_informou_motivo_desistência": "Não informou motivo desistência",
       "não_tem_a_documentação_necessária": "Não tem a documentação necessária",
-      "parcelamento_errado": "Parcelamento errado"
+      "parcelamento_errado": "Parcelamento errado",
+      "contato_fraude": "Contato Fraude"
     }
   }
 }

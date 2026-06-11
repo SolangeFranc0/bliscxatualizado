@@ -1,12 +1,12 @@
 === AUDIT LOG — Extração Zendesk 2026 ===
-Gerado em: 2026-05-26T15:47:56.719326
+Gerado em: 2026-06-11T17:19:19.127084
 
 --- Tickets por time e mês ---
-ano_mes       2025-12  2026-01  2026-02  2026-03  2026-04  2026-05
-time                                                              
-Blis Resolve        0     2624     2383     2440     1972     1578
-Blis Saúde          1     1361     5936    10106     5825     1324
-Outros              0        1       30     1196     4771     3313
+ano_mes       2025-12  2026-01  2026-02  2026-03  2026-04  2026-05  2026-06
+time                                                                       
+Blis Resolve        0     2617     2368     2440     1975     1973      808
+Blis Saúde          1     1358     5899    10106     5825     1540      326
+Outros              0        1       30     1196     4768     3781      910
 
 --- CSAT: contagem por time e mês (positivas / negativas / offered) ---
 
@@ -14,9 +14,11 @@ IA:
 score_raw  bad  good  offered
 ano_mes                      
 2026-04     69   166      720
-2026-05    199   740     3331
+2026-05    231   860     3848
+2026-06     31   236      917
   2026-04: 166 pos / 69 neg → CSAT 70.6%
-  2026-05: 740 pos / 199 neg → CSAT 78.8%
+  2026-05: 860 pos / 231 neg → CSAT 78.8%
+  2026-06: 236 pos / 31 neg → CSAT 88.4%
 
 Blis Resolve:
 score_raw  bad  good  offered
@@ -25,12 +27,14 @@ ano_mes
 2026-02     76   375     1626
 2026-03     81   196     1191
 2026-04     21    13       30
-2026-05     13   311      582
+2026-05     18   382      722
+2026-06     10   207      541
   2026-01: 546 pos / 98 neg → CSAT 84.8%
   2026-02: 375 pos / 76 neg → CSAT 83.1%
   2026-03: 196 pos / 81 neg → CSAT 70.8%
   2026-04: 13 pos / 21 neg → CSAT 38.2%
-  2026-05: 311 pos / 13 neg → CSAT 96.0%
+  2026-05: 382 pos / 18 neg → CSAT 95.5%
+  2026-06: 207 pos / 10 neg → CSAT 95.4%
 
 Blis Saúde:
 score_raw  bad  good  offered
@@ -39,12 +43,14 @@ ano_mes
 2026-02     52   493     1336
 2026-03     46   460     1342
 2026-04      4     9       42
-2026-05     17   239      753
+2026-05     19   292      903
+2026-06      8   113      381
   2026-01: 395 pos / 25 neg → CSAT 94.0%
   2026-02: 493 pos / 52 neg → CSAT 90.5%
   2026-03: 460 pos / 46 neg → CSAT 90.9%
   2026-04: 9 pos / 4 neg → CSAT 69.2%
-  2026-05: 239 pos / 17 neg → CSAT 93.4%
+  2026-05: 292 pos / 19 neg → CSAT 93.9%
+  2026-06: 113 pos / 8 neg → CSAT 93.4%
 
 Outros:
 score_raw  bad  good  offered
@@ -52,15 +58,18 @@ ano_mes
 2026-02      4     2       12
 2026-03      1     8       26
 2026-04      0     0        1
-2026-05      2     8       31
+2026-05      2    10       34
+2026-06      0     3        6
   2026-02: 2 pos / 4 neg → CSAT 33.3%
   2026-03: 8 pos / 1 neg → CSAT 88.9%
   2026-04: 0 pos / 0 neg → CSAT None%
-  2026-05: 8 pos / 2 neg → CSAT 80.0%
+  2026-05: 10 pos / 2 neg → CSAT 83.3%
+  2026-06: 3 pos / 0 neg → CSAT 100.0%
 
 --- Tickets IA (group_id = GRUPO_CLOUD_HUMANS_ID) ---
-Total IA: 9063
+Total IA: 10441
 ano_mes
 2026-03    1132
 2026-04    4702
-2026-05    3229
+2026-05    3721
+2026-06     886
