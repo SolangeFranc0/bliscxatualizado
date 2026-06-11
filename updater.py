@@ -1472,10 +1472,21 @@ def sync_saude_recompra() -> bool:
             rows_733 = json.loads(r.read())
         log.info(f"sync_saude_recompra: card 733 → {len(rows_733)} usuários")
 
-        # Taxa geral de recompra (todos users com ≥1 pedido)
+        # Taxa geral fallback (todos users com ≥1 pedido no card 733)
         total_geral  = len(rows_733)
         recomp_geral = sum(1 for r in rows_733 if int(r.get("total_orders") or 0) >= 2)
-        taxa_geral   = round(recomp_geral / total_geral * 100, 2) if total_geral else 0.0
+        taxa_geral_fallback = round(recomp_geral / total_geral * 100, 2) if total_geral else 0.0
+
+        # Taxa geral mensal: busca mb_recompra_mensal no Supabase para ter variação mês a mês
+        import db_loader_metabase as _dbl2
+        _sb2 = _dbl2.get_client()
+        recompra_mensal_rows = _sb2.table("mb_recompra_mensal").select("periodo,pct_recompra").order("periodo").execute().data or []
+        taxa_geral_por_mes = {}
+        for rm in recompra_mensal_rows:
+            mes_key = str(rm.get("periodo") or "")[:7]
+            pct     = rm.get("pct_recompra")
+            if mes_key and pct is not None:
+                taxa_geral_por_mes[mes_key] = round(float(pct) * 100, 2)
 
         # Índice: zendesk_id (str) → dados do usuário
         zendesk_map = {}
@@ -1563,13 +1574,13 @@ def sync_saude_recompra() -> bool:
                 "clientes_com_app":        com_app,
                 "clientes_recompraram":    recomp,
                 "taxa_recompra_pct":       round(recomp / com_app * 100, 2) if com_app else 0.0,
-                "taxa_recompra_geral_pct": taxa_geral,
+                "taxa_recompra_geral_pct": taxa_geral_por_mes.get(mes, taxa_geral_fallback),
                 "receita_recompradores":   round(c["receita"], 2),
                 "atualizado_em":           now_ts,
             })
 
         n = _dbl.upsert_batch(_sb, "mb_saude_recompra", records, "mes")
-        log.info(f"mb_saude_recompra → {n} meses | taxa_geral={taxa_geral}%")
+        log.info(f"mb_saude_recompra → {n} meses | taxa_geral_fallback={taxa_geral_fallback}% | {len(taxa_geral_por_mes)} meses com taxa mensal")
         log.info("=== sync_saude_recompra: concluído ===")
         return True
 
