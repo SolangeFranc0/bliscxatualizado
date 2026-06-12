@@ -1282,25 +1282,22 @@ def sync_metabase(save_js: bool = True) -> bool:
                 ])
             result['safraAnalise'] = {'data': {'cols': safra_cols, 'rows': safra_rows}}
 
-            # Receita por tipo — card 203
+            # Receita por tipo — card 734 (user_id + receita_total por pedido pago)
             try:
-                rows_203 = mb_export_json(203, token)
-                for r203 in rows_203:
-                    st  = str(r203.get('status') or '').lower()
-                    if 'cancelad' in st or 'reembolsad' in st:
-                        continue
-                    uid203  = str(r203.get('User_id') or r203.get('user_id') or '')
-                    total203 = float(r203.get('Total') or r203.get('total') or 0)
-                    if uid203 and total203 > 0:
-                        t = user_tipo.get(uid203)
+                rows_734 = mb_export_json(734, token)
+                for r734 in rows_734:
+                    uid734   = str(r734.get('user_id') or '')
+                    total734 = float(r734.get('receita_total') or 0)
+                    if uid734 and total734 > 0:
+                        t = user_tipo.get(uid734)
                         if t:
-                            tipo_map[t]['receita'] += total203
-                            mes_u = user_mes.get(uid203)
+                            tipo_map[t]['receita'] += total734
+                            mes_u = user_mes.get(uid734)
                             if mes_u:
-                                tipo_mes_map[mes_u][t]['receita'] += total203
-                log.info(f"Metabase card 203: {len(rows_203)} pedidos processados para ticket_medio")
+                                tipo_mes_map[mes_u][t]['receita'] += total734
+                log.info(f"Metabase card 734: {len(rows_734)} usuários processados para ticket_medio")
             except Exception as e:
-                log.warning(f"Metabase card 203 (receita): {e}")
+                log.warning(f"Metabase card 734 (receita): {e}")
 
             total_clientes = sum(d['total'] for d in tipo_map.values()) or 1
             tipo_cols = [{'name': c} for c in ['tipo_cliente','qtd_usuarios','pct_do_total','media_pedidos','receita_total','ticket_medio']]
