@@ -637,21 +637,49 @@ def load_tipo_cliente(sb: Client, mb: dict) -> None:
     for r in rows:
         if len(r) < 4 or not r[0]:
             continue
-        qtd     = safe_int(r[1]) or 0
-        med_ped = safe_float(r[3]) or 0.0
-        # Receita estimada: qtd_usuarios × media_pedidos × ticket_global
-        est_rec = round(qtd * med_ped * global_ticket, 2) if global_ticket else None
+        qtd      = safe_int(r[1]) or 0
+        med_ped  = safe_float(r[3]) or 0.0
+        receita  = safe_float(r[4]) if len(r) > 4 else None
+        ticket   = safe_float(r[5]) if len(r) > 5 else None
+        if not receita and global_ticket:
+            receita = round(qtd * med_ped * global_ticket, 2)
+        if not ticket:
+            ticket = global_ticket
         records.append({
             "tipo_cliente":  str(r[0]),
             "qtd_usuarios":  safe_int(r[1]),
             "pct_do_total":  safe_float(r[2]),
-            "media_pedidos": safe_float(r[3]),
-            "receita_total": est_rec,
-            "ticket_medio":  global_ticket,
+            "media_pedidos": med_ped,
+            "receita_total": receita,
+            "ticket_medio":  ticket,
             "data_carga":    TODAY,
         })
     n = upsert_batch(sb, "mb_tipo_cliente", records, "tipo_cliente")
     log.info(f"mb_tipo_cliente          → {n} tipos (ticket≈R${global_ticket or '?'})")
+
+
+def load_tipo_cliente_mensal(sb: Client, mb: dict) -> None:
+    """Breakdown mensal por tipo de cliente → mb_tipo_cliente_mensal."""
+    card = mb.get("tipoClienteMensal")
+    if not card:
+        return
+    rows = get_rows(card)
+    records = []
+    for r in rows:
+        if len(r) < 3 or not r[0] or not r[1]:
+            continue
+        records.append({
+            "periodo":       str(r[0]),
+            "tipo_cliente":  str(r[1]),
+            "qtd_usuarios":  safe_int(r[2]),
+            "pct_do_total":  safe_float(r[3]) if len(r) > 3 else None,
+            "media_pedidos": safe_float(r[4]) if len(r) > 4 else None,
+            "receita_total": safe_float(r[5]) if len(r) > 5 else None,
+            "ticket_medio":  safe_float(r[6]) if len(r) > 6 else None,
+            "data_carga":    TODAY,
+        })
+    n = upsert_batch(sb, "mb_tipo_cliente_mensal", records, ["periodo", "tipo_cliente"])
+    log.info(f"mb_tipo_cliente_mensal   → {n} registros")
 
 
 def load_comportamento_kpis(sb: Client, mb: dict) -> None:

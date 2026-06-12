@@ -593,6 +593,10 @@ _RE_TIPO_INLINE = re.compile(
     r'(// TIPO_CLIENTE_INLINE_START\n).*?(\n// TIPO_CLIENTE_INLINE_END)',
     re.DOTALL,
 )
+_RE_TIPO_MENSAL_INLINE = re.compile(
+    r'(// TIPO_CLIENTE_MENSAL_INLINE_START\n).*?(\n// TIPO_CLIENTE_MENSAL_INLINE_END)',
+    re.DOTALL,
+)
 _RE_SAUDE_INLINE = re.compile(
     r'(// SAUDE_RECOMPRA_INLINE_START\n).*?(\n// SAUDE_RECOMPRA_INLINE_END)',
     re.DOTALL,
@@ -658,6 +662,29 @@ def inject_cohort_inline(mb_result=None):
                     log.info(f"cx-portal.html: _tipoClienteInline atualizado ({len(tipos)} tipos)")
                 else:
                     log.warning("cx-portal.html: marcadores TIPO_CLIENTE_INLINE não encontrados")
+
+        # tipoClienteMensal (breakdown mensal por tipo de cliente)
+        mensal_rows = mb_result.get('tipoClienteMensal', {}).get('data', {}).get('rows', [])
+        if mensal_rows:
+            mensal = []
+            for r in mensal_rows:
+                if r and len(r) >= 3 and r[0] and r[1]:
+                    mensal.append({
+                        'periodo':       str(r[0]),
+                        'tipo_cliente':  str(r[1]),
+                        'qtd_usuarios':  int(r[2] or 0),
+                        'pct_do_total':  round(float(r[3] or 0), 4) if len(r) > 3 else 0,
+                        'media_pedidos': round(float(r[4] or 0), 2) if len(r) > 4 else 0,
+                        'receita_total': round(float(r[5] or 0), 2) if len(r) > 5 else 0,
+                        'ticket_medio':  round(float(r[6] or 0), 2) if len(r) > 6 else 0,
+                    })
+            if mensal:
+                new_var3 = 'var _tipoClienteMensalInline=' + json.dumps(mensal, ensure_ascii=False, separators=(',', ':')) + ';'
+                html, n3 = _RE_TIPO_MENSAL_INLINE.subn(r'\g<1>' + new_var3 + r'\g<2>', html)
+                if n3:
+                    log.info(f"cx-portal.html: _tipoClienteMensalInline atualizado ({len(mensal)} linhas)")
+                else:
+                    log.warning("cx-portal.html: marcadores TIPO_CLIENTE_MENSAL_INLINE não encontrados")
 
         PORTAL.write_text(html, encoding='utf-8')
     except Exception as e:
@@ -774,24 +801,38 @@ def inject_tma_semanal_inline():
 
 
 def inject_saude_recompra_inline():
-    """Atualiza _saudeRecompraInline em cx-portal.html com dados frescos do Supabase."""
+    """Atualiza _saudeRecompraInline em cx-portal.html.
+    Cohort (recompra_saude_cohort) para % e split Saúde/Sem Saúde.
+    Volume mensal (mb_recompra_mensal.qtd_recompras) para barra — mesma fonte do Metabase.
+    """
     try:
         if not PORTAL.exists():
             return
         import db_loader_metabase as _dbl
         sb = _dbl.get_client()
-        rows = sb.table('mb_saude_recompra').select('*').order('mes').execute().data
-        if not rows:
+        cohort_rows = sb.table('recompra_saude_cohort').select('*').order('safra').execute().data
+        if not cohort_rows:
             return
-        keep_cols = ['mes', 'total_contatos_saude', 'clientes_com_app', 'clientes_recompraram',
-                     'taxa_recompra_pct', 'taxa_recompra_geral_pct', 'receita_recompradores']
-        data = [{k: r[k] for k in keep_cols if k in r} for r in rows]
+        # qtd_recompras mensal do Metabase (fonte única de verdade para volume)
+        mensal_rows = sb.table('mb_recompra_mensal').select('periodo,qtd_recompras').order('periodo').execute().data
+        mensal_map = {str(r['periodo'])[:7]: r.get('qtd_recompras') for r in (mensal_rows or [])}
+
+        keep_cols = ['safra', 'total_clientes', 'total_recompra',
+                     'clientes_saude', 'recompra_saude',
+                     'clientes_sem_saude', 'recompra_sem_saude',
+                     'pct_recompra_total', 'pct_recompra_saude', 'pct_recompra_sem_saude']
+        data = []
+        for r in cohort_rows:
+            rec = {k: r[k] for k in keep_cols if k in r}
+            mes = str(rec.get('safra', ''))[:7]
+            rec['qtd_recompras'] = mensal_map.get(mes)
+            data.append(rec)
         html = PORTAL.read_text(encoding='utf-8')
         new_var = 'var _saudeRecompraInline=' + json.dumps(data, ensure_ascii=False, separators=(',', ':')) + ';'
         html, n = _RE_SAUDE_INLINE.subn(r'\g<1>' + new_var + r'\g<2>', html)
         if n:
             PORTAL.write_text(html, encoding='utf-8')
-            log.info(f"cx-portal.html: _saudeRecompraInline atualizado ({len(data)} meses)")
+            log.info(f"cx-portal.html: _saudeRecompraInline atualizado ({len(data)} safras)")
         else:
             log.warning("cx-portal.html: marcadores SAUDE_RECOMPRA_INLINE não encontrados")
     except Exception as e:
@@ -1178,6 +1219,8 @@ def sync_metabase(save_js: bool = True) -> bool:
             tipo_map  = defaultdict(lambda: {'total': 0, 'total_pedidos': 0, 'receita': 0.0})
             TIPOS = [('Novo', 1, 1), ('Recorrente', 2, 3), ('Fiel', 4, 6), ('Alta Frequência', 7, 9999)]
             user_tipo = {}
+            tipo_mes_map = defaultdict(lambda: defaultdict(lambda: {'total': 0, 'total_pedidos': 0, 'receita': 0.0}))
+            user_mes = {}
 
             for r in rows_export_404:
                 tot   = int(r.get('total_orders') or 1)
@@ -1216,6 +1259,11 @@ def sync_metabase(save_js: bool = True) -> bool:
 
                 tipo_map[tipo]['total']        += 1
                 tipo_map[tipo]['total_pedidos'] += tot
+                if first and len(first) == 7:
+                    tipo_mes_map[first][tipo]['total']         += 1
+                    tipo_mes_map[first][tipo]['total_pedidos'] += tot
+                if uid and first and len(first) == 7:
+                    user_mes[uid] = first
 
             safra_cols = [{'name': c} for c in [
                 'safra','total_usuarios','com_recompra','pct_recompra','media_pedidos',
@@ -1247,6 +1295,9 @@ def sync_metabase(save_js: bool = True) -> bool:
                         t = user_tipo.get(uid203)
                         if t:
                             tipo_map[t]['receita'] += total203
+                            mes_u = user_mes.get(uid203)
+                            if mes_u:
+                                tipo_mes_map[mes_u][t]['receita'] += total203
                 log.info(f"Metabase card 203: {len(rows_203)} pedidos processados para ticket_medio")
             except Exception as e:
                 log.warning(f"Metabase card 203 (receita): {e}")
@@ -1266,6 +1317,27 @@ def sync_metabase(save_js: bool = True) -> bool:
                         ticket,
                     ])
             result['tipoCliente'] = {'data': {'cols': tipo_cols, 'rows': tipo_rows}}
+
+            # tipo_cliente mensal (por first_order_date mês)
+            tipo_mes_cols = [{'name': c} for c in ['periodo','tipo_cliente','qtd_usuarios','pct_do_total','media_pedidos','receita_total','ticket_medio']]
+            tipo_mes_rows_out = []
+            for mes in sorted(tipo_mes_map.keys()):
+                total_mes = sum(tipo_mes_map[mes][t]['total'] for t in tipo_mes_map[mes]) or 1
+                for tipo, _, _ in TIPOS:
+                    d = tipo_mes_map[mes].get(tipo, {'total': 0, 'total_pedidos': 0, 'receita': 0.0})
+                    if not d['total']:
+                        continue
+                    t_ticket = round(d['receita'] / d['total_pedidos'], 2) if d['total_pedidos'] else None
+                    tipo_mes_rows_out.append([
+                        mes + '-01',
+                        tipo,
+                        d['total'],
+                        round(d['total'] / total_mes, 4),
+                        round(d['total_pedidos'] / d['total'], 2) if d['total'] else 0,
+                        round(d['receita'], 2) if d['receita'] else None,
+                        t_ticket,
+                    ])
+            result['tipoClienteMensal'] = {'data': {'cols': tipo_mes_cols, 'rows': tipo_mes_rows_out}}
 
             all_dias = [(safra_map[s]['dias_1_2_sum'], safra_map[s]['dias_1_2_cnt']) for s in safra_map]
             total_sum = sum(x[0] for x in all_dias)
@@ -1419,7 +1491,8 @@ def sync_metabase(save_js: bool = True) -> bool:
             # Proteção Card 445: se timeout → não sobrescrever soma_receita/qtd_pedidos/ticket_medio
             if _has445:
                 _dbl._run(_dbl.load_protocolo_analise, _sb, mb)
-                _dbl._run(_dbl.load_tipo_cliente,      _sb, mb)
+                _dbl._run(_dbl.load_tipo_cliente,         _sb, mb)
+                _dbl._run(_dbl.load_tipo_cliente_mensal, _sb, mb)
                 log.info("Supabase: protocolo e tipo_cliente atualizados com card 445.")
             else:
                 log.warning("Card 445 ausente — protocolo/tipo_cliente preservados do dia anterior.")
@@ -1440,7 +1513,9 @@ def sync_metabase(save_js: bool = True) -> bool:
 
 
 def sync_saude_recompra() -> bool:
-    """Passo 2b: Cohort Blis Saúde (card 733 × tickets Supabase) → mb_saude_recompra."""
+    """Cohort recompra Blis Saúde: com vs sem contato Saúde → recompra_saude_cohort.
+    Período: Jan 2025 – mês atual. Agrupamento: first_order_date (safra de compra).
+    """
     log.info("=== sync_saude_recompra: início ===")
     try:
         import urllib.parse
@@ -1461,7 +1536,7 @@ def sync_saude_recompra() -> bool:
         token = sess["id"]
         log.info("sync_saude_recompra: Metabase auth OK")
 
-        # Exportar card 733 completo (user_id, zendesk_id, total_orders, last_order_date, receita_total)
+        # Card 733: todos os usuários Blis Saúde com first_order_date, total_orders, zendesk_id
         hdrs733 = {"X-Metabase-Session": token, "Content-Type": "application/x-www-form-urlencoded"}
         body733 = urllib.parse.urlencode({"query": json.dumps({})}).encode()
         req733  = urllib.request.Request(
@@ -1472,17 +1547,11 @@ def sync_saude_recompra() -> bool:
             rows_733 = json.loads(r.read())
         log.info(f"sync_saude_recompra: card 733 → {len(rows_733)} usuários")
 
-        # Comparação A/B:
-        # Grupo A (com_contato):  usuários do card 733 que abriram ticket em Blis Saúde
-        # Grupo B (sem_contato):  usuários do card 733 que NUNCA abriram ticket em Blis Saúde
-        # Agrupamento: mês do primeiro pedido (first_order_date) → safra de compra
-        # Métrica:     % com total_orders >= 2 em cada grupo
-
         import db_loader_metabase as _dbl
         _sb = _dbl.get_client()
 
-        # 1. Zendesk IDs que contataram Saúde (qualquer época)
-        all_tickets = []
+        # Set de zendesk_ids que abriram ticket em Blis Saúde (paginado)
+        saude_contact_ids = set()
         batch, offset = 1000, 0
         while True:
             rows = (
@@ -1493,65 +1562,74 @@ def sync_saude_recompra() -> bool:
                    .execute()
                    .data
             ) or []
-            all_tickets.extend(rows)
+            for t in rows:
+                rid = t.get("requester_id")
+                if rid and str(rid) != "None":
+                    saude_contact_ids.add(str(rid))
             if len(rows) < batch:
                 break
             offset += batch
-        saude_contact_ids = {
-            str(t["requester_id"]) for t in all_tickets
-            if t.get("requester_id") and str(t["requester_id"]) != "None"
-        }
         log.info(f"sync_saude_recompra: {len(saude_contact_ids)} zendesk_ids únicos contataram Saúde")
 
-        # 2. Para cada usuário do card 733: grupo A ou B por first_order_date
+        # Agrega por safra (first_order_date mês, formato YYYY-MM)
+        # Período: Jan 2025 – mês atual
+        now_brt    = _dt.now(tz=timezone(timedelta(hours=-3)))
+        mes_limite = now_brt.strftime("%Y-%m")
         monthly = defaultdict(lambda: {
-            "com_total": 0, "com_recomp": 0, "com_receita": 0.0,
-            "sem_total": 0, "sem_recomp": 0,
+            "total": 0, "recomp": 0,
+            "saude_total": 0, "saude_recomp": 0,
         })
         for r in rows_733:
             first = str(r.get("first_order_date") or "")[:7]
-            if not first or len(first) != 7:
+            if not first or len(first) != 7 or first < "2025-01" or first > mes_limite:
                 continue
-            orders   = int(r.get("total_orders") or 0)
-            receita  = float(r.get("receita_total") or 0.0)
-            zid_raw  = r.get("zendesk_id")
+            orders  = int(r.get("total_orders") or 0)
+            zid_raw = r.get("zendesk_id")
             try:
                 zid = str(int(float(zid_raw))) if zid_raw else None
             except (ValueError, TypeError):
                 zid = None
 
+            monthly[first]["total"]  += 1
+            if orders >= 2:
+                monthly[first]["recomp"] += 1
             if zid and zid in saude_contact_ids:
-                monthly[first]["com_total"]  += 1
+                monthly[first]["saude_total"] += 1
                 if orders >= 2:
-                    monthly[first]["com_recomp"]  += 1
-                    monthly[first]["com_receita"] += receita
-            else:
-                monthly[first]["sem_total"] += 1
-                if orders >= 2:
-                    monthly[first]["sem_recomp"] += 1
+                    monthly[first]["saude_recomp"] += 1
 
-        # 3. Montar registros — filtrar safras com ≥20 usuários em cada grupo
-        now_ts = _dt.now(tz=timezone(timedelta(hours=-3))).isoformat()
+        # Monta records para upsert em recompra_saude_cohort
+        now_ts  = _dt.now(tz=timezone(timedelta(hours=-3))).isoformat()
         records = []
         for mes in sorted(monthly.keys()):
-            m = monthly[mes]
-            if m["com_total"] < 20 or m["sem_total"] < 20:
+            m              = monthly[mes]
+            total          = m["total"]
+            recomp         = m["recomp"]
+            cl_saude       = m["saude_total"]
+            rec_saude      = m["saude_recomp"]
+            cl_sem         = total - cl_saude
+            rec_sem        = recomp - rec_saude
+            if total < 10:
                 continue
-            taxa_com = round(m["com_recomp"] / m["com_total"] * 100, 2)
-            taxa_sem = round(m["sem_recomp"] / m["sem_total"] * 100, 2)
+            pct_total = round(recomp    / total    * 100, 2) if total    else None
+            pct_saude = round(rec_saude / cl_saude * 100, 2) if cl_saude else None
+            pct_sem   = round(rec_sem   / cl_sem   * 100, 2) if cl_sem   else None
             records.append({
-                "mes":                     mes,
-                "total_contatos_saude":    m["com_total"],   # usuários COM contato Saúde
-                "clientes_com_app":        m["sem_total"],   # usuários SEM contato Saúde
-                "clientes_recompraram":    m["com_recomp"],
-                "taxa_recompra_pct":       taxa_com,         # % recompra COM contato
-                "taxa_recompra_geral_pct": taxa_sem,         # % recompra SEM contato
-                "receita_recompradores":   round(m["com_receita"], 2),
-                "atualizado_em":           now_ts,
+                "safra":                 mes + "-01",   # DATE: primeiro dia do mês
+                "total_clientes":        total,
+                "total_recompra":        recomp,
+                "clientes_saude":        cl_saude,
+                "recompra_saude":        rec_saude,
+                "clientes_sem_saude":    cl_sem,
+                "recompra_sem_saude":    rec_sem,
+                "pct_recompra_total":    pct_total,
+                "pct_recompra_saude":    pct_saude,
+                "pct_recompra_sem_saude": pct_sem,
+                "atualizado_em":         now_ts,
             })
 
-        n = _dbl.upsert_batch(_sb, "mb_saude_recompra", records, "mes")
-        log.info(f"mb_saude_recompra → {n} safras A/B | contato vs sem contato")
+        n = _dbl.upsert_batch(_sb, "recompra_saude_cohort", records, "safra")
+        log.info(f"recompra_saude_cohort → {n} safras upsertadas")
         log.info("=== sync_saude_recompra: concluído ===")
         return True
 

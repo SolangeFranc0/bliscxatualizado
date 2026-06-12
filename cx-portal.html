@@ -1124,46 +1124,17 @@ canvas.med-chart{max-height:250px}
 
       <!-- Recompra Blis Saúde — sem classes, só inline styles -->
       <div id="block-saude-recompra" style="background:#fff;border:1px solid #E5E7EB;border-left:4px solid #6366F1;border-radius:16px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.07)">
-        <div style="font-size:15px;font-weight:800;color:#1B4D2E;margin-bottom:4px">Recompra — Clientes Blis Saúde</div>
-        <div style="font-size:12px;color:#6B7280;margin-bottom:18px">Pacientes que contataram Blis Saúde e voltaram a comprar · Jan–Jun 2026</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div style="font-size:15px;font-weight:800;color:#1B4D2E">Recompra — Clientes Blis Saúde</div>
+          <div id="saude-recompra-ano-filter" style="display:flex;gap:4px">
+            <button onclick="_setSaudeRecompraAno('')"  id="srf-btn-todos" style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #D1D5DB;background:#1B4D2E;color:#fff;cursor:pointer">Todos</button>
+            <button onclick="_setSaudeRecompraAno('2025')" id="srf-btn-2025" style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #D1D5DB;background:#fff;color:#374151;cursor:pointer">2025</button>
+            <button onclick="_setSaudeRecompraAno('2026')" id="srf-btn-2026" style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #D1D5DB;background:#fff;color:#374151;cursor:pointer">2026</button>
+          </div>
+        </div>
+        <div style="font-size:12px;color:#6B7280;margin-bottom:18px">Pacientes que contataram Blis Saúde e voltaram a comprar · Jan 2025–Jun 2026</div>
         <div id="block-saude-recompra-body" style="padding-top:0">
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px">
-            <div class="kpi-card">
-              <div class="kpi-value">9.581</div>
-              <div class="kpi-label">Contatos Blis Saúde</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-value">26,2%</div>
-              <div class="kpi-label">Recompra (Saúde)</div>
-              <div class="kpi-sub" style="color:#dc2626">−4,3 pp vs geral</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-value">30,5%</div>
-              <div class="kpi-label">Recompra Geral</div>
-            </div>
-          </div>
-          <div style="overflow-x:auto">
-            <table style="width:100%;border-collapse:collapse;font-size:13px">
-              <thead>
-                <tr style="border-bottom:2px solid #E5E7EB">
-                  <th style="text-align:left;padding:6px 10px;color:#6B7280;font-weight:600">Mês</th>
-                  <th style="text-align:right;padding:6px 10px;color:#6B7280;font-weight:600">Contatos</th>
-                  <th style="text-align:right;padding:6px 10px;color:#6B7280;font-weight:600">Com App</th>
-                  <th style="text-align:right;padding:6px 10px;color:#6B7280;font-weight:600">Recompraram</th>
-                  <th style="text-align:right;padding:6px 10px;color:#6B7280;font-weight:600">% Saúde</th>
-                  <th style="text-align:right;padding:6px 10px;color:#6B7280;font-weight:600">% Geral</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr style="border-bottom:1px solid #F3F4F6"><td style="padding:7px 10px;font-weight:600">Jan/26</td><td style="text-align:right;padding:7px 10px">1.059</td><td style="text-align:right;padding:7px 10px">647</td><td style="text-align:right;padding:7px 10px">276</td><td style="text-align:right;padding:7px 10px;color:#16a34a;font-weight:700">42,7%</td><td style="text-align:right;padding:7px 10px;color:#6B7280">30,5%</td></tr>
-                <tr style="border-bottom:1px solid #F3F4F6"><td style="padding:7px 10px;font-weight:600">Fev/26</td><td style="text-align:right;padding:7px 10px">2.329</td><td style="text-align:right;padding:7px 10px">1.710</td><td style="text-align:right;padding:7px 10px">557</td><td style="text-align:right;padding:7px 10px;color:#16a34a;font-weight:700">32,6%</td><td style="text-align:right;padding:7px 10px;color:#6B7280">30,5%</td></tr>
-                <tr style="border-bottom:1px solid #F3F4F6"><td style="padding:7px 10px;font-weight:600">Mar/26</td><td style="text-align:right;padding:7px 10px">2.857</td><td style="text-align:right;padding:7px 10px">2.549</td><td style="text-align:right;padding:7px 10px">713</td><td style="text-align:right;padding:7px 10px;color:#6B7280;font-weight:700">28,0%</td><td style="text-align:right;padding:7px 10px;color:#6B7280">30,5%</td></tr>
-                <tr style="border-bottom:1px solid #F3F4F6"><td style="padding:7px 10px;font-weight:600">Abr/26</td><td style="text-align:right;padding:7px 10px">2.352</td><td style="text-align:right;padding:7px 10px">1.997</td><td style="text-align:right;padding:7px 10px">412</td><td style="text-align:right;padding:7px 10px;color:#dc2626;font-weight:700">20,6%</td><td style="text-align:right;padding:7px 10px;color:#6B7280">30,5%</td></tr>
-                <tr style="border-bottom:1px solid #F3F4F6"><td style="padding:7px 10px;font-weight:600">Mai/26</td><td style="text-align:right;padding:7px 10px">806</td><td style="text-align:right;padding:7px 10px">548</td><td style="text-align:right;padding:7px 10px">17</td><td style="text-align:right;padding:7px 10px;color:#dc2626;font-weight:700">3,1%</td><td style="text-align:right;padding:7px 10px;color:#6B7280">30,5%</td></tr>
-                <tr><td style="padding:7px 10px;font-weight:600">Jun/26</td><td style="text-align:right;padding:7px 10px">178</td><td style="text-align:right;padding:7px 10px">91</td><td style="text-align:right;padding:7px 10px">0</td><td style="text-align:right;padding:7px 10px;color:#9CA3AF;font-weight:700">0,0%</td><td style="text-align:right;padding:7px 10px;color:#6B7280">30,5%</td></tr>
-              </tbody>
-            </table>
-          </div>
+          <p style="color:#6B7280;text-align:center;padding:24px;font-size:13px">Carregando…</p>
         </div>
       </div>
 
@@ -1616,19 +1587,22 @@ function _filterByMonth(rows, dateColIdx) {
 }
 
 // COHORT_INLINE_START
-var _cohortInline=[{"faixa_pedidos":"1 pedido","qtd_usuarios":23310},{"faixa_pedidos":"2 pedidos","qtd_usuarios":5920},{"faixa_pedidos":"3 pedidos","qtd_usuarios":2178},{"faixa_pedidos":"Mais de 5 pedidos","qtd_usuarios":1125},{"faixa_pedidos":"4 pedidos","qtd_usuarios":980}];
+var _cohortInline=[{"faixa_pedidos":"1 pedido","qtd_usuarios":23380},{"faixa_pedidos":"2 pedidos","qtd_usuarios":5922},{"faixa_pedidos":"3 pedidos","qtd_usuarios":2187},{"faixa_pedidos":"Mais de 5 pedidos","qtd_usuarios":1130},{"faixa_pedidos":"4 pedidos","qtd_usuarios":978}];
 // COHORT_INLINE_END
 // TIPO_CLIENTE_INLINE_START
-var _tipoClienteInline=[{"tipo_cliente":"Novo","qtd_usuarios":23331,"pct_do_total":0.6962,"media_pedidos":1.0,"ticket_medio":0.0,"receita_total":0.0},{"tipo_cliente":"Recorrente","qtd_usuarios":8106,"pct_do_total":0.2419,"media_pedidos":2.27,"ticket_medio":0.0,"receita_total":0.0},{"tipo_cliente":"Fiel","qtd_usuarios":1727,"pct_do_total":0.0515,"media_pedidos":4.6,"ticket_medio":0.0,"receita_total":0.0},{"tipo_cliente":"Alta Frequência","qtd_usuarios":348,"pct_do_total":0.0104,"media_pedidos":8.57,"ticket_medio":0.0,"receita_total":0.0}];
+var _tipoClienteInline=[{"tipo_cliente":"Novo","qtd_usuarios":23401,"pct_do_total":0.6965,"media_pedidos":1.0,"ticket_medio":0.0,"receita_total":0.0},{"tipo_cliente":"Recorrente","qtd_usuarios":8117,"pct_do_total":0.2416,"media_pedidos":2.27,"ticket_medio":0.0,"receita_total":0.0},{"tipo_cliente":"Fiel","qtd_usuarios":1728,"pct_do_total":0.0514,"media_pedidos":4.6,"ticket_medio":0.0,"receita_total":0.0},{"tipo_cliente":"Alta Frequência","qtd_usuarios":350,"pct_do_total":0.0104,"media_pedidos":8.57,"ticket_medio":0.0,"receita_total":0.0}];
 // TIPO_CLIENTE_INLINE_END
+// TIPO_CLIENTE_MENSAL_INLINE_START
+var _tipoClienteMensalInline=[];
+// TIPO_CLIENTE_MENSAL_INLINE_END
 // SAUDE_RECOMPRA_INLINE_START
-var _saudeRecompraInline=[{"mes":"2025-07","total_contatos_saude":25,"clientes_com_app":1290,"clientes_recompraram":25,"taxa_recompra_pct":100.0,"taxa_recompra_geral_pct":38.22,"receita_recompradores":119893.19},{"mes":"2025-08","total_contatos_saude":34,"clientes_com_app":1176,"clientes_recompraram":31,"taxa_recompra_pct":91.18,"taxa_recompra_geral_pct":37.67,"receita_recompradores":94738.34},{"mes":"2025-09","total_contatos_saude":42,"clientes_com_app":1463,"clientes_recompraram":36,"taxa_recompra_pct":85.71,"taxa_recompra_geral_pct":36.43,"receita_recompradores":113551.31},{"mes":"2025-10","total_contatos_saude":93,"clientes_com_app":1698,"clientes_recompraram":79,"taxa_recompra_pct":84.95,"taxa_recompra_geral_pct":37.46,"receita_recompradores":268522.51},{"mes":"2025-11","total_contatos_saude":254,"clientes_com_app":1547,"clientes_recompraram":141,"taxa_recompra_pct":55.51,"taxa_recompra_geral_pct":36.07,"receita_recompradores":438848.78},{"mes":"2025-12","total_contatos_saude":337,"clientes_com_app":1119,"clientes_recompraram":151,"taxa_recompra_pct":44.81,"taxa_recompra_geral_pct":32.17,"receita_recompradores":427161.51},{"mes":"2026-01","total_contatos_saude":1211,"clientes_com_app":658,"clientes_recompraram":409,"taxa_recompra_pct":33.77,"taxa_recompra_geral_pct":29.79,"receita_recompradores":1020605.52},{"mes":"2026-02","total_contatos_saude":2353,"clientes_com_app":281,"clientes_recompraram":732,"taxa_recompra_pct":31.11,"taxa_recompra_geral_pct":32.74,"receita_recompradores":1772481.31},{"mes":"2026-03","total_contatos_saude":2224,"clientes_com_app":596,"clientes_recompraram":576,"taxa_recompra_pct":25.9,"taxa_recompra_geral_pct":21.48,"receita_recompradores":1280576.28},{"mes":"2026-04","total_contatos_saude":681,"clientes_com_app":1680,"clientes_recompraram":163,"taxa_recompra_pct":23.94,"taxa_recompra_geral_pct":15.83,"receita_recompradores":328929.92},{"mes":"2026-05","total_contatos_saude":168,"clientes_com_app":2109,"clientes_recompraram":19,"taxa_recompra_pct":11.31,"taxa_recompra_geral_pct":3.94,"receita_recompradores":47676.34},{"mes":"2026-06","total_contatos_saude":21,"clientes_com_app":676,"clientes_recompraram":1,"taxa_recompra_pct":4.76,"taxa_recompra_geral_pct":1.33,"receita_recompradores":1783.35}];
+var _saudeRecompraInline=[{"safra":"2025-01-01","total_clientes":921,"total_recompra":302,"clientes_saude":7,"recompra_saude":6,"clientes_sem_saude":914,"recompra_sem_saude":296,"pct_recompra_total":32.79,"pct_recompra_saude":85.71,"pct_recompra_sem_saude":32.39,"qtd_recompras":302},{"safra":"2025-02-01","total_clientes":902,"total_recompra":316,"clientes_saude":9,"recompra_saude":7,"clientes_sem_saude":893,"recompra_sem_saude":309,"pct_recompra_total":35.03,"pct_recompra_saude":77.78,"pct_recompra_sem_saude":34.6,"qtd_recompras":339},{"safra":"2025-03-01","total_clientes":997,"total_recompra":346,"clientes_saude":13,"recompra_saude":13,"clientes_sem_saude":984,"recompra_sem_saude":333,"pct_recompra_total":34.7,"pct_recompra_saude":100.0,"pct_recompra_sem_saude":33.84,"qtd_recompras":372},{"safra":"2025-04-01","total_clientes":1366,"total_recompra":463,"clientes_saude":16,"recompra_saude":14,"clientes_sem_saude":1350,"recompra_sem_saude":449,"pct_recompra_total":33.89,"pct_recompra_saude":87.5,"pct_recompra_sem_saude":33.26,"qtd_recompras":472},{"safra":"2025-05-01","total_clientes":1287,"total_recompra":455,"clientes_saude":11,"recompra_saude":10,"clientes_sem_saude":1276,"recompra_sem_saude":445,"pct_recompra_total":35.35,"pct_recompra_saude":90.91,"pct_recompra_sem_saude":34.87,"qtd_recompras":504},{"safra":"2025-06-01","total_clientes":1251,"total_recompra":463,"clientes_saude":15,"recompra_saude":13,"clientes_sem_saude":1236,"recompra_sem_saude":450,"pct_recompra_total":37.01,"pct_recompra_saude":86.67,"pct_recompra_sem_saude":36.41,"qtd_recompras":493},{"safra":"2025-07-01","total_clientes":1315,"total_recompra":518,"clientes_saude":25,"recompra_saude":25,"clientes_sem_saude":1290,"recompra_sem_saude":493,"pct_recompra_total":39.39,"pct_recompra_saude":100.0,"pct_recompra_sem_saude":38.22,"qtd_recompras":666},{"safra":"2025-08-01","total_clientes":1210,"total_recompra":474,"clientes_saude":34,"recompra_saude":31,"clientes_sem_saude":1176,"recompra_sem_saude":443,"pct_recompra_total":39.17,"pct_recompra_saude":91.18,"pct_recompra_sem_saude":37.67,"qtd_recompras":905},{"safra":"2025-09-01","total_clientes":1505,"total_recompra":569,"clientes_saude":42,"recompra_saude":36,"clientes_sem_saude":1463,"recompra_sem_saude":533,"pct_recompra_total":37.81,"pct_recompra_saude":85.71,"pct_recompra_sem_saude":36.43,"qtd_recompras":943},{"safra":"2025-10-01","total_clientes":1791,"total_recompra":715,"clientes_saude":93,"recompra_saude":79,"clientes_sem_saude":1698,"recompra_sem_saude":636,"pct_recompra_total":39.92,"pct_recompra_saude":84.95,"pct_recompra_sem_saude":37.46,"qtd_recompras":902},{"safra":"2025-11-01","total_clientes":1801,"total_recompra":700,"clientes_saude":254,"recompra_saude":141,"clientes_sem_saude":1547,"recompra_sem_saude":559,"pct_recompra_total":38.87,"pct_recompra_saude":55.51,"pct_recompra_sem_saude":36.13,"qtd_recompras":1306},{"safra":"2025-12-01","total_clientes":1456,"total_recompra":511,"clientes_saude":337,"recompra_saude":151,"clientes_sem_saude":1119,"recompra_sem_saude":360,"pct_recompra_total":35.1,"pct_recompra_saude":44.81,"pct_recompra_sem_saude":32.17,"qtd_recompras":1449},{"safra":"2026-01-01","total_clientes":1869,"total_recompra":605,"clientes_saude":1211,"recompra_saude":409,"clientes_sem_saude":658,"recompra_sem_saude":196,"pct_recompra_total":32.37,"pct_recompra_saude":33.77,"pct_recompra_sem_saude":29.79,"qtd_recompras":1212},{"safra":"2026-02-01","total_clientes":2634,"total_recompra":827,"clientes_saude":2353,"recompra_saude":735,"clientes_sem_saude":281,"recompra_sem_saude":92,"pct_recompra_total":31.4,"pct_recompra_saude":31.24,"pct_recompra_sem_saude":32.74,"qtd_recompras":1508},{"safra":"2026-03-01","total_clientes":2820,"total_recompra":708,"clientes_saude":2225,"recompra_saude":580,"clientes_sem_saude":595,"recompra_sem_saude":128,"pct_recompra_total":25.11,"pct_recompra_saude":26.07,"pct_recompra_sem_saude":21.51,"qtd_recompras":2035},{"safra":"2026-04-01","total_clientes":2360,"total_recompra":430,"clientes_saude":685,"recompra_saude":164,"clientes_sem_saude":1675,"recompra_sem_saude":266,"pct_recompra_total":18.22,"pct_recompra_saude":23.94,"pct_recompra_sem_saude":15.88,"qtd_recompras":1917},{"safra":"2026-05-01","total_clientes":2276,"total_recompra":103,"clientes_saude":177,"recompra_saude":19,"clientes_sem_saude":2099,"recompra_sem_saude":84,"pct_recompra_total":4.53,"pct_recompra_saude":10.73,"pct_recompra_sem_saude":4.0,"qtd_recompras":3102},{"safra":"2026-06-01","total_clientes":773,"total_recompra":11,"clientes_saude":23,"recompra_saude":1,"clientes_sem_saude":750,"recompra_sem_saude":10,"pct_recompra_total":1.42,"pct_recompra_saude":4.35,"pct_recompra_sem_saude":1.33,"qtd_recompras":560}];
 // SAUDE_RECOMPRA_INLINE_END
 // AGENTES_PERFORMANCE_INLINE_START
-var _agentesPerformanceInline=[{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2025-12","total_tickets":1,"tickets_resolvidos":1,"csat_good":0,"csat_bad":0,"csat_score":null,"tma_h":37.6},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-01","total_tickets":762,"tickets_resolvidos":762,"csat_good":255,"csat_bad":15,"csat_score":94.4,"tma_h":5.4},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-01","total_tickets":651,"tickets_resolvidos":648,"csat_good":83,"csat_bad":18,"csat_score":82.2,"tma_h":21.2},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-02","total_tickets":943,"tickets_resolvidos":936,"csat_good":293,"csat_bad":36,"csat_score":89.1,"tma_h":9.4},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-02","total_tickets":629,"tickets_resolvidos":614,"csat_good":40,"csat_bad":8,"csat_score":83.3,"tma_h":64.6},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-03","total_tickets":935,"tickets_resolvidos":935,"csat_good":248,"csat_bad":23,"csat_score":91.5,"tma_h":5.4},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-03","total_tickets":1197,"tickets_resolvidos":1187,"csat_good":75,"csat_bad":41,"csat_score":64.7,"tma_h":23.9},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","mes":"2026-03","total_tickets":87,"tickets_resolvidos":87,"csat_good":0,"csat_bad":0,"csat_score":null,"tma_h":25.0},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-04","total_tickets":568,"tickets_resolvidos":568,"csat_good":7,"csat_bad":3,"csat_score":70.0,"tma_h":5.5},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-04","total_tickets":294,"tickets_resolvidos":294,"csat_good":2,"csat_bad":2,"csat_score":null,"tma_h":29.0},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","mes":"2026-04","total_tickets":348,"tickets_resolvidos":348,"csat_good":2,"csat_bad":1,"csat_score":null,"tma_h":26.4},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","mes":"2026-04","total_tickets":434,"tickets_resolvidos":434,"csat_good":1,"csat_bad":1,"csat_score":null,"tma_h":11.6},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","mes":"2026-04","total_tickets":360,"tickets_resolvidos":360,"csat_good":1,"csat_bad":3,"csat_score":null,"tma_h":11.2},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-05","total_tickets":459,"tickets_resolvidos":459,"csat_good":127,"csat_bad":11,"csat_score":92.0,"tma_h":11.0},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-05","total_tickets":236,"tickets_resolvidos":236,"csat_good":1,"csat_bad":0,"csat_score":null,"tma_h":20.9},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","mes":"2026-05","total_tickets":348,"tickets_resolvidos":348,"csat_good":84,"csat_bad":3,"csat_score":96.6,"tma_h":12.7},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","mes":"2026-05","total_tickets":796,"tickets_resolvidos":796,"csat_good":154,"csat_bad":6,"csat_score":96.2,"tma_h":15.5},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","mes":"2026-05","total_tickets":563,"tickets_resolvidos":563,"csat_good":141,"csat_bad":6,"csat_score":95.9,"tma_h":20.3},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","mes":"2026-05","total_tickets":565,"tickets_resolvidos":564,"csat_good":165,"csat_bad":8,"csat_score":95.4,"tma_h":11.3},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-06","total_tickets":37,"tickets_resolvidos":37,"csat_good":20,"csat_bad":0,"csat_score":100.0,"tma_h":2.5},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-06","total_tickets":59,"tickets_resolvidos":58,"csat_good":1,"csat_bad":0,"csat_score":null,"tma_h":16.5},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","mes":"2026-06","total_tickets":184,"tickets_resolvidos":184,"csat_good":61,"csat_bad":1,"csat_score":98.4,"tma_h":12.5},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","mes":"2026-06","total_tickets":261,"tickets_resolvidos":259,"csat_good":70,"csat_bad":2,"csat_score":97.2,"tma_h":14.5},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","mes":"2026-06","total_tickets":227,"tickets_resolvidos":227,"csat_good":73,"csat_bad":7,"csat_score":91.2,"tma_h":12.0},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","mes":"2026-06","total_tickets":259,"tickets_resolvidos":256,"csat_good":93,"csat_bad":8,"csat_score":92.1,"tma_h":10.7}];
+var _agentesPerformanceInline=[{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2025-12","total_tickets":1,"tickets_resolvidos":1,"csat_good":0,"csat_bad":0,"csat_score":null,"tma_h":37.6},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-01","total_tickets":651,"tickets_resolvidos":648,"csat_good":83,"csat_bad":18,"csat_score":82.2,"tma_h":21.2},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-01","total_tickets":762,"tickets_resolvidos":762,"csat_good":255,"csat_bad":15,"csat_score":94.4,"tma_h":5.4},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-02","total_tickets":629,"tickets_resolvidos":614,"csat_good":40,"csat_bad":8,"csat_score":83.3,"tma_h":64.6},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-02","total_tickets":943,"tickets_resolvidos":936,"csat_good":293,"csat_bad":36,"csat_score":89.1,"tma_h":9.4},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-03","total_tickets":935,"tickets_resolvidos":935,"csat_good":248,"csat_bad":23,"csat_score":91.5,"tma_h":5.4},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-03","total_tickets":1197,"tickets_resolvidos":1187,"csat_good":75,"csat_bad":41,"csat_score":64.7,"tma_h":23.9},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","mes":"2026-03","total_tickets":87,"tickets_resolvidos":87,"csat_good":0,"csat_bad":0,"csat_score":null,"tma_h":25.0},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-04","total_tickets":294,"tickets_resolvidos":294,"csat_good":2,"csat_bad":2,"csat_score":null,"tma_h":29.0},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-04","total_tickets":568,"tickets_resolvidos":568,"csat_good":7,"csat_bad":3,"csat_score":70.0,"tma_h":5.5},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","mes":"2026-04","total_tickets":360,"tickets_resolvidos":360,"csat_good":1,"csat_bad":3,"csat_score":null,"tma_h":11.2},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","mes":"2026-04","total_tickets":434,"tickets_resolvidos":434,"csat_good":1,"csat_bad":1,"csat_score":null,"tma_h":11.6},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","mes":"2026-04","total_tickets":348,"tickets_resolvidos":348,"csat_good":2,"csat_bad":1,"csat_score":null,"tma_h":26.4},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-05","total_tickets":459,"tickets_resolvidos":459,"csat_good":127,"csat_bad":11,"csat_score":92.0,"tma_h":11.0},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","mes":"2026-05","total_tickets":348,"tickets_resolvidos":348,"csat_good":84,"csat_bad":3,"csat_score":96.6,"tma_h":12.7},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","mes":"2026-05","total_tickets":796,"tickets_resolvidos":796,"csat_good":154,"csat_bad":6,"csat_score":96.2,"tma_h":15.5},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","mes":"2026-05","total_tickets":567,"tickets_resolvidos":567,"csat_good":141,"csat_bad":6,"csat_score":95.9,"tma_h":23.0},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","mes":"2026-05","total_tickets":565,"tickets_resolvidos":564,"csat_good":165,"csat_bad":8,"csat_score":95.4,"tma_h":11.3},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-05","total_tickets":236,"tickets_resolvidos":236,"csat_good":1,"csat_bad":0,"csat_score":null,"tma_h":20.9},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","mes":"2026-06","total_tickets":285,"tickets_resolvidos":284,"csat_good":83,"csat_bad":7,"csat_score":92.2,"tma_h":12.0},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","mes":"2026-06","total_tickets":290,"tickets_resolvidos":286,"csat_good":70,"csat_bad":2,"csat_score":97.2,"tma_h":14.0},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","mes":"2026-06","total_tickets":238,"tickets_resolvidos":238,"csat_good":71,"csat_bad":1,"csat_score":98.6,"tma_h":11.8},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","mes":"2026-06","total_tickets":70,"tickets_resolvidos":70,"csat_good":1,"csat_bad":0,"csat_score":null,"tma_h":14.7},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","mes":"2026-06","total_tickets":37,"tickets_resolvidos":37,"csat_good":20,"csat_bad":0,"csat_score":100.0,"tma_h":2.5},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","mes":"2026-06","total_tickets":315,"tickets_resolvidos":313,"csat_good":101,"csat_bad":8,"csat_score":92.7,"tma_h":9.8}];
 // AGENTES_PERFORMANCE_INLINE_END
 // TMA_SEMANAL_INLINE_START
-var _tmaSemanalInline=[{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W17","tma_h":3.2,"n_tickets":148},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W18","tma_h":7.4,"n_tickets":176},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W19","tma_h":16.6,"n_tickets":114},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W20","tma_h":3.9,"n_tickets":109},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W21","tma_h":2.4,"n_tickets":83},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W22","tma_h":16.9,"n_tickets":115},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W23","tma_h":2.5,"n_tickets":37},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W17","tma_h":31.8,"n_tickets":35},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W18","tma_h":18.9,"n_tickets":54},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W19","tma_h":28.2,"n_tickets":43},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W20","tma_h":20.7,"n_tickets":58},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W21","tma_h":14.4,"n_tickets":93},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W22","tma_h":23.0,"n_tickets":33},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W23","tma_h":21.3,"n_tickets":41},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W24","tma_h":5.0,"n_tickets":17},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W17","tma_h":16.7,"n_tickets":87},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W18","tma_h":47.8,"n_tickets":70},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W19","tma_h":18.4,"n_tickets":105},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W20","tma_h":19.3,"n_tickets":93},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W21","tma_h":4.7,"n_tickets":130},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W22","tma_h":3.3,"n_tickets":19},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W23","tma_h":15.9,"n_tickets":125},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W24","tma_h":5.1,"n_tickets":59},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W17","tma_h":7.6,"n_tickets":148},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W18","tma_h":5.7,"n_tickets":162},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W19","tma_h":11.6,"n_tickets":178},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W20","tma_h":8.3,"n_tickets":149},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W21","tma_h":22.7,"n_tickets":149},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W22","tma_h":19.0,"n_tickets":285},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W23","tma_h":18.0,"n_tickets":191},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W24","tma_h":4.8,"n_tickets":68},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W17","tma_h":11.8,"n_tickets":113},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W18","tma_h":8.8,"n_tickets":126},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W19","tma_h":6.8,"n_tickets":103},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W20","tma_h":31.3,"n_tickets":110},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W21","tma_h":17.8,"n_tickets":163},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W22","tma_h":23.0,"n_tickets":184},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W23","tma_h":14.9,"n_tickets":160},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W24","tma_h":5.1,"n_tickets":67},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W19","tma_h":6.8,"n_tickets":84},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W20","tma_h":8.5,"n_tickets":135},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W21","tma_h":16.5,"n_tickets":172},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W22","tma_h":10.6,"n_tickets":173},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W23","tma_h":15.2,"n_tickets":146},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W24","tma_h":4.7,"n_tickets":110}];
+var _tmaSemanalInline=[{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W17","tma_h":3.2,"n_tickets":148},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W18","tma_h":7.4,"n_tickets":176},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W19","tma_h":16.6,"n_tickets":114},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W20","tma_h":3.9,"n_tickets":109},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W21","tma_h":2.4,"n_tickets":83},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W22","tma_h":16.9,"n_tickets":115},{"agente_id":43287340696339,"nome":"Juliana Carvalho","grupo":"saude","semana":"2026-W23","tma_h":2.5,"n_tickets":37},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W17","tma_h":31.8,"n_tickets":35},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W18","tma_h":18.9,"n_tickets":54},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W19","tma_h":28.2,"n_tickets":43},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W20","tma_h":20.7,"n_tickets":58},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W21","tma_h":14.4,"n_tickets":93},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W22","tma_h":23.0,"n_tickets":33},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W23","tma_h":21.3,"n_tickets":41},{"agente_id":43413446089875,"nome":"Bruna Zandonadi","grupo":"resolve","semana":"2026-W24","tma_h":5.4,"n_tickets":29},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W17","tma_h":16.7,"n_tickets":87},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W18","tma_h":47.8,"n_tickets":70},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W19","tma_h":18.4,"n_tickets":105},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W20","tma_h":19.3,"n_tickets":93},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W21","tma_h":4.7,"n_tickets":130},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W22","tma_h":3.3,"n_tickets":19},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W23","tma_h":17.3,"n_tickets":126},{"agente_id":50171756894227,"nome":"Letícia Nascimento","grupo":"resolve","semana":"2026-W24","tma_h":5.5,"n_tickets":112},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W17","tma_h":7.6,"n_tickets":148},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W18","tma_h":5.7,"n_tickets":162},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W19","tma_h":11.6,"n_tickets":178},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W20","tma_h":8.3,"n_tickets":149},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W21","tma_h":22.7,"n_tickets":149},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W22","tma_h":19.0,"n_tickets":285},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W23","tma_h":18.0,"n_tickets":191},{"agente_id":50775753383827,"nome":"Gustavo Silva","grupo":"resolve","semana":"2026-W24","tma_h":6.0,"n_tickets":95},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W17","tma_h":11.8,"n_tickets":113},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W18","tma_h":8.8,"n_tickets":126},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W19","tma_h":6.8,"n_tickets":103},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W20","tma_h":31.3,"n_tickets":110},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W21","tma_h":24.8,"n_tickets":165},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W22","tma_h":24.9,"n_tickets":185},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W23","tma_h":16.8,"n_tickets":162},{"agente_id":50775890335379,"nome":"Franciele Faria","grupo":"resolve","semana":"2026-W24","tma_h":5.5,"n_tickets":122},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W19","tma_h":6.8,"n_tickets":84},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W20","tma_h":8.5,"n_tickets":135},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W21","tma_h":16.5,"n_tickets":172},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W22","tma_h":10.6,"n_tickets":173},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W23","tma_h":15.2,"n_tickets":146},{"agente_id":51393694500371,"nome":"Luanna Ferreira","grupo":"saude","semana":"2026-W24","tma_h":5.0,"n_tickets":167}];
 // TMA_SEMANAL_INLINE_END
 const _SB_URL = 'https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1';
 const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1enFqbmJ0eHVmaGtvenljbHFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4OTY4NzMsImV4cCI6MjA5NTQ3Mjg3M30.LbMlUGOTEKtbKVdkSiPHdUi1FsacfoiFbPDCFynYPv0';
@@ -1735,7 +1709,7 @@ async function _loadFromSupabase() {
     _sbGet('mb_funil_canal',        'select=*&order=pedido.desc').catch(() => []),
     _sbGet('mb_cohort_pedidos',     'select=faixa_pedidos,qtd_usuarios&order=faixa_pedidos.asc').catch(() => []),
     _sbGet('mb_protocolo_mensal',   'select=periodo,protocolo,soma_receita,qtd_pedidos,ticket_medio&order=periodo.asc').catch(() => []),
-    _sbGet('mb_saude_recompra',     'select=*&order=mes.asc').catch(() => []),
+    _sbGet('recompra_saude_cohort', 'select=*&order=safra.asc').catch(() => []),
   ]);
   _med.raw.clientesResumo       = clResRows[0] || null;
   _med.raw.protocoloAnalise     = protoRows2;
@@ -3030,6 +3004,7 @@ function _renderReviews() {
 
 const _analytics = { protocolo: '', tipoCliente: '', ano: '', mes: '', protoSort: 'soma_receita', protoDir: -1, safraSort: 'safra', safraDir: 1 };
 let _chartRecompra = null, _chartSaudeRecompra = null;
+let _saudeRecompraAno = '';
 
 function _filterPeriodo(rows) {
   if (!_analytics.ano && !_analytics.mes) return rows;
@@ -3161,7 +3136,6 @@ function _renderClienteAnalytics() {
   _safe(_renderProtocolo);
   _safe(_renderTipoCliente);
   _safe(_renderRecompraMensal);
-  _safe(_renderSaudeRecompra);
   _safe(_renderSafra);
   _safe(_renderComportamentoKPIs);
   _safe(_renderSafraAvancado);
@@ -3555,79 +3529,102 @@ function _renderRecompraMensal() {
   });
 }
 
+function _setSaudeRecompraAno(ano) {
+  _saudeRecompraAno = ano;
+  ['todos','2025','2026'].forEach(k => {
+    const btn = document.getElementById('srf-btn-' + k);
+    if (!btn) return;
+    const active = (k === (ano || 'todos'));
+    btn.style.background = active ? '#1B4D2E' : '#fff';
+    btn.style.color = active ? '#fff' : '#374151';
+  });
+  const wrap = document.getElementById('block-saude-recompra-body') || document.querySelector('#block-saude-recompra .card-body');
+  if (!wrap) return;
+  const allRows = (typeof _saudeRecompraInline !== 'undefined' && _saudeRecompraInline.length)
+    ? _saudeRecompraInline
+    : (_med.raw.saudeRecompra || []).filter(r => r.safra);
+  const rows = ano ? allRows.filter(r => String(r.safra || '').startsWith(ano)) : allRows;
+  if (rows.length) _doRenderSaudeRecompra(wrap, rows);
+}
+
 async function _renderSaudeRecompra() {
   const wrap = document.getElementById('block-saude-recompra-body') || document.querySelector('#block-saude-recompra .card-body');
   if (!wrap) return;
 
-  // Usa dados inline imediatamente (sem await), depois tenta atualizar via Supabase
-  let rows = (_med.raw.saudeRecompra || []).filter(r => r.mes);
-  if (!rows.length && typeof _saudeRecompraInline !== 'undefined' && _saudeRecompraInline.length) {
-    rows = _saudeRecompraInline;
-  }
+  // Inline tem qtd_recompras (injetado pelo pipeline diariamente) — prioridade para render
+  const allRows = (typeof _saudeRecompraInline !== 'undefined' && _saudeRecompraInline.length)
+    ? _saudeRecompraInline
+    : (_med.raw.saudeRecompra || []).filter(r => r.safra);
+  const rows = _saudeRecompraAno
+    ? allRows.filter(r => String(r.safra || '').startsWith(_saudeRecompraAno))
+    : allRows;
 
-  // Renderiza com o que tem agora (síncrono)
-  if (rows.length) _doRenderSaudeRecompra(wrap, rows);
-
-  // Tenta buscar dados frescos em paralelo e re-renderiza se vier algo novo
-  try {
-    const fresh = await _sbGet('mb_saude_recompra', 'select=*&order=mes.asc');
-    if (fresh && fresh.length) {
-      _med.raw.saudeRecompra = fresh;
-      _doRenderSaudeRecompra(wrap, fresh.filter(r => r.mes));
-    }
-  } catch(e) { /* silencioso — já renderizou com inline */ }
-
-  if (!rows.length) {
+  if (rows.length) {
+    _doRenderSaudeRecompra(wrap, rows);
+  } else {
     wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de recompra Blis Saúde</p>';
   }
+
+  // Atualiza _med.raw em background sem re-renderizar (evita race condition)
+  try {
+    const fresh = await _sbGet('recompra_saude_cohort', 'select=*&order=safra.asc');
+    if (fresh && fresh.length) _med.raw.saudeRecompra = fresh;
+  } catch(e) { /* silencioso */ }
 }
 
 function _doRenderSaudeRecompra(wrap, rows) {
   if (!rows || !rows.length) return;
 
-  // total_contatos_saude = clientes COM contato Saúde (por safra de 1º pedido)
-  // clientes_com_app     = clientes SEM contato Saúde (mesma safra)
-  // taxa_recompra_pct         = % recompra grupo COM contato
-  // taxa_recompra_geral_pct   = % recompra grupo SEM contato
-  const totCom  = rows.reduce((s, r) => s + (r.total_contatos_saude || 0), 0);
-  const totSem  = rows.reduce((s, r) => s + (r.clientes_com_app || 0), 0);
-  const avgCom  = rows.length ? +(rows.reduce((s,r) => s+(r.taxa_recompra_pct||0),0)/rows.length).toFixed(1) : 0;
-  const avgSem  = rows.length ? +(rows.reduce((s,r) => s+(r.taxa_recompra_geral_pct||0),0)/rows.length).toFixed(1) : 0;
-  const delta   = +(avgCom - avgSem).toFixed(1);
-  const dColor  = delta >= 0 ? '#16a34a' : '#dc2626';
-  const dSign   = delta >= 0 ? '+' : '';
+  // Média ponderada por clientes (não simples): soma(recompras) / soma(clientes) × 100
+  const totClientes = rows.reduce((s, r) => s + (r.total_clientes || 0), 0);
+  const totRecompra  = rows.reduce((s, r) => s + (r.total_recompra    || 0), 0);
+  const totSaude     = rows.reduce((s, r) => s + (r.clientes_saude    || 0), 0);
+  const totRecSaude  = rows.reduce((s, r) => s + (r.recompra_saude    || 0), 0);
+  const totSemSaude  = rows.reduce((s, r) => s + (r.clientes_sem_saude || 0), 0);
+  const totRecSem    = rows.reduce((s, r) => s + (r.recompra_sem_saude || 0), 0);
+  const avgTotal     = totClientes > 0 ? +(totRecompra  / totClientes * 100).toFixed(1) : 0;
+  const avgSaude     = totSaude    > 0 ? +(totRecSaude  / totSaude    * 100).toFixed(1) : 0;
+  const avgSem       = totSemSaude > 0 ? +(totRecSem    / totSemSaude * 100).toFixed(1) : 0;
+  const delta        = +(avgSaude - avgSem).toFixed(1);
+  const dColor       = delta >= 0 ? '#16a34a' : '#dc2626';
+  const dSign        = delta >= 0 ? '+' : '';
 
   const kpiHtml = `
   <div style="font-size:11px;color:#6B7280;background:#F9FAFB;border-radius:8px;padding:8px 12px;margin-bottom:14px;line-height:1.6">
-    Comparação por <strong>safra de compra</strong> (mês do 1º pedido) — clientes que abriram ticket no grupo Blis Saúde vs. clientes que nunca contataram.
+    Agrupado por <strong>safra de compra</strong> (mês do 1º pedido). Clientes que passaram pelo grupo Blis Saúde vs. clientes que nunca contataram esse grupo.
   </div>
-  <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
     <div class="kpi-card">
-      <div class="kpi-value" style="color:#16a34a">${avgCom.toFixed(1)}%</div>
-      <div class="kpi-label">Recompra — Com contato Saúde</div>
-      <div class="kpi-sub">${totCom.toLocaleString('pt-BR')} clientes</div>
+      <div class="kpi-value" style="color:#16a34a">${avgTotal.toFixed(1)}%</div>
+      <div class="kpi-label">% Recompra Total</div>
+      <div class="kpi-sub">${totRecompra.toLocaleString('pt-BR')} de ${totClientes.toLocaleString('pt-BR')} clientes</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-value" style="color:#f59e0b">${avgSem.toFixed(1)}%</div>
-      <div class="kpi-label">Recompra — Sem contato Saúde</div>
-      <div class="kpi-sub">${totSem.toLocaleString('pt-BR')} clientes</div>
+      <div class="kpi-value" style="color:#f59e0b">${avgSaude.toFixed(1)}%</div>
+      <div class="kpi-label">% Recompra — Saúde</div>
+      <div class="kpi-sub">${totRecSaude.toLocaleString('pt-BR')} de ${totSaude.toLocaleString('pt-BR')} clientes</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value" style="color:#6366F1">${avgSem.toFixed(1)}%</div>
+      <div class="kpi-label">% Recompra — Sem Saúde</div>
+      <div class="kpi-sub">${totRecSem.toLocaleString('pt-BR')} de ${totSemSaude.toLocaleString('pt-BR')} clientes</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-value" style="color:${dColor}">${dSign}${delta.toFixed(1)} pp</div>
-      <div class="kpi-label">Diferença (com vs sem)</div>
-      <div class="kpi-sub">média das safras</div>
+      <div class="kpi-label">Saúde vs Sem Saúde</div>
+      <div class="kpi-sub">diferença em pontos percentuais</div>
     </div>
   </div>`;
 
-  wrap.innerHTML = kpiHtml + '<canvas id="chartSaudeRecompra" style="max-height:230px"></canvas>';
+  wrap.innerHTML = kpiHtml + '<canvas id="chartSaudeRecompra" style="max-height:240px"></canvas>';
   if (_chartSaudeRecompra) { try { _chartSaudeRecompra.destroy(); } catch(_){} _chartSaudeRecompra = null; }
 
   const MESES_PT = {'-01':'Jan','-02':'Fev','-03':'Mar','-04':'Abr','-05':'Mai','-06':'Jun','-07':'Jul','-08':'Ago','-09':'Set','-10':'Out','-11':'Nov','-12':'Dez'};
-  const labels  = rows.map(r => { const m = String(r.mes||'').slice(0,7); return (MESES_PT[m.slice(4)]||m.slice(5))+' '+m.slice(2,4); });
-  const taxaCom = rows.map(r => r.taxa_recompra_pct       != null ? +Number(r.taxa_recompra_pct).toFixed(1)       : null);
-  const taxaSem = rows.map(r => r.taxa_recompra_geral_pct != null ? +Number(r.taxa_recompra_geral_pct).toFixed(1) : null);
-  const nCom    = rows.map(r => r.total_contatos_saude || 0);
-  const nSem    = rows.map(r => r.clientes_com_app     || 0);
+  const labels     = rows.map(r => { const m = String(r.safra||'').slice(0,7); return (MESES_PT[m.slice(4)]||m.slice(5))+' '+m.slice(2,4); });
+  const volTotal   = rows.map(r => r.qtd_recompras != null ? r.qtd_recompras : (r.total_recompra || 0));
+  const pctTotal   = rows.map(r => r.pct_recompra_total    != null ? +Number(r.pct_recompra_total).toFixed(1)    : null);
+  const pctSaude   = rows.map(r => r.pct_recompra_saude    != null ? +Number(r.pct_recompra_saude).toFixed(1)    : null);
+  const pctSemSaud = rows.map(r => r.pct_recompra_sem_saude != null ? +Number(r.pct_recompra_sem_saude).toFixed(1) : null);
 
   try {
     _chartSaudeRecompra = new Chart(document.getElementById('chartSaudeRecompra'), {
@@ -3635,21 +3632,28 @@ function _doRenderSaudeRecompra(wrap, rows) {
       data: {
         labels,
         datasets: [
-          { type: 'bar',  label: 'Clientes com contato Saúde', data: nCom,    backgroundColor: 'rgba(22,163,74,.18)',  borderColor: '#16a34a', borderWidth: 1.5, borderRadius: 4, yAxisID: 'y' },
-          { type: 'bar',  label: 'Clientes sem contato Saúde', data: nSem,    backgroundColor: 'rgba(245,158,11,.15)', borderColor: '#f59e0b', borderWidth: 1.5, borderRadius: 4, yAxisID: 'y' },
-          { type: 'line', label: '% Recompra — Com contato',   data: taxaCom, borderColor: '#16a34a', fill: false, borderWidth: 2.5, pointRadius: 4, tension: .35, yAxisID: 'y2', spanGaps: true },
-          { type: 'line', label: '% Recompra — Sem contato',   data: taxaSem, borderColor: '#f59e0b', fill: false, borderWidth: 2,   pointRadius: 3, tension: .35, yAxisID: 'y2', borderDash: [5,4], spanGaps: true },
+          { type: 'bar',  label: 'Volume total recompra',       data: volTotal,   backgroundColor: 'rgba(22,163,74,.20)', borderColor: '#16a34a', borderWidth: 1.5, borderRadius: 4, yAxisID: 'y' },
+          { type: 'line', label: '% Recompra total',            data: pctTotal,   borderColor: '#16a34a', backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 4, tension: .35, yAxisID: 'y2', spanGaps: true },
+          { type: 'line', label: '% Recompra — Com Saúde',      data: pctSaude,   borderColor: '#f59e0b', backgroundColor: 'transparent', borderWidth: 2,   pointRadius: 3, tension: .35, yAxisID: 'y2', spanGaps: true },
+          { type: 'line', label: '% Recompra — Sem Saúde',      data: pctSemSaud, borderColor: '#f59e0b', backgroundColor: 'transparent', borderWidth: 2,   pointRadius: 3, tension: .35, yAxisID: 'y2', borderDash: [5,4], spanGaps: true },
         ],
       },
       options: {
         responsive: true, maintainAspectRatio: true,
         plugins: {
           legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } },
-          tooltip: { mode: 'index', intersect: false, callbacks: { label: ctx => ctx.datasetIndex >= 2 ? ctx.dataset.label+': '+ctx.parsed.y+'%' : ctx.dataset.label+': '+ctx.parsed.y.toLocaleString('pt-BR') } }
+          tooltip: {
+            mode: 'index', intersect: false,
+            callbacks: {
+              label: ctx => ctx.datasetIndex === 0
+                ? ctx.dataset.label+': '+ctx.parsed.y.toLocaleString('pt-BR')
+                : ctx.dataset.label+': '+(ctx.parsed.y != null ? ctx.parsed.y+'%' : '—')
+            }
+          }
         },
         scales: {
-          y:  { position: 'left',  grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { size: 10 } }, title: { display: true, text: 'Clientes', font: { size: 10 } } },
-          y2: { position: 'right', grid: { drawOnChartArea: false },    ticks: { font: { size: 10 }, callback: v => v != null ? v+'%' : '' }, min: 0, title: { display: true, text: '% Recompra', font: { size: 10 } } },
+          y:  { position: 'left',  grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { size: 10 } }, title: { display: true, text: 'Clientes recompraram', font: { size: 10 } } },
+          y2: { position: 'right', grid: { drawOnChartArea: false }, ticks: { font: { size: 10 }, callback: v => v != null ? v+'%' : '' }, min: 0, title: { display: true, text: '% Recompra', font: { size: 10 } } },
           x:  { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } },
         },
       },
@@ -4067,47 +4071,70 @@ function _renderTicketSegmento() {
   const wrap = document.getElementById('block-ticket-segmento-body') || document.querySelector('#block-ticket-segmento .card-body');
   if (!wrap) return;
 
-  let rows = (_med.raw.tipoClienteAnalise || []).filter(function(r){ return r && r.tipo_cliente; });
-  if (!rows.length && typeof _tipoClienteInline !== 'undefined' && _tipoClienteInline.length) {
-    rows = _tipoClienteInline.slice();
+  const ICONS = { 'Novo': '🌱', 'Recorrente': '🔄', 'Fiel': '⭐', 'Alta Frequência': '🚀' };
+  const ORDER = ['Novo','Recorrente','Fiel','Alta Frequência'];
+
+  let rows = null;
+  let periodNote = '';
+
+  // If period filter active, try monthly breakdown first
+  if ((_analytics.ano || _analytics.mes) && typeof _tipoClienteMensalInline !== 'undefined' && _tipoClienteMensalInline.length) {
+    let mensal = _tipoClienteMensalInline;
+    if (_analytics.ano) mensal = mensal.filter(function(r){ return String(r.periodo || '').startsWith(_analytics.ano); });
+    if (_analytics.mes) mensal = mensal.filter(function(r){ return String(r.periodo || '').slice(5, 7) === _analytics.mes; });
+
+    if (mensal.length) {
+      // Aggregate by tipo_cliente (for multi-month year filter)
+      const byTipo = {};
+      mensal.forEach(function(r) {
+        const t = r.tipo_cliente;
+        if (!byTipo[t]) byTipo[t] = { tipo_cliente: t, qtd_usuarios: 0, _total_pedidos: 0, receita_total: 0 };
+        byTipo[t].qtd_usuarios  += r.qtd_usuarios || 0;
+        byTipo[t]._total_pedidos += (r.qtd_usuarios || 0) * (r.media_pedidos || 0);
+        byTipo[t].receita_total += r.receita_total || 0;
+      });
+      const agg = ORDER.map(function(t){ return byTipo[t]; }).filter(Boolean);
+      const totalUsers = agg.reduce(function(s, r){ return s + r.qtd_usuarios; }, 0);
+      agg.forEach(function(r) {
+        r.pct_do_total  = totalUsers > 0 ? r.qtd_usuarios / totalUsers : 0;
+        r.media_pedidos = r.qtd_usuarios > 0 ? r._total_pedidos / r.qtd_usuarios : 0;
+        r.ticket_medio  = r._total_pedidos > 0 ? r.receita_total / r._total_pedidos : 0;
+      });
+      rows = agg;
+    } else {
+      periodNote = '<div style="margin-bottom:10px;font-size:11px;color:#92400E;background:#FEF3C7;border-radius:6px;padding:5px 10px;border-left:3px solid #F59E0B">Sem dados mensais para o período — exibindo acumulado</div>';
+    }
   }
+
+  // Fallback to cumulative data
+  if (!rows) {
+    rows = (_med.raw.tipoClienteAnalise || []).filter(function(r){ return r && r.tipo_cliente; });
+    if (!rows.length && typeof _tipoClienteInline !== 'undefined' && _tipoClienteInline.length) {
+      rows = _tipoClienteInline.slice();
+    }
+  }
+
   if (_analytics.tipoCliente) rows = rows.filter(function(r){ return r.tipo_cliente === _analytics.tipoCliente; });
   if (!rows.length) {
     wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de segmento disponíveis</p>';
     return;
   }
 
-  const _segPeriodNote = (_analytics.ano || _analytics.mes)
-    ? '<div style="margin-bottom:10px;font-size:11px;color:#92400E;background:#FEF3C7;border-radius:6px;padding:5px 10px;border-left:3px solid #F59E0B">Dados acumulados — sem breakdown mensal por segmento</div>'
-    : '';
-
-  // Ticket médio: usa valor do banco (calculado pelo db_loader) ou computa dos protocolos como fallback
-  var storedTicket = rows[0] && rows[0].ticket_medio > 0 ? rows[0].ticket_medio : null;
-  var gTicket = storedTicket;
-  if (!gTicket) {
-    var allProtos = _med.raw.protocoloAnalise || [];
-    var gRec = allProtos.reduce(function(a, r){ return a + (Number(r.soma_receita) || 0); }, 0);
-    var gPed = allProtos.reduce(function(a, r){ return a + (Number(r.qtd_pedidos)  || 0); }, 0);
-    gTicket = gPed > 0 ? gRec / gPed : null;
-  }
-
-  const ICONS = { 'Novo': '🌱', 'Recorrente': '🔄', 'Fiel': '⭐', 'Alta Frequência': '🚀' };
   const maxUsers = rows.reduce(function(m, r){ return Math.max(m, r.qtd_usuarios || 0); }, 0);
 
   let html = '<div class="seg-grid">';
   rows.forEach(function(r) {
     const pedidos  = Math.round((r.qtd_usuarios || 0) * (r.media_pedidos || 0));
-    // Receita: usa valor salvo no banco (est.) ou recalcula
-    const recEst   = (r.receita_total && r.receita_total > 0) ? r.receita_total
-                     : (gTicket && pedidos ? pedidos * gTicket : null);
+    const recEst   = (r.receita_total && r.receita_total > 0) ? r.receita_total : null;
+    const ticket   = (r.ticket_medio && r.ticket_medio > 0) ? r.ticket_medio : null;
     const barW     = maxUsers ? Math.round((r.qtd_usuarios || 0) / maxUsers * 100) : 0;
     const pct      = r.pct_do_total != null ? (r.pct_do_total * 100).toFixed(1) + '%' : '—';
     html += '<div class="seg-card">';
     html += '<div class="seg-card-label">' + (ICONS[r.tipo_cliente] || '👤') + ' ' + r.tipo_cliente + '</div>';
     html += '<div class="seg-card-val">' + (r.qtd_usuarios || 0).toLocaleString('pt-BR') + '</div>';
     html += '<div class="seg-card-sub">' + pct + ' da base &middot; média ' + (r.media_pedidos || 0).toFixed(1) + ' pedidos</div>';
-    if (gTicket) {
-      html += '<div style="margin-top:10px;font-size:13px;font-weight:700;color:var(--g800)">R$ ' + _fmtMoney(gTicket) + '</div>';
+    if (ticket) {
+      html += '<div style="margin-top:10px;font-size:13px;font-weight:700;color:var(--g800)">R$ ' + _fmtMoney(ticket) + '</div>';
       html += '<div class="seg-card-sub">ticket médio</div>';
     }
     if (recEst) {
@@ -4117,7 +4144,7 @@ function _renderTicketSegmento() {
     html += '</div>';
   });
   html += '</div>';
-  wrap.innerHTML = _segPeriodNote + html;
+  wrap.innerHTML = periodNote + html;
 }
 
 function _renderFreqCompras() {
