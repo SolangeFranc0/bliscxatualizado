@@ -652,8 +652,8 @@ def inject_cohort_inline(mb_result=None):
                         'qtd_usuarios': r[1],
                         'pct_do_total': round(float(r[2] or 0), 4),
                         'media_pedidos': round(float(r[3] or 0), 2),
-                        'ticket_medio': round(float(r[4] or 0), 2) if len(r) > 4 else 0,
-                        'receita_total': round(float(r[5] or 0), 2) if len(r) > 5 else 0,
+                        'receita_total': round(float(r[4] or 0), 2) if len(r) > 4 else 0,
+                        'ticket_medio': round(float(r[5] or 0), 2) if len(r) > 5 else 0,
                     })
             if tipos:
                 new_var2 = 'var _tipoClienteInline=' + json.dumps(tipos, ensure_ascii=False, separators=(',', ':')) + ';'
@@ -1427,31 +1427,45 @@ def sync_metabase(save_js: bool = True) -> bool:
         except Exception as e:
             log.warning(f"Metabase performanceMedicosMensal: {e}")
 
-        # protocoloMensal — card 445 filtrado por mês (proteção Card 445)
+        # protocoloMensal — card 445 só mês atual; meses passados vêm do Supabase (evita timeout)
         try:
             import calendar as _cal2
-            now_d2 = datetime.now(tz=timezone(timedelta(hours=-3)))
-            proto_mensal_rows = []
-            for year in [2026]:
-                last_m2 = now_d2.month if year == now_d2.year else 12
-                for month in range(1, last_m2 + 1):
-                    start2  = f"{year}-{month:02d}-01"
-                    end2    = f"{year}-{month:02d}-{_cal2.monthrange(year, month)[1]:02d}"
-                    periodo2 = f"{year}-{month:02d}-01"
-                    body_p = {
-                        "parameters": [
-                            {"type": "date/single", "id": "bbc23224-c185-4e1b-8037-d1ca62d80a69", "value": start2, "target": ["variable", ["template-tag", "data_inicio"]]},
-                            {"type": "date/single", "id": "c35fed4a-a668-40b9-a420-fea28864647f", "value": end2,   "target": ["variable", ["template-tag", "data_fim"]]},
-                        ]
-                    }
-                    resp_p = mb_post("/api/card/445/query", body_p, token=token)
-                    rows_p = resp_p.get("data", {}).get("rows", [])
-                    for r in rows_p:
-                        proto_mensal_rows.append([periodo2, r[0], r[1], r[2], r[3]])
-                    log.info(f"Metabase protocoloMensal {periodo2}: {len(rows_p)} protocolos")
+            now_d2   = datetime.now(tz=timezone(timedelta(hours=-3)))
+            cur_year = now_d2.year
+            cur_mon  = now_d2.month
+            start_cur = f"{cur_year}-{cur_mon:02d}-01"
+            end_cur   = f"{cur_year}-{cur_mon:02d}-{_cal2.monthrange(cur_year, cur_mon)[1]:02d}"
+            periodo_cur = f"{cur_year}-{cur_mon:02d}-01"
+
+            # Fetch current month with longer timeout
+            body_p = {
+                "parameters": [
+                    {"type": "date/single", "id": "bbc23224-c185-4e1b-8037-d1ca62d80a69", "value": start_cur, "target": ["variable", ["template-tag", "data_inicio"]]},
+                    {"type": "date/single", "id": "c35fed4a-a668-40b9-a420-fea28864647f", "value": end_cur,   "target": ["variable", ["template-tag", "data_fim"]]},
+                ]
+            }
+            url_445 = f"{METABASE_URL}/api/card/445/query"
+            data_p  = json.dumps(body_p).encode()
+            hdrs_p  = {"Content-Type": "application/json", "X-Metabase-Session": token}
+            req_p   = urllib.request.Request(url_445, data=data_p, headers=hdrs_p, method="POST")
+            with urllib.request.urlopen(req_p, timeout=90) as r_p:
+                resp_p = json.loads(r_p.read())
+            rows_p = resp_p.get("data", {}).get("rows", [])
+            cur_rows = [[periodo_cur, r[0], r[1], r[2], r[3]] for r in rows_p if r and r[0]]
+            log.info(f"Metabase protocoloMensal {periodo_cur}: {len(rows_p)} protocolos ({sum(int(r[3]) for r in rows_p if r and len(r)>3)} pedidos)")
+
+            # Load all months from Supabase; current month will be upserted later
+            import db_loader_metabase as _dbl_pm
+            _sb_pm  = _dbl_pm.get_client()
+            sb_rows = _sb_pm.table("mb_protocolo_mensal").select("*").order("periodo").execute().data or []
+            past_rows = [
+                [str(r["periodo"])[:7] + "-01", r["protocolo"], r["soma_receita"], r["qtd_pedidos"], r["ticket_medio"]]
+                for r in sb_rows if str(r.get("periodo",""))[:7] != f"{cur_year}-{cur_mon:02d}"
+            ]
+            proto_mensal_rows = past_rows + cur_rows
             proto_m_cols = [{"name": c} for c in ["periodo", "protocolo", "soma_receita", "qtd_pedidos", "ticket_medio"]]
             result["protocoloMensal"] = {"data": {"cols": proto_m_cols, "rows": proto_mensal_rows}}
-            log.info(f"Metabase protocoloMensal: {len(proto_mensal_rows)} linhas no total")
+            log.info(f"Metabase protocoloMensal: {len(proto_mensal_rows)} linhas ({len(past_rows)} Supabase + {len(cur_rows)} atuais)")
         except Exception as e:
             log.warning(f"Metabase protocoloMensal (445 mensal): {e}")
 
@@ -1485,14 +1499,16 @@ def sync_metabase(save_js: bool = True) -> bool:
             _dbl._run(_dbl.load_cancelamentos,              _sb, mb)
             _dbl._run(_dbl.load_protocolo_mensal,           _sb, mb)
 
-            # Proteção Card 445: se timeout → não sobrescrever soma_receita/qtd_pedidos/ticket_medio
+            # tipo_cliente vem de cards 404+734 (independente do card 445)
+            _dbl._run(_dbl.load_tipo_cliente,         _sb, mb)
+            _dbl._run(_dbl.load_tipo_cliente_mensal, _sb, mb)
+
+            # Proteção Card 445: só atualiza protocoloAnalise (acumulado) se card 445 respondeu
             if _has445:
                 _dbl._run(_dbl.load_protocolo_analise, _sb, mb)
-                _dbl._run(_dbl.load_tipo_cliente,         _sb, mb)
-                _dbl._run(_dbl.load_tipo_cliente_mensal, _sb, mb)
-                log.info("Supabase: protocolo e tipo_cliente atualizados com card 445.")
+                log.info("Supabase: protocoloAnalise atualizado com card 445.")
             else:
-                log.warning("Card 445 ausente — protocolo/tipo_cliente preservados do dia anterior.")
+                log.warning("Card 445 ausente — protocoloAnalise preservado do dia anterior.")
 
             log.info("Supabase Metabase: sync concluído.")
         except Exception as e:

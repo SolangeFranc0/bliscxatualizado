@@ -570,25 +570,32 @@ def load_protocolo_analise(sb: Client, mb: dict) -> None:
 
 
 def load_protocolo_mensal(sb: Client, mb: dict) -> None:
-    """Receita por protocolo por mês — card 445 filtrado por data."""
+    """Receita por protocolo — só upserta mês corrente (passados já estão no Supabase)."""
     card = mb.get("protocoloMensal")
     if not card:
         return
     rows = get_rows(card)
+    cur_periodo = TODAY[:7] + "-01"  # e.g. "2026-06-01"
     records = []
     for r in rows:
         if len(r) < 5 or not r[0] or not r[1]:
             continue
+        periodo = parse_period(r[0])
+        if periodo != cur_periodo:
+            continue  # skip past months — already in Supabase, no need to re-upsert
         records.append({
-            "periodo":      parse_period(r[0]),
+            "periodo":      periodo,
             "protocolo":    str(r[1]),
             "soma_receita": safe_float(r[2]),
             "qtd_pedidos":  safe_int(r[3]),
             "ticket_medio": safe_float(r[4]),
             "data_carga":   TODAY,
         })
+    if not records:
+        log.info("mb_protocolo_mensal      → 0 registros (sem dados do mês atual)")
+        return
     n = upsert_batch(sb, "mb_protocolo_mensal", records, "periodo,protocolo")
-    log.info(f"mb_protocolo_mensal      → {n} registros")
+    log.info(f"mb_protocolo_mensal      → {n} registros (mês atual)")
 
 
 def load_safra_analise(sb: Client, mb: dict) -> None:
