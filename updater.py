@@ -277,10 +277,8 @@ def build_semanas(df: pd.DataFrame) -> dict:
 def build_csat(df_c: pd.DataFrame, df_t: pd.DataFrame) -> dict:
     out = {t: {"good":[0]*N_MONTHS,"bad":[0]*N_MONTHS}
            for t in ("ia","saude","resolve")}
-    # Para Saúde e Resolve: usa o campo `time` direto do CSAT (mais preciso,
-    # sem depender de ticket_id presente em tabela_tickets).
-    # Para IA: cross-referência com tabela_tickets (atendido_por_ia=True),
-    # pois o CSAT agrupa IA junto com "Outros" sem distinção.
+    # Usa o campo `time` do CSAT como fonte primária (vem direto do group_id Zendesk).
+    # Fallback para cross-referência com tabela_tickets para registros sem `time`.
     ia_ticket_ids: set = set()
     for _, r in df_t.iterrows():
         if pd.isna(r.get("ticket_id")):
@@ -301,7 +299,10 @@ def build_csat(df_c: pd.DataFrame, df_t: pd.DataFrame) -> dict:
             out["saude"][score][m] += 1
         elif "Resolve" in time_val or time_val == "resolve":
             out["resolve"][score][m] += 1
+        elif time_val == "IA" or "Cloud Humans" in time_val or time_val == "ia":
+            out["ia"][score][m] += 1
         elif str(r.get("ticket_id","")) in ia_ticket_ids:
+            # fallback: ticket marcado como IA mas sem group_id mapeado
             out["ia"][score][m] += 1
     return out
 
@@ -885,16 +886,12 @@ def build_comments_offenders(df_c: pd.DataFrame) -> tuple[dict, list]:
     scored["txt"]  = scored["comentario"].apply(_clean)
     scored = scored[scored["txt"].str.len() >= 10]
 
-    def _sample(grp, n=30):
-        rows = grp.to_dict("records")
-        return _rnd.sample(rows, n) if len(rows) > n else rows
-
     bad_all=[]; good_all=[]
     for m in range(N_MONTHS):
         sub = scored[scored["m"] == m]
-        for r in _sample(sub[sub["score_raw"]=="bad"],  30):
+        for r in sub[sub["score_raw"]=="bad"].to_dict("records"):
             bad_all.append({"m":m,"team":r["team"],"t":r["txt"]})
-        for r in _sample(sub[sub["score_raw"]=="good"], 30):
+        for r in sub[sub["score_raw"]=="good"].to_dict("records"):
             good_all.append({"m":m,"team":r["team"],"t":r["txt"]})
 
     def _themes(texts):

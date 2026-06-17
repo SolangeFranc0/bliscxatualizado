@@ -119,9 +119,12 @@ def delete_today(sb: Client, table: str, col: str = "data_carga") -> None:
 
 
 def upsert_batch(sb: Client, table: str, records: list[dict],
-                 conflict_col: str | None = None) -> int:
+                 conflict_col: str | list | None = None) -> int:
     if not records:
         return 0
+    # PostgREST on_conflict espera string separada por vírgula
+    if isinstance(conflict_col, list):
+        conflict_col = ",".join(conflict_col)
     sent = 0
     for i in range(0, len(records), BATCH_SIZE):
         chunk = records[i : i + BATCH_SIZE]
