@@ -420,6 +420,119 @@ canvas.med-chart{max-height:250px}
 .edit-toggle-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 15px;border-radius:10px;border:1.5px solid var(--border);background:var(--card);color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:'Inter',sans-serif;box-shadow:var(--sh-sm)}
 .edit-toggle-btn:hover{border-color:var(--g600);color:var(--g800)}
 .edit-toggle-btn.active{background:var(--g50);border-color:var(--g600);color:var(--g800)}
+/* ── KB Nexus — Futuristic ─────────────────────── */
+.kb-hero{background:linear-gradient(135deg,#071E0F 0%,#0D5C34 60%,#17AE55 100%);border-radius:20px;padding:26px 30px;margin-bottom:24px;position:relative;overflow:hidden}
+.kb-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(23,174,85,.25),transparent 60%)}
+.kb-hero::after{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.06) 1px,transparent 1px);background-size:24px 24px}
+.kb-hero-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;position:relative;z-index:1}
+.kb-hero-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:900;color:#FFFFFF;margin:0 0 3px;letter-spacing:-.3px}
+.kb-hero-sub{font-size:12.5px;color:rgba(134,239,172,.8);margin:0}
+.kb-new-art-btn{padding:9px 18px;border-radius:12px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.25);color:#FFFFFF;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;font-family:'Inter',sans-serif;white-space:nowrap}
+.kb-new-art-btn:hover{background:rgba(255,255,255,.25)}
+.kb-search-wrap{position:relative;margin-bottom:22px}
+.kb-search-wrap .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--sub);pointer-events:none}
+.kb-search-input{width:100%;padding:11px 14px 11px 42px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);font-size:13px;color:var(--body);font-family:'Inter',sans-serif;transition:border-color .2s,box-shadow .2s;box-sizing:border-box}
+.kb-search-input:focus{outline:none;border-color:var(--g500);box-shadow:0 0 0 3px rgba(23,174,85,.1)}
+.kb-team-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.kb-team-tab{padding:8px 18px;border-radius:22px;border:1.5px solid var(--border);background:var(--card);font-size:12.5px;font-weight:600;cursor:pointer;color:var(--sub);transition:all .2s;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:5px}
+.kb-team-tab.active{background:linear-gradient(135deg,var(--g800),var(--g600));border-color:transparent;color:#FFFFFF;box-shadow:0 3px 14px rgba(13,92,52,.32)}
+.kb-team-tab:hover:not(.active){border-color:var(--g500);color:var(--g800);background:var(--g50)}
+.kb-tab-ct{background:rgba(0,0,0,.15);border-radius:9px;padding:1px 6px;font-size:10px;font-weight:700}
+.kb-team-tab:not(.active) .kb-tab-ct{background:var(--border);color:var(--sub)}
+.kb-cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px}
+.kb-cat-card{background:var(--card);border:1.5px solid var(--border);border-radius:18px;overflow:hidden;transition:box-shadow .2s,border-color .2s,transform .2s;position:relative}
+.kb-cat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--g800),var(--g500),#4DC878);border-radius:18px 18px 0 0}
+.kb-cat-card:hover{box-shadow:0 8px 28px rgba(13,92,52,.11);border-color:var(--g400);transform:translateY(-2px)}
+.kb-cat-hdr{display:flex;align-items:center;gap:11px;padding:14px 16px 11px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--g50),var(--card))}
+.kb-cat-icon{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,rgba(13,92,52,.12),rgba(23,174,85,.07));border:1px solid rgba(23,174,85,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.kb-cat-meta{flex:1;min-width:0}
+.kb-cat-name{font-size:13px;font-weight:800;color:var(--title);font-family:'Plus Jakarta Sans',sans-serif}
+.kb-cat-count{font-size:11px;color:var(--sub);margin-top:1px}
+.kb-cat-add{width:28px;height:28px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:16px;line-height:1;transition:all .15s;flex-shrink:0}
+.kb-cat-add:hover{background:var(--g800);border-color:var(--g800);color:#FFFFFF}
+.kb-art-list{padding:6px 0}
+.kb-art-item{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;transition:background .12s;font-size:13px;color:var(--body);position:relative}
+.kb-art-item:hover{background:linear-gradient(90deg,var(--g50),transparent)}
+.kb-art-item:hover .kb-art-acts{opacity:1}
+.kb-art-file{flex-shrink:0;color:var(--g600);opacity:.65}
+.kb-art-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kb-art-acts{opacity:0;display:flex;gap:1px;transition:opacity .15s;flex-shrink:0}
+.kb-aab{width:24px;height:24px;border-radius:6px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;background:transparent;padding:0}
+.kb-aab.e{color:var(--g700)}.kb-aab.e:hover{background:rgba(13,92,52,.12)}
+.kb-aab.d{color:#DC2626}.kb-aab.d:hover{background:rgba(220,38,38,.1)}
+.kb-spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--g500);border-radius:50%;animation:kbSpin .75s linear infinite;margin:0 auto}
+@keyframes kbSpin{to{transform:rotate(360deg)}}
+.kb-detail-hdr{background:linear-gradient(135deg,#071E0F 0%,#0D5C34 100%);border-radius:18px;padding:22px 26px;margin-bottom:18px;position:relative;overflow:hidden}
+.kb-detail-hdr::after{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.05) 1px,transparent 1px);background-size:20px 20px}
+.kb-detail-htitle{font-family:'Plus Jakarta Sans',sans-serif;font-size:21px;font-weight:900;color:#FFFFFF;margin:0 0 10px;position:relative;z-index:1}
+.kb-detail-meta{display:flex;gap:7px;flex-wrap:wrap;align-items:center;position:relative;z-index:1}
+.kb-detail-body{background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:24px;position:relative}
+.kb-detail-body::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--g800),var(--g500),#4DC878);border-radius:18px 18px 0 0}
+.kb-detail-acts{display:flex;gap:8px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.kb-btn{padding:7px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;font-family:'Inter',sans-serif;border:1.5px solid}
+.kb-btn-edit{background:rgba(13,92,52,.07);border-color:var(--g400);color:var(--g800)}
+.kb-btn-edit:hover{background:var(--g800);color:#FFFFFF;border-color:var(--g800)}
+.kb-btn-del{background:rgba(220,38,38,.05);border-color:rgba(220,38,38,.28);color:#DC2626}
+.kb-btn-del:hover{background:#DC2626;color:#FFFFFF;border-color:#DC2626}
+.kb-btn-save{background:linear-gradient(135deg,var(--g800),var(--g600));border-color:transparent;color:#FFFFFF;box-shadow:0 2px 10px rgba(13,92,52,.28)}
+.kb-btn-save:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(13,92,52,.38)}
+.kb-btn-cancel{background:var(--card);border-color:var(--border);color:var(--sub)}
+.kb-btn-cancel:hover{border-color:var(--g400);color:var(--body)}
+.kb-prose{font-size:13.5px;line-height:1.75;color:var(--body)}
+.kb-prose h1,.kb-prose h2,.kb-prose h3{font-family:'Plus Jakarta Sans',sans-serif;color:var(--title);margin:20px 0 8px}
+.kb-prose h1{font-size:19px;font-weight:800}
+.kb-prose h2{font-size:16px;font-weight:700;padding-bottom:6px;border-bottom:2px solid var(--g50)}
+.kb-prose h3{font-size:14.5px;font-weight:700;color:var(--g800)}
+.kb-prose p{margin-bottom:11px}
+.kb-prose p:empty{min-height:1em}
+.kb-prose ul,.kb-prose ol{padding-left:20px;margin-bottom:11px}
+.kb-prose li{margin-bottom:5px}
+.kb-prose strong{color:var(--title);font-weight:700}
+.kb-prose em{color:var(--g700)}
+.kb-prose img{max-width:100%;border-radius:11px;margin:12px 0;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.kb-prose table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;border-radius:10px;overflow:hidden}
+.kb-prose th{background:var(--g800);color:#fff;padding:9px 13px;text-align:left;font-weight:600}
+.kb-prose td{padding:8px 13px;border-bottom:1px solid var(--border)}
+.kb-prose tr:nth-child(even) td{background:var(--g50)}
+.kb-prose blockquote{border-left:3px solid var(--g500);padding:10px 14px;background:var(--g50);border-radius:0 10px 10px 0;margin:12px 0;color:var(--sub);font-style:italic}
+.kb-prose code{background:var(--g50);border:1px solid var(--border);border-radius:4px;padding:2px 5px;font-size:12px;font-family:monospace;color:var(--g800)}
+.kb-badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid transparent}
+.kb-badge-team{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.92)}
+.kb-badge-cat{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.15);color:rgba(134,239,172,.9)}
+.kb-badge-date{color:rgba(255,255,255,.55);font-size:11px}
+.kb-editor-bar{display:flex;gap:3px;flex-wrap:wrap;padding:7px 10px;background:var(--g50);border:1.5px solid var(--border);border-bottom:none;border-radius:12px 12px 0 0}
+.kb-eb{width:28px;height:26px;border-radius:5px;border:1px solid transparent;background:transparent;cursor:pointer;font-size:12px;font-weight:700;color:var(--sub);display:inline-flex;align-items:center;justify-content:center;transition:all .12s;font-family:serif}
+.kb-eb:hover{background:var(--card);border-color:var(--border);color:var(--g800)}
+.kb-eb.on{background:var(--g800);color:#FFFFFF}
+.kb-eb-sep{width:1px;height:18px;background:var(--border);margin:4px 2px;flex-shrink:0}
+.kb-editor{min-height:200px;padding:14px;border:1.5px solid var(--border);border-radius:0 0 12px 12px;outline:none;font-size:13.5px;line-height:1.7;color:var(--body);background:var(--card);overflow-y:auto;transition:border-color .15s,box-shadow .15s}
+.kb-editor:focus{border-color:var(--g500);box-shadow:0 0 0 3px rgba(23,174,85,.1)}
+.kb-editor.drag-over{border-color:var(--g500);box-shadow:0 0 0 3px rgba(23,174,85,.18);background:rgba(23,174,85,.04)}
+.kb-editor p{margin-bottom:8px}.kb-editor p:empty{min-height:1.4em}
+.kb-modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .2s}
+.kb-modal-ov.open{opacity:1;pointer-events:all}
+.kb-modal{background:var(--card);border:1.5px solid var(--border);border-radius:20px;width:100%;max-width:680px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);transform:translateY(18px);transition:transform .25s}
+.kb-modal-ov.open .kb-modal{transform:translateY(0)}
+.kb-modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--g50),var(--card));border-radius:20px 20px 0 0;flex-shrink:0}
+.kb-modal-ttl{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;color:var(--title)}
+.kb-modal-x{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:17px;color:var(--sub);display:flex;align-items:center;justify-content:center;transition:all .15s}
+.kb-modal-x:hover{background:#DC2626;border-color:#DC2626;color:#FFFFFF}
+.kb-modal-body{padding:18px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:14px}
+.kb-modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0}
+.kb-lbl{font-size:11.5px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.kb-inp{width:100%;padding:9px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--card);font-size:13px;color:var(--body);font-family:'Inter',sans-serif;transition:border-color .2s;box-sizing:border-box}
+.kb-inp:focus{outline:none;border-color:var(--g500);box-shadow:0 0 0 3px rgba(23,174,85,.1)}
+.kb-sel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:30px}
+.kb-img-prev{max-width:100%;max-height:150px;border-radius:10px;border:1.5px solid var(--border);object-fit:contain;display:block;margin-top:8px}
+.kb-upload-z{border:2px dashed var(--border);border-radius:12px;padding:18px;text-align:center;cursor:pointer;transition:all .2s;color:var(--sub);font-size:13px}
+.kb-upload-z:hover{border-color:var(--g500);color:var(--g800);background:var(--g50)}
+.kb-confirm-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .2s}
+.kb-confirm-ov.open{opacity:1;pointer-events:all}
+.kb-confirm-box{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:24px;max-width:360px;width:100%;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.25)}
+.kb-confirm-icon{font-size:32px;margin-bottom:10px}
+.kb-confirm-ttl{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;color:var(--title);margin-bottom:6px}
+.kb-confirm-sub{font-size:13px;color:var(--sub);margin-bottom:18px;line-height:1.5}
+.kb-confirm-acts{display:flex;gap:8px;justify-content:center}
 .kb-new-btn{display:none;align-items:center;gap:7px;padding:8px 16px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--g800),var(--g600));color:#FFFFFF;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;box-shadow:0 2px 12px rgba(13,92,52,.3)}
 .kb-new-btn.visible{display:inline-flex}
 .kb-new-btn:hover{transform:translateY(-2px);box-shadow:0 5px 20px rgba(13,92,52,.4)}
@@ -588,14 +701,6 @@ canvas.med-chart{max-height:250px}
         </span>
         <span>Base de Conhecimento</span>
       </button>
-      <button class="cx-nav-item" id="nav-lgpd" onclick="show('lgpd',this)">
-        <span class="nav-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
-        </span>
-        <span>LGPD</span>
-      </button>
       <button class="cx-nav-item" id="nav-medicos" onclick="show('medicos',this)">
         <span class="nav-icon">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -675,55 +780,146 @@ canvas.med-chart{max-height:250px}
     <!-- ── SECTION 3: Base de Conhecimento ── -->
     <section class="cx-section cx-section--content" id="section-knowledge">
 
+      <!-- Loading -->
+      <div id="kb-loading" style="display:none;text-align:center;padding:60px 0">
+        <div class="kb-spinner"></div>
+        <p style="color:var(--sub);margin-top:14px;font-size:13px">Carregando base de conhecimento…</p>
+      </div>
+
       <!-- List view -->
       <div id="kb-list">
-        <div class="s-header">
-          <div>
-            <h1 class="s-title">Base de Conhecimento</h1>
-            <p class="s-sub">Consulte processos, scripts e orientações das equipes de CX da Appblis.</p>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <button class="kb-new-btn" id="kb-new-btn" onclick="openArticleModal(null)">+ Novo artigo</button>
-            <button class="edit-toggle-btn" id="kb-edit-toggle" onclick="toggleKbEdit()">✏️ Editar</button>
+        <!-- Hero -->
+        <div class="kb-hero">
+          <div class="kb-hero-row">
+            <div>
+              <div class="kb-hero-title">Base de Conhecimento</div>
+              <p class="kb-hero-sub">Processos, scripts e orientações das equipes Appblis</p>
+            </div>
+            <button class="kb-new-art-btn" onclick="_nxKbCreate()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Novo artigo
+            </button>
           </div>
         </div>
 
-        <div class="search-wrap">
-          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+        <!-- Search -->
+        <div class="kb-search-wrap">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
           </svg>
-          <input class="search-input" id="kbSearch" type="text" placeholder="Pesquisar artigos, processos, scripts…" oninput="filterArticles()">
+          <input class="kb-search-input" id="kbSearch" type="text" placeholder="Pesquisar artigos, processos, scripts…" oninput="_nxKbFilter()">
         </div>
 
-        <div class="pills" id="kbPills">
-          <button class="pill active" onclick="setCat('Todos',this)">Todos</button>
-          <button class="pill" onclick="setCat('Atendimento',this)">Atendimento</button>
-          <button class="pill" onclick="setCat('Clínico',this)">Clínico</button>
-          <button class="pill" onclick="setCat('Regulatório',this)">Regulatório</button>
-          <button class="pill" onclick="setCat('Importação',this)">Importação</button>
-          <button class="pill" onclick="setCat('LGPD',this)">LGPD</button>
-        </div>
+        <!-- Team tabs -->
+        <div class="kb-team-tabs" id="kbTeamTabs"></div>
 
-        <div class="article-grid" id="kbGrid"></div>
-        <div class="no-results" id="kbEmpty" style="display:none">
-          <p>Nenhum artigo encontrado</p>
-          <small>Tente outro termo ou categoria</small>
+        <!-- Category grid -->
+        <div class="kb-cat-grid" id="kbCatGrid"></div>
+        <div id="kbEmpty" style="display:none;text-align:center;padding:60px 24px;color:var(--sub)">
+          <p style="font-size:15px;font-weight:700">Nenhum artigo encontrado</p>
+          <small style="font-size:13px;color:#9CA3AF;margin-top:6px;display:block">Tente outro termo ou time</small>
         </div>
       </div>
 
       <!-- Detail view -->
-      <div class="detail-view" id="kb-detail">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div id="kb-detail" style="display:none;flex-direction:column;gap:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
           <div class="breadcrumb" id="kb-bc"></div>
-          <button class="back-btn" onclick="closeArticle()">← Voltar à lista</button>
+          <button class="back-btn" onclick="_nxKbBack()">← Voltar à lista</button>
         </div>
         <div id="kb-article-body"></div>
       </div>
 
+      <!-- Edit/Create Modal -->
+      <div class="kb-modal-ov" id="kbModalOv" onclick="_nxKbModalClose(event)">
+        <div class="kb-modal">
+          <div class="kb-modal-hdr">
+            <div class="kb-modal-ttl" id="kbModalTtl">Artigo</div>
+            <button class="kb-modal-x" onclick="_nxKbModalClose()">×</button>
+          </div>
+          <div class="kb-modal-body">
+            <input type="hidden" id="kbModalId">
+            <div>
+              <div class="kb-lbl">Time</div>
+              <select class="kb-inp kb-sel" id="kbModalTeam">
+                <option value="saude">Blis Saúde</option>
+                <option value="resolve">Blis Resolve</option>
+                <option value="medicos">Médicos</option>
+                <option value="logistica">Logística</option>
+              </select>
+            </div>
+            <div>
+              <div class="kb-lbl">Categoria</div>
+              <input class="kb-inp" id="kbModalCat" type="text" placeholder="Ex: Processos, Scripts de Atendimento…">
+            </div>
+            <div>
+              <div class="kb-lbl">Título</div>
+              <input class="kb-inp" id="kbModalTitle" type="text" placeholder="Nome do artigo">
+            </div>
+            <div>
+              <div class="kb-lbl">Imagem (opcional)</div>
+              <div id="kbImgPreviewWrap" style="display:none;margin-bottom:8px">
+                <img id="kbImgPreview" class="kb-img-prev" src="" alt="">
+                <button onclick="_nxKbClearImage()" style="margin-top:6px;font-size:12px;color:#DC2626;background:none;border:none;cursor:pointer">Remover imagem</button>
+              </div>
+              <div class="kb-upload-z" onclick="document.getElementById('kbImgInput').click()">
+                📷 Clique para selecionar imagem
+              </div>
+              <input type="file" id="kbImgInput" accept="image/*" style="display:none" onchange="_nxKbImageSelected(this)">
+            </div>
+            <div>
+              <div class="kb-lbl">Conteúdo</div>
+              <div class="kb-editor-bar">
+                <button class="kb-eb" onclick="_kbExec('bold')" title="Negrito"><b>B</b></button>
+                <button class="kb-eb" onclick="_kbExec('italic')" title="Itálico"><i>I</i></button>
+                <button class="kb-eb" onclick="_kbExec('underline')" title="Sublinhado"><u>U</u></button>
+                <div class="kb-eb-sep"></div>
+                <button class="kb-eb" onclick="_kbExec('formatBlock','h2')" title="Título 2" style="font-size:11px;width:32px">H2</button>
+                <button class="kb-eb" onclick="_kbExec('formatBlock','h3')" title="Título 3" style="font-size:11px;width:32px">H3</button>
+                <div class="kb-eb-sep"></div>
+                <button class="kb-eb" onclick="_kbExec('insertUnorderedList')" title="Lista" style="font-size:15px">•</button>
+                <button class="kb-eb" onclick="_kbExec('insertOrderedList')" title="Lista numerada" style="font-size:13px">1.</button>
+                <div class="kb-eb-sep"></div>
+                <label class="kb-eb" title="Inserir imagem / PDF / arquivo" style="font-size:14px;cursor:pointer;display:flex;align-items:center;gap:3px">
+                  📎 <span style="font-size:11px">Arquivo</span>
+                  <input type="file" id="kbEditorImgInput" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" multiple style="display:none" onchange="_nxKbEditorImgSelected(this)">
+                </label>
+                <div class="kb-eb-sep"></div>
+                <button class="kb-eb" onclick="_kbExec('removeFormat')" title="Limpar formatação" style="font-size:10px">T×</button>
+              </div>
+              <div class="kb-editor kb-prose" id="kbEditor" contenteditable="true"
+                ondragover="_nxKbEditorDragOver(event)"
+                ondragleave="_nxKbEditorDragLeave(event)"
+                ondrop="_nxKbEditorDrop(event)"></div>
+            </div>
+          </div>
+          <div class="kb-modal-foot">
+            <button class="kb-btn kb-btn-cancel" onclick="_nxKbModalClose()">Cancelar</button>
+            <button class="kb-btn kb-btn-save" id="kbSaveBtn" onclick="_nxKbSave()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
+              Salvar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirm delete -->
+      <div class="kb-confirm-ov" id="kbConfirmOv">
+        <div class="kb-confirm-box">
+          <div class="kb-confirm-icon">🗑️</div>
+          <div class="kb-confirm-ttl">Excluir artigo?</div>
+          <div class="kb-confirm-sub" id="kbConfirmMsg">Esta ação não pode ser desfeita.</div>
+          <div class="kb-confirm-acts">
+            <button class="kb-btn kb-btn-cancel" onclick="_nxKbConfirmClose()">Cancelar</button>
+            <button class="kb-btn kb-btn-del" id="kbConfirmOk">Excluir</button>
+          </div>
+        </div>
+      </div>
+
     </section>
 
-    <!-- ── SECTION 3: LGPD ── -->
-    <section class="cx-section cx-section--content" id="section-lgpd">
+    <!-- LGPD section removed -->
+    <section class="cx-section cx-section--content" id="section-lgpd" style="display:none!important">
 
       <div class="s-header">
         <div>
@@ -1368,7 +1564,7 @@ canvas.med-chart{max-height:250px}
 <script src="services/metabase.js"></script>
 <script>
 /* ── Articles data ─────────────────────────────── */
-const ARTICLES = [
+let ARTICLES = [
   {id:1,cat:'Atendimento',title:'Script de Boas-Vindas ao Paciente',date:'10 mai 2026',
    summary:'Roteiro completo para receber novos pacientes com empatia, clareza e eficiência no primeiro contato com o time CX.',
    body:`<h3>Objetivo</h3><p>Garantir que cada novo paciente se sinta acolhido e bem informado desde o primeiro contato com a Appblis.</p>
@@ -1469,6 +1665,8 @@ const ARTICLES = [
 ];
 
 /* ── State ─────────────────────────────────────── */
+const _KB_FALLBACK = ARTICLES.slice(); // artigos locais usados enquanto Supabase não carrega
+let _kbLoaded = false;
 let activeCat = 'Todos';
 
 /* ── Navigation ────────────────────────────────── */
@@ -1482,6 +1680,7 @@ function show(name, btn) {
   if (name === 'medicos') initMedicos();
   if (name === 'analise') initAnalise();
   if (name === 'time') _renderAgentesPerformance();
+  if (name === 'knowledge') _nxKbInit();
   if (window.innerWidth <= 768) closeSidebar();
 }
 
@@ -1495,75 +1694,378 @@ function closeSidebar() {
   document.getElementById('overlay').classList.remove('active');
 }
 
-/* ── Knowledge Base ────────────────────────────── */
-function setCat(cat, btn) {
-  activeCat = cat;
-  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  filterArticles();
-}
+/* ── Knowledge Base (nexus-hub) ─────────────────── */
+const _NX_URL  = 'https://auzpgpwvmdhyrkyhzuuf.supabase.co/rest/v1';
+const _NX_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF1enBncHd2bWRoeXJreWh6dXVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzNDg1MjEsImV4cCI6MjA4ODkyNDUyMX0.SnC4-yuuVggD8kNxjzabcroZm4wEYOLsm9k8PBmIfcU';
+const _NX_STORAGE = 'https://auzpgpwvmdhyrkyhzuuf.supabase.co/storage/v1';
 
-function filterArticles() {
-  const q = (document.getElementById('kbSearch').value || '').toLowerCase();
-  const filtered = ARTICLES.filter(a => {
-    const matchCat = activeCat === 'Todos' || a.cat === activeCat;
-    const matchQ = !q || a.title.toLowerCase().includes(q) || a.summary.toLowerCase().includes(q) || a.cat.toLowerCase().includes(q);
-    return matchCat && matchQ;
-  });
-  const grid = document.getElementById('kbGrid');
-  const empty = document.getElementById('kbEmpty');
-  if (!filtered.length) {
-    grid.innerHTML = '';
-    empty.style.display = 'block';
-  } else {
-    empty.style.display = 'none';
-    grid.innerHTML = filtered.map(a => `
-      <div class="article-card-wrap">
-        <div class="article-card" onclick="_kbEditMode ? null : openArticle(${a.id})" style="${_kbEditMode ? 'cursor:default' : ''}">
-          <div class="article-meta">
-            <span class="badge">${a.cat}</span>
-            <span class="article-date">${a.date}</span>
-          </div>
-          <div class="article-title">${a.title}</div>
-          <div class="article-summary">${a.summary}</div>
-          <div class="read-more">Ler artigo completo →</div>
-        </div>
-        <div class="article-card-actions">
-          <button class="ac-btn ac-btn-edit" onclick="openArticleModal(${a.id})">✏️ Editar</button>
-          <button class="ac-btn ac-btn-del" onclick="deleteArticle(${a.id})">🗑 Excluir</button>
-        </div>
-      </div>`).join('');
+const _NX_TEAMS = [
+  {id:'saude',    label:'Blis Saúde'},
+  {id:'resolve',  label:'Blis Resolve'},
+  {id:'medicos',  label:'Médicos'},
+  {id:'logistica',label:'Logística'},
+];
+
+const _NX_ICONS = {
+  'Processos':'📋','Scripts de Atendimento':'📄','Playbooks Operacionais':'📖',
+  'Dúvidas Frequentes':'❓','Políticas e Orientações':'🛡️','Tratativas':'🔧',
+  'Informativos':'📢','Orientações Médicas':'🩺','Materiais de Apoio':'📚',
+  'Perguntas Frequentes':'❓','Fluxos de Contacto':'🔄','Transportes':'🚚',
+  'Excepções':'⚠️','Processos com os medicos':'🩺',
+};
+
+const _nxKb = { loaded:false, loading:false, articles:[], team:'saude', search:'' };
+let _nxKbPendingImgUrl = null;
+let _nxKbPendingImgFile = null;
+
+async function _nxKbInit() {
+  if (_nxKb.loaded || _nxKb.loading) return;
+  _nxKb.loading = true;
+  document.getElementById('kb-loading').style.display = 'block';
+  document.getElementById('kb-list').style.display    = 'none';
+  try {
+    const url = `${_NX_URL}/kb_articles?select=id,title,content,team_id,category,image_url,updated_at&order=team_id,category,title`;
+    const res = await fetch(url, {headers:{'apikey':_NX_KEY,'Authorization':'Bearer '+_NX_KEY}});
+    _nxKb.articles = await res.json();
+    _nxKb.loaded   = true;
+    _nxKbRenderTeams();
+    _nxKbRenderCats();
+  } catch(e) { console.warn('[KB]',e); }
+  finally {
+    _nxKb.loading = false;
+    document.getElementById('kb-loading').style.display = 'none';
+    document.getElementById('kb-list').style.display    = '';
   }
 }
 
-function openArticle(id) {
-  const a = ARTICLES.find(x => x.id === id);
-  if (!a) return;
-  document.getElementById('kb-bc').innerHTML =
-    `<button onclick="closeArticle()">Base de Conhecimento</button>
-     <span class="breadcrumb-sep">/</span>
-     <span>${a.cat}</span>
-     <span class="breadcrumb-sep">/</span>
-     <span style="color:var(--body)">${a.title}</span>`;
-  document.getElementById('kb-article-body').innerHTML = `
-    <div style="margin-bottom:20px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <span class="badge">${a.cat}</span>
-        <span style="font-size:12px;color:#6B7280">${a.date}</span>
+async function _nxKbRefresh() {
+  _nxKb.loaded = false;
+  _nxKb.articles = [];
+  await _nxKbInit();
+}
+
+function _nxKbSelectTeam(tid) {
+  _nxKb.team = tid;
+  document.querySelectorAll('.kb-team-tab').forEach(t => t.classList.toggle('active', t.dataset.team===tid));
+  _nxKbRenderCats();
+}
+
+function _nxKbRenderTeams() {
+  const el = document.getElementById('kbTeamTabs'); if (!el) return;
+  const tot = {};
+  _nxKb.articles.forEach(a => { tot[a.team_id]=(tot[a.team_id]||0)+1; });
+  el.innerHTML = _NX_TEAMS.map(t =>
+    `<button class="kb-team-tab${t.id===_nxKb.team?' active':''}" data-team="${t.id}" onclick="_nxKbSelectTeam('${t.id}')">
+       ${t.label}<span class="kb-tab-ct">${tot[t.id]||0}</span>
+     </button>`).join('');
+}
+
+function _nxKbFilter() {
+  _nxKb.search = (document.getElementById('kbSearch').value||'').toLowerCase();
+  _nxKbRenderCats();
+}
+
+function _nxKbRenderCats() {
+  const grid=document.getElementById('kbCatGrid'), empty=document.getElementById('kbEmpty');
+  if (!grid) return;
+  const q   = _nxKb.search;
+  const arts = _nxKb.articles.filter(a => a.team_id===_nxKb.team);
+  const map  = new Map();
+  for (const a of arts) {
+    const ok = !q || a.title.toLowerCase().includes(q) || a.category.toLowerCase().includes(q);
+    if (!ok) continue;
+    if (!map.has(a.category)) map.set(a.category,[]);
+    map.get(a.category).push(a);
+  }
+  if (!map.size) { grid.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display = 'none';
+  const editIco = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+  const delIco  = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+  const fileIco = `<svg class="kb-art-file" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
+  grid.innerHTML = [...map.entries()].map(([cat,list]) => `
+    <div class="kb-cat-card">
+      <div class="kb-cat-hdr">
+        <div class="kb-cat-icon">${_NX_ICONS[cat]||'📄'}</div>
+        <div class="kb-cat-meta">
+          <div class="kb-cat-name">${cat}</div>
+          <div class="kb-cat-count">${list.length} artigo${list.length!==1?'s':''}</div>
+        </div>
+        <button class="kb-cat-add" title="Novo artigo nesta categoria" onclick="_nxKbCreate('${_nxKb.team}','${cat.replace(/'/g,"\\'")}')">+</button>
       </div>
-      <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;color:var(--title);margin-bottom:8px">${a.title}</h1>
-      <p style="font-size:14px;color:var(--subtitle)">${a.summary}</p>
+      <div class="kb-art-list">
+        ${list.map(a=>`
+          <div class="kb-art-item">
+            ${fileIco}
+            <span class="kb-art-name" onclick="_nxKbOpen('${a.id}')">${a.title}</span>
+            <div class="kb-art-acts">
+              <button class="kb-aab e" onclick="_nxKbEdit('${a.id}')" title="Editar">${editIco}</button>
+              <button class="kb-aab d" onclick="_nxKbDelete('${a.id}')" title="Excluir">${delIco}</button>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function _nxKbOpen(id) {
+  const a = _nxKb.articles.find(x=>x.id===id); if (!a) return;
+  const team   = _NX_TEAMS.find(t=>t.id===a.team_id);
+  const tLabel = team?team.label:a.team_id;
+  const date   = a.updated_at ? new Date(a.updated_at).toLocaleDateString('pt-BR') : '—';
+  document.getElementById('kb-bc').innerHTML =
+    `<button onclick="_nxKbBack()">Base de Conhecimento</button>
+     <span class="breadcrumb-sep">/</span><span>${tLabel}</span>
+     <span class="breadcrumb-sep">/</span><span>${a.category}</span>
+     <span class="breadcrumb-sep">/</span><span style="color:var(--body)">${a.title}</span>`;
+  const editIco = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+  const delIco  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+  document.getElementById('kb-article-body').innerHTML = `
+    <div class="kb-detail-hdr">
+      <div class="kb-detail-htitle">${a.title}</div>
+      <div class="kb-detail-meta">
+        <span class="kb-badge kb-badge-team">${tLabel}</span>
+        <span class="kb-badge kb-badge-cat">${a.category}</span>
+        <span class="kb-badge-date">Atualizado em ${date}</span>
+      </div>
     </div>
-    <div class="article-content">${a.body}</div>`;
-  document.getElementById('kb-list').style.display = 'none';
-  document.getElementById('kb-detail').classList.add('active');
+    <div class="kb-detail-body">
+      <div class="kb-detail-acts">
+        <button class="kb-btn kb-btn-edit" onclick="_nxKbEdit('${a.id}')">${editIco} Editar</button>
+        <button class="kb-btn kb-btn-del"  onclick="_nxKbDelete('${a.id}')">${delIco} Excluir</button>
+      </div>
+      ${a.image_url?`<img src="${a.image_url}" alt="" style="max-width:100%;border-radius:12px;margin-bottom:20px;box-shadow:0 2px 14px rgba(0,0,0,.1)">` : ''}
+      <div class="kb-prose">${a.content||'<p style="color:var(--sub)">Sem conteúdo ainda.</p>'}</div>
+    </div>`;
+  document.getElementById('kb-list').style.display   = 'none';
+  document.getElementById('kb-detail').style.display = 'flex';
   document.getElementById('section-knowledge').scrollTop = 0;
 }
 
-function closeArticle() {
-  document.getElementById('kb-detail').classList.remove('active');
-  document.getElementById('kb-list').style.display = '';
+function _nxKbBack() {
+  document.getElementById('kb-detail').style.display = 'none';
+  document.getElementById('kb-list').style.display   = '';
 }
+
+/* ── Modal (create / edit) ── */
+function _nxKbCreate(teamId, category) {
+  document.getElementById('kbModalId').value    = '';
+  document.getElementById('kbModalTtl').textContent = 'Novo Artigo';
+  document.getElementById('kbModalTeam').value  = teamId || _nxKb.team;
+  document.getElementById('kbModalCat').value   = category || '';
+  document.getElementById('kbModalTitle').value = '';
+  document.getElementById('kbEditor').innerHTML = '';
+  document.getElementById('kbSaveBtn').textContent = 'Criar Artigo';
+  _nxKbClearImage();
+  _nxKbPendingImgUrl  = null;
+  _nxKbPendingImgFile = null;
+  document.getElementById('kbModalOv').classList.add('open');
+}
+
+function _nxKbEdit(id) {
+  const a = _nxKb.articles.find(x=>x.id===id); if (!a) return;
+  document.getElementById('kbModalId').value    = a.id;
+  document.getElementById('kbModalTtl').textContent = 'Editar Artigo';
+  document.getElementById('kbModalTeam').value  = a.team_id;
+  document.getElementById('kbModalCat').value   = a.category;
+  document.getElementById('kbModalTitle').value = a.title;
+  document.getElementById('kbEditor').innerHTML = a.content || '';
+  document.getElementById('kbSaveBtn').textContent = 'Salvar';
+  _nxKbPendingImgUrl  = a.image_url || null;
+  _nxKbPendingImgFile = null;
+  if (a.image_url) {
+    document.getElementById('kbImgPreview').src = a.image_url;
+    document.getElementById('kbImgPreviewWrap').style.display = 'block';
+  } else { _nxKbClearImage(); }
+  document.getElementById('kbModalOv').classList.add('open');
+}
+
+function _nxKbModalClose(e) {
+  if (e && e.target !== document.getElementById('kbModalOv')) return;
+  document.getElementById('kbModalOv').classList.remove('open');
+}
+
+function _nxKbClearImage() {
+  _nxKbPendingImgUrl  = null;
+  _nxKbPendingImgFile = null;
+  document.getElementById('kbImgPreviewWrap').style.display = 'none';
+  document.getElementById('kbImgPreview').src = '';
+  document.getElementById('kbImgInput').value = '';
+}
+
+function _nxKbImageSelected(inp) {
+  const file = inp.files[0]; if (!file) return;
+  _nxKbPendingImgFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('kbImgPreview').src = e.target.result;
+    document.getElementById('kbImgPreviewWrap').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function _nxKbEditorDragOver(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (!e.dataTransfer.types.includes('Files')) return;
+  e.dataTransfer.dropEffect = 'copy';
+  e.currentTarget.classList.add('drag-over');
+}
+function _nxKbEditorDragLeave(e) {
+  e.preventDefault();
+  if (e.relatedTarget && e.currentTarget.contains(e.relatedTarget)) return;
+  e.currentTarget.classList.remove('drag-over');
+}
+async function _nxKbEditorDrop(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const editor = e.currentTarget;
+  editor.classList.remove('drag-over');
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  if (!files.length) return;
+  editor.focus();
+  for (const file of files) {
+    const placeholder = document.createElement('em');
+    placeholder.textContent = `⏳ enviando ${file.name}…`;
+    placeholder.style.cssText = 'color:var(--g500);display:block;padding:4px 0';
+    editor.appendChild(placeholder);
+    try {
+      const url = await _nxKbUploadImage(file);
+      const img = document.createElement('img');
+      img.src = url;
+      img.style.cssText = 'max-width:100%;display:block;margin:8px 0;border-radius:6px';
+      placeholder.replaceWith(img);
+    } catch(err) {
+      placeholder.textContent = `❌ falha: ${err.message}`;
+    }
+  }
+}
+
+async function _nxKbUploadImage(file) {
+  const ext  = file.name.split('.').pop();
+  const name = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+  const res  = await fetch(`${_NX_STORAGE}/object/kb-images/${name}`, {
+    method:'POST', body:file,
+    headers:{'apikey':_NX_KEY,'Authorization':'Bearer '+_NX_KEY,'Content-Type':file.type}
+  });
+  if (!res.ok) throw new Error('Upload falhou: '+res.status);
+  return `${_NX_STORAGE}/object/public/kb-images/${name}`;
+}
+
+async function _nxKbSave() {
+  const btn   = document.getElementById('kbSaveBtn');
+  const id    = document.getElementById('kbModalId').value;
+  const team  = document.getElementById('kbModalTeam').value;
+  const cat   = document.getElementById('kbModalCat').value.trim();
+  const title = document.getElementById('kbModalTitle').value.trim();
+  const html  = document.getElementById('kbEditor').innerHTML;
+  if (!title) { alert('O título é obrigatório.'); return; }
+  if (!cat)   { alert('A categoria é obrigatória.'); return; }
+  btn.textContent = 'Salvando…'; btn.disabled = true;
+  try {
+    let imageUrl = _nxKbPendingImgUrl;
+    if (_nxKbPendingImgFile) imageUrl = await _nxKbUploadImage(_nxKbPendingImgFile);
+    const body = {title, content:html, team_id:team, category:cat, image_url:imageUrl||null};
+    const url  = id ? `${_NX_URL}/kb_articles?id=eq.${id}` : `${_NX_URL}/kb_articles`;
+    const res  = await fetch(url, {
+      method: id?'PATCH':'POST',
+      headers:{'apikey':_NX_KEY,'Authorization':'Bearer '+_NX_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error('HTTP '+res.status);
+    document.getElementById('kbModalOv').classList.remove('open');
+    // Update local cache
+    const saved = (await res.json())[0] || {...body, id:id||'', updated_at:new Date().toISOString()};
+    if (id) {
+      const idx = _nxKb.articles.findIndex(x=>x.id===id);
+      if (idx>=0) _nxKb.articles[idx] = saved;
+    } else {
+      _nxKb.articles.push(saved);
+    }
+    _nxKbRenderTeams();
+    _nxKbRenderCats();
+  } catch(e) { alert('Erro ao salvar: '+e.message); }
+  finally { btn.textContent = id?'Salvar':'Criar Artigo'; btn.disabled=false; }
+}
+
+/* ── Delete ── */
+function _nxKbDelete(id) {
+  const a = _nxKb.articles.find(x=>x.id===id); if (!a) return;
+  document.getElementById('kbConfirmMsg').textContent = `"${a.title}" será permanentemente removido.`;
+  const ov = document.getElementById('kbConfirmOv');
+  ov.classList.add('open');
+  document.getElementById('kbConfirmOk').onclick = async () => {
+    ov.classList.remove('open');
+    const res = await fetch(`${_NX_URL}/kb_articles?id=eq.${id}`, {
+      method:'DELETE',
+      headers:{'apikey':_NX_KEY,'Authorization':'Bearer '+_NX_KEY}
+    });
+    if (res.ok) {
+      _nxKb.articles = _nxKb.articles.filter(x=>x.id!==id);
+      _nxKbRenderTeams(); _nxKbRenderCats();
+      if (document.getElementById('kb-detail').style.display!=='none') _nxKbBack();
+    } else { alert('Erro ao excluir.'); }
+  };
+}
+
+function _nxKbConfirmClose() {
+  document.getElementById('kbConfirmOv').classList.remove('open');
+}
+
+/* ── Editor toolbar ── */
+function _kbExec(cmd, arg) {
+  document.getElementById('kbEditor').focus();
+  document.execCommand(cmd, false, arg||null);
+}
+
+async function _nxKbEditorImgSelected(inp) {
+  const editor = document.getElementById('kbEditor');
+  const files = Array.from(inp.files);
+  inp.value = '';
+  if (!files.length) return;
+  for (const file of files) {
+    const placeholder = document.createElement('div');
+    placeholder.textContent = `⏳ enviando ${file.name}…`;
+    placeholder.style.cssText = 'color:var(--g500);font-style:italic;padding:4px 0';
+    editor.appendChild(placeholder);
+    editor.scrollTop = editor.scrollHeight;
+    try {
+      const url = await _nxKbUploadFile(file);
+      if (file.type.startsWith('image/')) {
+        const img = document.createElement('img');
+        img.src = url;
+        img.style.cssText = 'max-width:100%;display:block;margin:8px 0;border-radius:6px';
+        placeholder.replaceWith(img);
+      } else {
+        const icon = file.type === 'application/pdf' ? '📄' : '📎';
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.textContent = `${icon} ${file.name}`;
+        link.style.cssText = 'display:inline-block;padding:6px 12px;background:var(--g50);border:1.5px solid var(--border);border-radius:8px;color:var(--g800);text-decoration:none;font-size:13px;margin:4px 0';
+        placeholder.replaceWith(link);
+      }
+    } catch(err) {
+      placeholder.textContent = `❌ falha ao enviar ${file.name}: ${err.message}`;
+    }
+  }
+}
+
+async function _nxKbUploadFile(file) {
+  const ext  = file.name.split('.').pop();
+  const name = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+  const res  = await fetch(`${_NX_STORAGE}/object/kb-images/${name}`, {
+    method: 'POST', body: file,
+    headers: { 'apikey': _NX_KEY, 'Authorization': 'Bearer ' + _NX_KEY, 'Content-Type': file.type || 'application/octet-stream' }
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(()=>'');
+    throw new Error(`HTTP ${res.status}: ${txt.slice(0,120)}`);
+  }
+  return `${_NX_STORAGE}/object/public/kb-images/${name}`;
+}
+
+function filterArticles() { _nxKbFilter(); }
+function closeArticle()   { _nxKbBack(); }
 
 /* ── Dash Médicos ──────────────────────────────── */
 const _med = {

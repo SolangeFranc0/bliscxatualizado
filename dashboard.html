@@ -446,17 +446,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
   <div>
     <div class="slabel">Volume de Atendimento</div>
-    <div class="grid g21">
-      <div class="cc">
-        <div class="ct">Tickets por Mes e Time</div>
-        <div class="cs2">Volume total criado no periodo, agrupado por time</div>
-        <div id="ch-mensal" style="height:300px"></div>
-      </div>
-      <div class="cc">
-        <div class="ct">Participacao por Time</div>
-        <div class="cs2">Distribuicao percentual do periodo selecionado</div>
-        <div id="ch-pie" style="height:300px"></div>
-      </div>
+    <div class="cc">
+      <div class="ct">Tickets por Mes e Time</div>
+      <div class="cs2">Volume total criado no periodo, agrupado por time</div>
+      <div id="ch-mensal" style="height:300px"></div>
     </div>
   </div>
 
@@ -475,18 +468,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   </div>
 
   <div>
-    <div class="slabel">Status e Canais</div>
-    <div class="grid g2">
-      <div class="cc">
-        <div class="ct">Status dos Tickets — 2026</div>
-        <div class="cs2">Dados agregados do periodo completo · closed = fechamento automatico apos 30 dias resolvido</div>
-        <div id="ch-status" style="height:260px"></div>
-      </div>
-      <div class="cc">
-        <div class="ct">Canal de Origem por Time</div>
-        <div class="cs2">Dados agregados do periodo completo · WhatsApp dominante em todos os grupos</div>
-        <div id="ch-canal" style="height:260px"></div>
-      </div>
+    <div class="slabel">Canal de Atendimento</div>
+    <div class="cc">
+      <div class="ct">Canal de Origem por Time</div>
+      <div class="cs2">Dados agregados do periodo completo · WhatsApp dominante em todos os grupos</div>
+      <div id="ch-canal" style="height:260px"></div>
     </div>
   </div>
 
@@ -610,21 +596,6 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
     </div>
   </div>
 
-  <div>
-    <div class="slabel">CSAT — Tendencia e Comparativo</div>
-    <div class="grid g2">
-      <div class="cc">
-        <div class="ct">Evolucao da Taxa CSAT</div>
-        <div class="cs2">Percentual mensal por time · meta de referencia: 90%</div>
-        <div id="ch-trend-csat" style="height:280px"></div>
-      </div>
-      <div class="cc">
-        <div class="ct">Volume de Avaliacoes Negativas</div>
-        <div class="cs2">Detratores por time ao longo dos meses</div>
-        <div id="ch-trend-bad" style="height:280px"></div>
-      </div>
-    </div>
-  </div>
 
 </div>
 
@@ -667,7 +638,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 <script>
 // ═══════════════════════════════════════════════════
-// DATA — Zendesk API 11/05/2026
+// DATA — Atualizado 18/06/2026
 // ═══════════════════════════════════════════════════
 const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho"];
 const MSHORT = ["Jan","Fev","Mar","Abr","Mai","Jun"];
@@ -1183,16 +1154,6 @@ function renderTrends(){
   // Motivos
   const ttm=(D.motivos||[]).map((m,i)=>({name:m.nome,type:"scatter",mode:"lines+markers+text",x:lbs,y:m.monthly,text:m.monthly.map(v=>v>0?fmtN(v):""),textposition:"top center",textfont:{size:10,color:COLORS_M[i]},line:{color:COLORS_M[i],width:2,shape:"spline"},marker:{size:6,color:COLORS_M[i]}}));
   Plotly.newPlot("ch-trend-mot",ttm,{...BL,showlegend:true,legend:{...BL.legend,orientation:"v",x:1.01,y:1},margin:{t:28,b:50,l:55,r:165}},CFG);
-  // CSAT %
-  const ttc=["ia","saude","resolve"].map(t=>{
-    const yv=MONTHS.map((_,i)=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;});
-    return{name:t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve",type:"scatter",mode:"lines+markers+text",x:lbs,y:yv,text:yv.map(v=>v!=null?v+"%":""),textposition:"top center",textfont:{size:11,color:COL[t]},line:{color:COL[t],width:3,shape:"spline"},marker:{size:9,color:COL[t]}};
-  });
-  ttc.push({name:"Meta 90%",type:"scatter",mode:"lines",x:lbs,y:lbs.map(()=>90),line:{color:"rgba(255,255,255,0.15)",width:2,dash:"dash"}});
-  Plotly.newPlot("ch-trend-csat",ttc,{...BL,yaxis:{...BL.yaxis,range:[0,105],ticksuffix:"%"},showlegend:true,margin:{...BL.margin,t:28}},CFG);
-  // Avaliações negativas
-  const ttb=["ia","saude","resolve"].map(t=>({name:t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve",type:"bar",x:lbs,y:D.csat[t].bad,text:D.csat[t].bad.map(v=>v>0?fmtN(v):""),textposition:"outside",textfont:{size:11,color:COL[t]},marker:{color:COL[t]+"99",line:{color:COL[t],width:1}}}));
-  Plotly.newPlot("ch-trend-bad",ttb,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,t:28}},CFG);
   renderTrendTable();
 }
 
@@ -1339,7 +1300,7 @@ function renderTempos(){
 function renderAll(){
   const tab=document.querySelector(".tc.on")?.id||"tab-geral";
   if(tab==="tab-geral"){
-    renderKPIs();renderMensal();renderPie();renderSemanas();renderTeamCards();renderStatus();renderCanal();
+    renderKPIs();renderMensal();renderSemanas();renderTeamCards();renderCanal();
   } else if(tab==="tab-csat"){
     renderGauges();renderCSATCharts();renderCSATAudit();renderOffenders();renderComments();
   } else if(tab==="tab-motivos"){
@@ -1467,7 +1428,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   syncSetOK(lastSync||"17/06/2026 10:21");
 });
 window.addEventListener("resize",()=>{
-  ["ch-mensal","ch-pie","ch-semanas","ch-status","ch-canal","ch-csat-vol","ch-csat-pct","ch-mot-col","ch-time-col","ch-trend-vol","ch-trend-mot","ch-trend-csat","ch-trend-bad","ch-tma-semana","ch-tmr-semana","ch-tempos-col"].forEach(id=>{try{Plotly.Plots.resize(id)}catch(_){}});
+  ["ch-mensal","ch-semanas","ch-canal","ch-csat-vol","ch-csat-pct","ch-mot-col","ch-time-col","ch-trend-vol","ch-trend-mot","ch-tma-semana","ch-tmr-semana","ch-tempos-col"].forEach(id=>{try{Plotly.Plots.resize(id)}catch(_){}});
   document.querySelectorAll("[id^='mini-']").forEach(el=>{try{Plotly.Plots.resize(el.id)}catch(_){}});
 });
 </script>
