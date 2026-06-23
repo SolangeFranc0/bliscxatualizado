@@ -443,6 +443,16 @@ def run():
 
     df_csat = build_csat(ratings, df_tickets)
 
+    # Deduplica: keep only latest rating per ticket (Zendesk counts latest per ticket)
+    if "avaliado_em" in df_csat.columns:
+        df_csat["avaliado_em"] = pd.to_datetime(df_csat["avaliado_em"], utc=True, errors="coerce")
+        before = len(df_csat)
+        df_csat = (df_csat.sort_values("avaliado_em", ascending=False)
+                           .drop_duplicates("ticket_id", keep="first")
+                           .reset_index(drop=True))
+        if before != len(df_csat):
+            log.info(f"CSAT dedup: {before - len(df_csat)} duplicatas removidas ({before} → {len(df_csat)})")
+
     # Merge métricas para updater calcular TMA/TMR/TMP
     df_full = df_tickets.merge(df_metrics, on="ticket_id", how="left")
 

@@ -530,18 +530,59 @@ def build_tempos(df_t: pd.DataFrame) -> dict:
         },
     }
 
+
+def build_resolucoes_dia(df_t: pd.DataFrame) -> dict:
+    """Conta tickets resolvidos/fechados por dia para cada time (resolve, saude, ia)."""
+    col_dt = "atualizado_em"
+    if col_dt not in df_t.columns:
+        return {}
+
+    df = df_t[df_t["status"].isin(["solved", "closed"])].copy()
+    df["_dt"] = pd.to_datetime(df[col_dt], utc=True, errors="coerce")
+    df = df.dropna(subset=["_dt"])
+    df["_dt"] = df["_dt"].dt.tz_convert(BRT)
+    df["_dia"] = df["_dt"].dt.strftime("%Y-%m-%d")
+    df["_team"] = df.apply(_team, axis=1)
+
+    result = {}
+    for team in ("resolve", "saude", "ia"):
+        sub = df[df["_team"] == team].groupby("_dia").size()
+        result[team] = {k: int(v) for k, v in sub.items()}
+
+    return result
+
+
+def build_criados_dia(df_t: pd.DataFrame) -> dict:
+    """Conta tickets criados por dia para cada time (resolve, saude, ia)."""
+    col_dt = "criado_em_brt" if "criado_em_brt" in df_t.columns else "criado_em"
+    df = df_t.copy()
+    df["_dt"] = pd.to_datetime(df[col_dt], utc=True, errors="coerce")
+    df = df.dropna(subset=["_dt"])
+    df["_dt"] = df["_dt"].dt.tz_convert(BRT)
+    df["_dia"] = df["_dt"].dt.strftime("%Y-%m-%d")
+    df["_team"] = df.apply(_team, axis=1)
+
+    result = {}
+    for team in ("resolve", "saude", "ia"):
+        sub = df[df["_team"] == team].groupby("_dia").size()
+        result[team] = {k: int(v) for k, v in sub.items()}
+
+    return result
+
 # ── Serialização JS ───────────────────────────────────────────────────────────
 
 def _js(obj) -> str:
     return json.dumps(obj, ensure_ascii=False, separators=(",",":"))
 
 def build_data_js(tickets, status, status_monthly, channels, channels_monthly, semanas, csat, tempos,
-                  motivos_data, sub_data, perfis_data, n2_data) -> str:
+                  motivos_data, sub_data, perfis_data, n2_data, resolucoes_dia=None, criados_dia=None) -> str:
     now = datetime.now(BRT).strftime("%d/%m/%Y %H:%M")
     tempos_js  = f"  tempos:{_js(tempos)},"  if tempos      else "  // tempos: nao disponivel"
     perfis_js  = f"  perfis:{_js(perfis_data)}," if perfis_data else "  perfis:{},"
     motivos_js = f"  motivos:{_js(motivos_data)}," if motivos_data else "  motivos:[],"
     sub_js     = f"  sub:{_js(sub_data)},"    if sub_data    else "  sub:{},"
+    resol_js   = f"  resolucoes_dia:{_js(resolucoes_dia)}," if resolucoes_dia else "  resolucoes_dia:{},"
+    criados_js = f"  criados_dia:{_js(criados_dia)}," if criados_dia else "  criados_dia:{},"
     return f"""  // Gerado por updater.py em {now} — fonte: Zendesk API
   // tickets: {{{', '.join(f'{t}={sum(v)}' for t,v in tickets.items())}}}
   tickets:{_js(tickets)},
@@ -555,7 +596,9 @@ def build_data_js(tickets, status, status_monthly, channels, channels_monthly, s
 {tempos_js}
 {perfis_js}
 {motivos_js}
-{sub_js}"""
+{sub_js}
+{resol_js}
+{criados_js}"""
 
 # ── Injeção no HTML ───────────────────────────────────────────────────────────
 
@@ -993,6 +1036,18 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
 
         df_csat = _ext.build_csat(ratings, df_tickets)
 
+        # Deduplica CSAT: quando cliente muda avaliação surgem múltiplos IDs para
+        # o mesmo ticket. O Zendesk conta apenas o mais recente por ticket.
+        if "avaliado_em" in df_csat.columns:
+            df_csat["avaliado_em"] = pd.to_datetime(df_csat["avaliado_em"], utc=True, errors="coerce")
+            before = len(df_csat)
+            df_csat = (df_csat.sort_values("avaliado_em", ascending=False)
+                               .drop_duplicates("ticket_id", keep="first")
+                               .reset_index(drop=True))
+            removed = before - len(df_csat)
+            if removed:
+                log.info(f"CSAT dedup: {removed} avaliações duplicadas removidas ({before} → {len(df_csat)})")
+
         # Merge métricas
         df_full = df_tickets.merge(df_metrics, on="ticket_id", how="left")
 
@@ -1031,6 +1086,8 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
     motivos_data      = build_motivos_data(df_full)
     sub_data          = build_sub_data(df_full, tag_names)
     perfis_data       = build_perfis_data(df_full)
+    resolucoes_dia    = build_resolucoes_dia(df_full)
+    criados_dia       = build_criados_dia(df_full)
 
     log.info("Blocos construídos.")
     for t in ("ia","saude","resolve"):
@@ -1052,7 +1109,8 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
         ts = now_brt.strftime("%d/%m/%Y %H:%M")
         html = DASHBOARD.read_text(encoding="utf-8")
         data_js = build_data_js(tickets_data, status, status_monthly, channels, channels_monthly,
-                                 semanas, csat, tempos, motivos_data, sub_data, perfis_data, n2_data)
+                                 semanas, csat, tempos, motivos_data, sub_data, perfis_data, n2_data,
+                                 resolucoes_dia, criados_dia)
         html = inject_into_html(html, data_js)
         html = update_sync_ts(html, ts)
 
@@ -1128,6 +1186,9 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
         log.info("Supabase Zendesk: sync concluído.")
     except Exception as e:
         log.warning(f"Supabase Zendesk sync falhou (não crítico): {e}")
+
+    # 12. Sync volume diário (criados + resolvidos) → cx_volume_diario
+    sync_volume_diario(criados_dia, resolucoes_dia)
 
     log.info("=== collect_and_build: concluído ===")
     return True, issues
@@ -1646,6 +1707,39 @@ def sync_saude_recompra() -> bool:
     except Exception as e:
         import traceback
         log.error(f"sync_saude_recompra falhou: {e}\n{traceback.format_exc()}")
+        return False
+
+
+def sync_volume_diario(criados_dia: dict, resolucoes_dia: dict) -> bool:
+    """Upserta volumes diários (criados + resolvidos) por time em cx_volume_diario."""
+    log.info("=== sync_volume_diario: início ===")
+    try:
+        import db_loader_metabase as _dbl
+        sb = _dbl.get_client()
+        now_ts = datetime.now(BRT).isoformat()
+
+        # Une todas as datas de todos os times
+        records = []
+        all_teams = set(list(criados_dia.keys()) + list(resolucoes_dia.keys()))
+        for team in all_teams:
+            all_dates = set(list(criados_dia.get(team, {}).keys()) +
+                            list(resolucoes_dia.get(team, {}).keys()))
+            for data in all_dates:
+                records.append({
+                    "data":          data,
+                    "time":          team,
+                    "criados":       criados_dia.get(team, {}).get(data, 0),
+                    "resolvidos":    resolucoes_dia.get(team, {}).get(data, 0),
+                    "atualizado_em": now_ts,
+                })
+
+        n = _dbl.upsert_batch(sb, "cx_volume_diario", records, "data,time")
+        log.info(f"cx_volume_diario → {n} registros upsertados")
+        log.info("=== sync_volume_diario: concluído ===")
+        return True
+    except Exception as e:
+        import traceback
+        log.error(f"sync_volume_diario falhou: {e}\n{traceback.format_exc()}")
         return False
 
 
