@@ -1923,11 +1923,7 @@ def run():
     sync_agent_performance()
     inject_agentes_performance_inline()
     inject_tma_semanal_inline()
-    ftp_ok = upload_ftp()
-
     status_str = "OK" if not issues else f"OK_COM_AVISOS({len(issues)})"
-    if not ftp_ok:
-        status_str += "_FTP_FALHOU"
     _append_log(status_str, ts, issues)
     log.info(f"=== Concluido: {ts} — {status_str} ===")
 

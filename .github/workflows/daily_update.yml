@@ -5,6 +5,9 @@ on:
     - cron: '0 14 * * *'  # 11h BRT (UTC-3) todos os dias
   workflow_dispatch:        # permite rodar manualmente pelo painel do GitHub
 
+permissions:
+  contents: write
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -23,18 +26,25 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Criar pasta output
-        run: mkdir -p output
+        run: mkdir -p output data
 
-      - name: Pipeline completo (Zendesk + Metabase + Supabase + FTP)
+      - name: Pipeline completo (Zendesk + Metabase + Supabase)
         env:
           ZENDESK_EMAIL:        ${{ secrets.ZENDESK_EMAIL }}
           ZENDESK_TOKEN:        ${{ secrets.ZENDESK_TOKEN }}
-          FTP_HOST:             ${{ secrets.FTP_HOST }}
-          FTP_USER:             ${{ secrets.FTP_USER }}
-          FTP_PASS:             ${{ secrets.FTP_PASS }}
           METABASE_URL:         ${{ secrets.METABASE_URL }}
           METABASE_EMAIL:       ${{ secrets.METABASE_EMAIL }}
           METABASE_PASSWORD:    ${{ secrets.METABASE_PASSWORD }}
           SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: python3 updater.py
+
+      - name: Publicar no GitHub Pages
+        run: |
+          cp cx-portal.html index.html
+          cp output/metabase_data.js data/metabase_data.js
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dashboard.html index.html cx-portal.html data/metabase_data.js services/metabase.js
+          git diff --staged --quiet || git commit -m "data: atualização automática $(date -u '+%d/%m/%Y %H:%M BRT')"
+          git push
