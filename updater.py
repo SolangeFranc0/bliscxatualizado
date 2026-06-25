@@ -1540,7 +1540,7 @@ def sync_metabase(save_js: bool = True) -> bool:
             _sb = _dbl.get_client()
             mb = result  # dict em memória, sem I/O
 
-            _has445 = bool(mb.get("pedidosProtocolo"))
+            _has445 = bool(mb.get("pedidosProtocolo")) or bool(mb.get("protocoloMensal"))
 
             _dbl._run(_dbl.load_clientes_resumo,            _sb, mb)
             _dbl._run(_dbl.load_safra_analise,              _sb, mb)
