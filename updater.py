@@ -62,7 +62,7 @@ MB_CARD_IDS = {
     "tempoAtual":           503,
     "clientesUnicos":       462,
     "recompraProtocolo":    264,
-    "pedidosProtocolo":     445,
+    # card 445 (pedidosProtocolo) buscado separadamente com timeout maior
     "consultasProtocolo":    41,
     "recompraMoM":          110,
     "cohortPedidos":        201,
@@ -1506,7 +1506,7 @@ def sync_metabase(save_js: bool = True) -> bool:
             data_p  = json.dumps(body_p).encode()
             hdrs_p  = {"Content-Type": "application/json", "X-Metabase-Session": token}
             req_p   = urllib.request.Request(url_445, data=data_p, headers=hdrs_p, method="POST")
-            with urllib.request.urlopen(req_p, timeout=90) as r_p:
+            with urllib.request.urlopen(req_p, timeout=180) as r_p:
                 resp_p = json.loads(r_p.read())
             rows_p = resp_p.get("data", {}).get("rows", [])
             cur_rows = [[periodo_cur, r[0], r[1], r[2], r[3]] for r in rows_p if r and r[0]]
