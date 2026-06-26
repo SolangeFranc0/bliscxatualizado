@@ -24,6 +24,7 @@
   --ia:#818CF8;--ia-dk:#6366F1;--ia-gl:rgba(129,140,248,0.12);
   --saude:#34D399;--saude-dk:#10B981;--saude-gl:rgba(52,211,153,0.12);
   --res:#38BDF8;--res-dk:#0EA5E9;--res-gl:rgba(56,189,248,0.12);
+  --log:#F97316;--log-dk:#EA580C;--log-gl:rgba(249,115,22,0.12);
   --good:#34D399;--good-gl:rgba(52,211,153,0.18);
   --bad:#F43F5E;--bad-gl:rgba(244,63,94,0.18);
   --warn:#FBBF24;--warn-gl:rgba(251,191,36,0.18);
@@ -43,6 +44,7 @@
   --ia:#5B5FD9;--ia-dk:#4347C9;--ia-gl:rgba(91,95,217,0.1);
   --saude:#059669;--saude-dk:#047857;--saude-gl:rgba(5,150,105,0.1);
   --res:#0284C7;--res-dk:#0369A1;--res-gl:rgba(2,132,199,0.1);
+  --log:#EA580C;--log-dk:#C2410C;--log-gl:rgba(234,88,12,0.1);
   --good:#059669;--good-gl:rgba(5,150,105,0.12);
   --bad:#DC2626;--bad-gl:rgba(220,38,38,0.12);
   --warn:#D97706;--warn-gl:rgba(217,119,6,0.12);
@@ -155,6 +157,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .fb.on{background:var(--ia-dk);color:#fff;border-color:var(--ia-dk);font-weight:600;box-shadow:0 0 12px rgba(99,102,241,0.3)}
 .fb.on.gs{background:var(--saude-dk);border-color:var(--saude-dk);box-shadow:0 0 12px rgba(16,185,129,0.3)}
 .fb.on.gr{background:var(--res-dk);border-color:var(--res-dk);box-shadow:0 0 12px rgba(14,165,233,0.3)}
+.fb.on.gl{background:var(--log-dk);border-color:var(--log-dk);box-shadow:0 0 12px rgba(234,88,12,0.3)}
 .fb.pf{
   padding:5px 14px;border-radius:999px;
   border:1px solid var(--border-hi);
@@ -228,6 +231,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .kc.ci{--accent-gl:rgba(129,140,248,0.09)}.kc.ci::before{background:var(--ia);box-shadow:0 0 8px rgba(129,140,248,0.6)}
 .kc.cs{--accent-gl:rgba(52,211,153,0.07)}.kc.cs::before{background:var(--saude)}
 .kc.cr{--accent-gl:rgba(56,189,248,0.07)}.kc.cr::before{background:var(--res)}
+.kc.cl{--accent-gl:rgba(249,115,22,0.07)}.kc.cl::before{background:var(--log)}
 .kc.cb{--accent-gl:rgba(244,63,94,0.07)}.kc.cb::before{background:var(--bad)}
 .kl{font-size:11px;color:var(--text-sec);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
 .kv{font-size:34px;font-weight:800;line-height:1;letter-spacing:-1.5px;color:var(--text)}
@@ -279,6 +283,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .gcircle.gi{border-color:var(--ia);color:var(--ia);box-shadow:0 0 20px var(--ia-gl)}
 .gcircle.gs{border-color:var(--saude);color:var(--saude);box-shadow:0 0 20px var(--saude-gl)}
 .gcircle.gr{border-color:var(--res);color:var(--res);box-shadow:0 0 20px var(--res-gl)}
+.gcircle.gl{border-color:var(--log);color:var(--log);box-shadow:0 0 20px var(--log-gl)}
 .gcircle.gg{border-color:var(--good);color:var(--good);box-shadow:0 0 20px var(--good-gl)}
 .gsub{font-size:8.5px;font-weight:500;color:var(--text-dim);letter-spacing:0.5px;margin-top:2px}
 .glabel{font-size:12px;font-weight:700;color:var(--text)}
@@ -298,6 +303,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .ti{background:var(--ia-gl);color:var(--ia)}
 .ts{background:var(--saude-gl);color:var(--saude)}
 .tr{background:var(--res-gl);color:var(--res)}
+.tl{background:var(--log-gl);color:var(--log)}
 .to{background:rgba(255,255,255,0.05);color:var(--text-sec)}
 
 /* ── Word cloud ──────────────────────────────────────── */
@@ -453,6 +459,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
     <button class="fb" onclick="setTeam('ia',this)">Cloud Humans IA</button>
     <button class="fb gs" onclick="setTeam('saude',this)">Blis Saude</button>
     <button class="fb gr" onclick="setTeam('resolve',this)">Blis Resolve</button>
+    <button class="fb gl" onclick="setTeam('logistica',this)">Blis Logistica</button>
   </div>
 </div>
 
@@ -771,9 +778,10 @@ function initPerfilFilter() {
   });
 }
 
-const COL  = {ia:"#818CF8", saude:"#34D399", resolve:"#38BDF8"};
-const COLAG= {ia:"rgba(129,140,248,0.12)", saude:"rgba(52,211,153,0.12)", resolve:"rgba(56,189,248,0.12)"};
-const COLD = {ia:"#6366F1", saude:"#10B981", resolve:"#0EA5E9"};
+const COL  = {ia:"#818CF8", saude:"#34D399", resolve:"#38BDF8", logistica:"#F97316"};
+const COLAG= {ia:"rgba(129,140,248,0.12)", saude:"rgba(52,211,153,0.12)", resolve:"rgba(56,189,248,0.12)", logistica:"rgba(249,115,22,0.12)"};
+const COLD = {ia:"#6366F1", saude:"#10B981", resolve:"#0EA5E9", logistica:"#EA580C"};
+const TNOMES= {ia:"Cloud Humans IA", saude:"Blis Saude", resolve:"Blis Resolve", logistica:"Blis Logistica"};
 const CFG  = {responsive:true, displayModeBar:false};
 const BL   = {
   paper_bgcolor:"transparent", plot_bgcolor:"transparent",
@@ -785,7 +793,7 @@ const BL   = {
 };
 const COLORS_M = ["#818CF8","#38BDF8","#34D399","#FBBF24","#F43F5E","#A78BFA","#22D3EE","#84CC16","#FB923C"];
 
-function activeTeams(){return S.team==="all"?["ia","saude","resolve"]:[S.team]}
+function activeTeams(){return S.team==="all"?["ia","saude","resolve","logistica"]:[S.team]}
 function activeMesIndices(){return S.mes===-1?[0,1,2,3,4,5]:[S.mes]}
 function ticketsFor(team){
   if(S.semana!==-1) return D.semanas[team][S.semana]||0;
@@ -823,10 +831,10 @@ function buildWsel(){
 function renderKPIs(){
   const teams=activeTeams();
   const isSemana=S.semana!==-1;
-  let total=0,ia=0,saude=0,resolve=0,solved=0,open_=0;
+  let total=0,ia=0,saude=0,resolve=0,logistica=0,solved=0,open_=0;
   teams.forEach(t=>{
     const tv=ticketsFor(t);
-    total+=tv; if(t==="ia")ia=tv; if(t==="saude")saude=tv; if(t==="resolve")resolve=tv;
+    total+=tv; if(t==="ia")ia=tv; if(t==="saude")saude=tv; if(t==="resolve")resolve=tv; if(t==="logistica")logistica=tv;
     solved+=statusFor(t,"closed")+statusFor(t,"solved");
     open_+=statusFor(t,"open")+statusFor(t,"pending")+statusFor(t,"new_");
   });
@@ -846,24 +854,25 @@ function renderKPIs(){
     <div class="kc cw"><div class="kl">Em Andamento</div><div class="kv">${fmtN(open_)}</div><div class="ks">abertos · pendentes · novos</div></div>
     <div class="kc ci"><div class="kl">Cloud Humans IA</div><div class="kv">${fmtN(ia)}</div><div class="ks"><span class="badge bp">${total>0?(ia/total*100).toFixed(1):0}%</span> ativo desde mar/26</div></div>
     <div class="kc cs"><div class="kl">Blis Saude</div><div class="kv">${fmtN(saude)}</div><div class="ks"><span class="badge bg">${total>0?(saude/total*100).toFixed(1):0}%</span></div></div>
-    <div class="kc cr"><div class="kl">Blis Resolve</div><div class="kv">${fmtN(resolve)}</div><div class="ks"><span class="badge bl">${total>0?(resolve/total*100).toFixed(1):0}%</span></div></div>`;
+    <div class="kc cr"><div class="kl">Blis Resolve</div><div class="kv">${fmtN(resolve)}</div><div class="ks"><span class="badge bl">${total>0?(resolve/total*100).toFixed(1):0}%</span></div></div>
+    <div class="kc cl"><div class="kl">Blis Logistica</div><div class="kv">${fmtN(logistica)}</div><div class="ks"><span class="badge" style="background:var(--log-gl);color:var(--log)">${total>0?(logistica/total*100).toFixed(1):0}%</span></div></div>`;
 }
 
 function renderMensal(){
   const teams=activeTeams(); const mi=activeMesIndices(); const lbs=mi.map(i=>MONTHS[i]);
-  const traces=teams.map(t=>({name:t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve",type:"bar",x:lbs,y:mi.map(i=>D.tickets[t][i]||0),marker:{color:COL[t]+"BB",line:{color:COL[t],width:1}},text:mi.map(i=>fmtN(D.tickets[t][i]||0)),textposition:"outside",textfont:{size:10,color:COL[t]}}));
+  const traces=teams.map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:mi.map(i=>D.tickets[t][i]||0),marker:{color:COL[t]+"BB",line:{color:COL[t],width:1}},text:mi.map(i=>fmtN(D.tickets[t][i]||0)),textposition:"outside",textfont:{size:10,color:COL[t]}}));
   Plotly.newPlot("ch-mensal",traces,{...BL,barmode:"group",showlegend:true},CFG);
 }
 
 function renderPie(){
-  const teams=["ia","saude","resolve"]; const lbs=["Cloud Humans IA","Blis Saude","Blis Resolve"];
+  const teams=["ia","saude","resolve","logistica"]; const lbs=teams.map(t=>TNOMES[t]);
   const vals=teams.map(t=>ticketsFor(t));
-  Plotly.newPlot("ch-pie",[{type:"pie",labels:lbs,values:vals,marker:{colors:Object.values(COL)},textinfo:"percent+label",textfont:{size:11,color:"#B8C4D8"},hole:0.42,hovertemplate:"<b>%{label}</b><br>%{value:,}<br>%{percent}<extra></extra>"}],{...BL,showlegend:false,margin:{t:10,b:10,l:10,r:10}},CFG);
+  Plotly.newPlot("ch-pie",[{type:"pie",labels:lbs,values:vals,marker:{colors:teams.map(t=>COL[t])},textinfo:"percent+label",textfont:{size:11,color:"#B8C4D8"},hole:0.42,hovertemplate:"<b>%{label}</b><br>%{value:,}<br>%{percent}<extra></extra>"}],{...BL,showlegend:false,margin:{t:10,b:10,l:10,r:10}},CFG);
 }
 
 function renderSemanas(){
   const teams=activeTeams(); const si=semIndices(); const lbs=si.map(i=>D.semanas.datas[i]);
-  const traces=teams.map(t=>({name:t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve",type:"bar",x:lbs,y:si.map(i=>D.semanas[t][i]||0),marker:{color:COL[t]+"BB",line:{color:COL[t],width:1}}}));
+  const traces=teams.map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:si.map(i=>D.semanas[t][i]||0),marker:{color:COL[t]+"BB",line:{color:COL[t],width:1}}}));
   const tit=S.mes===-1?"Todos os Meses":MONTHS[S.mes];
   document.getElementById("sem-title").textContent=`Tickets por Semana — ${tit}`;
   Plotly.newPlot("ch-semanas",traces,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,b:55}},CFG);
@@ -874,7 +883,8 @@ function renderTeamCards(){
   const INFO={
     ia:{nome:"Cloud Humans IA",desc:"Atendimento autonomo · WhatsApp · desde 23/mar/26",cl:"ci"},
     saude:{nome:"Blis Saude",desc:"Esclarecimentos clinicos · maior volume",cl:"cs"},
-    resolve:{nome:"Blis Resolve",desc:"N1 · duvidas operacionais · grupo padrao",cl:"cr"}
+    resolve:{nome:"Blis Resolve",desc:"N1 · duvidas operacionais · grupo padrao",cl:"cr"},
+    logistica:{nome:"Blis Logistica",desc:"Logistica · entregas e rastreamento",cl:"cl"}
   };
   document.getElementById("team-cards").innerHTML=teams.map(t=>{
     const vol=ticketsFor(t);
@@ -905,7 +915,7 @@ function renderTeamCards(){
 }
 
 function renderStatus(){
-  const teams=activeTeams(); const lbs=teams.map(t=>t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve");
+  const teams=activeTeams(); const lbs=teams.map(t=>TNOMES[t]);
   const SLBLS=["Fechado","Resolvido","Aberto","Pendente","Novo"]; const SKEYS=["closed","solved","open","pending","new_"];
   const SCOLS=["#818CF8","#34D399","#FBBF24","#F43F5E","#7B8BA8"];
   const traces=SKEYS.map((k,i)=>({name:SLBLS[i],type:"bar",x:lbs,y:teams.map(t=>statusFor(t,k)||0),marker:{color:SCOLS[i]+"BB"},text:teams.map(t=>fmtN(statusFor(t,k)||0)),textposition:"outside",textfont:{size:10}}));
@@ -913,7 +923,7 @@ function renderStatus(){
 }
 
 function renderCanal(){
-  const teams=activeTeams(); const lbs=teams.map(t=>t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve");
+  const teams=activeTeams(); const lbs=teams.map(t=>TNOMES[t]);
   function chanFor(t,c){
     if(S.mes!==-1 && D.channels_monthly && D.channels_monthly[t])
       return activeMesIndices().reduce((a,i)=>a+(D.channels_monthly[t][i][c]||0),0);
@@ -937,8 +947,7 @@ function renderGauges(){
   teams.forEach(t=>{
     const g=sumArr(D.csat[t].good),b=sumArr(D.csat[t].bad);
     const p=(g+b)>0?((g/(g+b))*100).toFixed(1):"—";
-    const lbl=t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve";
-    html+=ghtml(p,lbl,`${g+b} avaliacoes`,`g${t[0]}`,g,b);
+    html+=ghtml(p,TNOMES[t],`${g+b} avaliacoes`,`g${t[0]}`,g,b);
   });
   document.getElementById("gauges").innerHTML=html;
 }
@@ -947,17 +956,18 @@ function renderCSATCharts(){
   const teams=activeTeams(); const mi=activeMesIndices(); const lbs=mi.map(i=>MONTHS[i]);
   const tvol=[];
   teams.forEach(t=>{
-    tvol.push({name:(t==="ia"?"IA":t==="saude"?"Saude":"Resolve")+" Positivo",type:"bar",x:lbs,y:mi.map(i=>D.csat[t].good[i]||0),marker:{color:COL[t]+"99",line:{color:COL[t],width:1}},legendgroup:t});
-    tvol.push({name:(t==="ia"?"IA":t==="saude"?"Saude":"Resolve")+" Negativo",type:"bar",x:lbs,y:mi.map(i=>D.csat[t].bad[i]||0),marker:{color:"rgba(244,63,94,0.4)",line:{color:"#F43F5E",width:1}},legendgroup:t,showlegend:false});
+    const tshort=t==="ia"?"IA":t==="saude"?"Saude":t==="resolve"?"Resolve":"Logistica";
+    tvol.push({name:tshort+" Positivo",type:"bar",x:lbs,y:mi.map(i=>D.csat[t].good[i]||0),marker:{color:COL[t]+"99",line:{color:COL[t],width:1}},legendgroup:t});
+    tvol.push({name:tshort+" Negativo",type:"bar",x:lbs,y:mi.map(i=>D.csat[t].bad[i]||0),marker:{color:"rgba(244,63,94,0.4)",line:{color:"#F43F5E",width:1}},legendgroup:t,showlegend:false});
   });
   Plotly.newPlot("ch-csat-vol",tvol,{...BL,barmode:"group",showlegend:true},CFG);
-  const tpct=teams.map(t=>({name:t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve",type:"scatter",mode:"lines+markers",x:lbs,y:mi.map(i=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;}),line:{color:COL[t],width:3},marker:{size:9,color:COL[t]}}));
+  const tpct=teams.map(t=>({name:TNOMES[t],type:"scatter",mode:"lines+markers",x:lbs,y:mi.map(i=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;}),line:{color:COL[t],width:3},marker:{size:9,color:COL[t]}}));
   tpct.push({name:"Meta 90%",type:"scatter",mode:"lines",x:lbs,y:lbs.map(()=>90),line:{color:"rgba(255,255,255,0.2)",width:2,dash:"dash"},showlegend:true});
   Plotly.newPlot("ch-csat-pct",tpct,{...BL,yaxis:{...BL.yaxis,range:[60,100],ticksuffix:"%"},showlegend:true},CFG);
 }
 
 function renderCSATAudit(){
-  const TNAMES={ia:"Cloud Humans IA",saude:"Blis Saude",resolve:"Blis Resolve"};
+  const TNAMES=TNOMES;
   const teams=activeTeams(); const mi=activeMesIndices();
   const thCols=mi.map(i=>`<th style="text-align:center;min-width:70px;padding:6px 8px">${MONTHS[i]}</th>`).join("");
   let tbody="";
@@ -1007,8 +1017,8 @@ function renderComments(){
   const bad=filter(COMMENTS.bad); const good=filter(COMMENTS.good);
   document.getElementById("cnt-bad").textContent=bad.length;
   document.getElementById("cnt-good").textContent=good.length;
-  const tmap={ia:"IA",saude:"Saude",resolve:"Resolve"};
-  const tcls={ia:"ti",saude:"ts",resolve:"tr"};
+  const tmap={ia:"IA",saude:"Saude",resolve:"Resolve",logistica:"Logistica"};
+  const tcls={ia:"ti",saude:"ts",resolve:"tr",logistica:"tl"};
   function card(c,cls){return`<div class="citem ${cls}"><div class="ctxt">${c.t}</div><div class="cmeta"><span class="ctag ${tcls[c.team]}">${tmap[c.team]}</span><span>${MSHORT[c.m]}</span></div></div>`;}
   document.getElementById("list-bad").innerHTML=bad.map(c=>card(c,"bd")).join("");
   document.getElementById("list-good").innerHTML=good.map(c=>card(c,"gd")).join("");
@@ -1040,16 +1050,17 @@ function renderMotivosList(){
   const rows=(D.motivos||[])
     .filter(m=>!perfilAllow||perfilAllow.has(m.id))
     .map(m=>{
-      let vtot,rVol,sVol,iVol;
+      let vtot,rVol,sVol,iVol,lVol;
       if(perfilCounts&&perfilCounts[m.id]){
         const pc=perfilCounts[m.id];
         rVol=Math.round((pc.resolve||0)*monthFactor(m.resolve));
         sVol=Math.round((pc.saude||0)*monthFactor(m.saude));
         iVol=Math.round((pc.ia||0)*monthFactor(m.ia));
-        vtot=teams.reduce((a,t)=>a+(t==="resolve"?rVol:t==="saude"?sVol:iVol),0);
+        lVol=Math.round((pc.logistica||0)*monthFactor(m.logistica||[]));
+        vtot=teams.reduce((a,t)=>a+(t==="resolve"?rVol:t==="saude"?sVol:t==="logistica"?lVol:iVol),0);
       } else {
         vtot=getMotVol(m,teams);
-        rVol=sumArr(m.resolve); sVol=sumArr(m.saude); iVol=sumArr(m.ia);
+        rVol=sumArr(m.resolve); sVol=sumArr(m.saude); iVol=sumArr(m.ia); lVol=sumArr(m.logistica||[]);
       }
       let momHtml="";
       if(S.mes>0){const d=delta(m.monthly,S.mes);if(d!=null){const isUp=+d>0;momHtml=`<span class="mdelta ${isUp?"delta-up":"delta-dn"}">${isUp?"▲":"▼"}${Math.abs(d)}%</span>`;}}
@@ -1111,8 +1122,7 @@ function renderMotivosColCharts(){
   },CFG);
 
   // Grafico 2: volume por time (colunas verticais)
-  const TNAMES={ia:"Cloud Humans IA", saude:"Blis Saude", resolve:"Blis Resolve"};
-  const xTime=activeT.map(t=>TNAMES[t]);
+  const xTime=activeT.map(t=>TNOMES[t]);
   const yTime=activeT.map(t=>visibleM.reduce((a,m)=>a+getTeamVol(m,t),0));
   const tCols=activeT.map(t=>COL[t]);
   Plotly.newPlot("ch-time-col",[{
@@ -1220,20 +1230,20 @@ function toggleSM(el){
 function renderTrends(){
   const lbs=MONTHS;
   // Volume por time
-  const ttv=["ia","saude","resolve"].map(t=>({name:t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve",type:"scatter",mode:"lines+markers+text",x:lbs,y:D.tickets[t],text:D.tickets[t].map(v=>v>0?fmtN(v):""),textposition:"top center",textfont:{size:11,color:COL[t]},line:{color:COL[t],width:3,shape:"spline"},marker:{size:9,color:COL[t]}}));
+  const ttv=["ia","saude","resolve","logistica"].map(t=>({name:TNOMES[t],type:"scatter",mode:"lines+markers+text",x:lbs,y:D.tickets[t],text:D.tickets[t].map(v=>v>0?fmtN(v):""),textposition:"top center",textfont:{size:11,color:COL[t]},line:{color:COL[t],width:3,shape:"spline"},marker:{size:9,color:COL[t]}}));
   Plotly.newPlot("ch-trend-vol",ttv,{...BL,showlegend:true,margin:{...BL.margin,t:28}},CFG);
   // Motivos
   const ttm=(D.motivos||[]).map((m,i)=>({name:m.nome,type:"scatter",mode:"lines+markers+text",x:lbs,y:m.monthly,text:m.monthly.map(v=>v>0?fmtN(v):""),textposition:"top center",textfont:{size:10,color:COLORS_M[i]},line:{color:COLORS_M[i],width:2,shape:"spline"},marker:{size:6,color:COLORS_M[i]}}));
   Plotly.newPlot("ch-trend-mot",ttm,{...BL,showlegend:true,legend:{...BL.legend,orientation:"v",x:1.01,y:1},margin:{t:28,b:50,l:55,r:165}},CFG);
   // CSAT %
-  const ttc=["ia","saude","resolve"].map(t=>{
+  const ttc=["ia","saude","resolve","logistica"].map(t=>{
     const yv=MONTHS.map((_,i)=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;});
-    return{name:t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve",type:"scatter",mode:"lines+markers+text",x:lbs,y:yv,text:yv.map(v=>v!=null?v+"%":""),textposition:"top center",textfont:{size:11,color:COL[t]},line:{color:COL[t],width:3,shape:"spline"},marker:{size:9,color:COL[t]}};
+    return{name:TNOMES[t],type:"scatter",mode:"lines+markers+text",x:lbs,y:yv,text:yv.map(v=>v!=null?v+"%":""),textposition:"top center",textfont:{size:11,color:COL[t]},line:{color:COL[t],width:3,shape:"spline"},marker:{size:9,color:COL[t]}};
   });
   ttc.push({name:"Meta 90%",type:"scatter",mode:"lines",x:lbs,y:lbs.map(()=>90),line:{color:"rgba(255,255,255,0.15)",width:2,dash:"dash"}});
   Plotly.newPlot("ch-trend-csat",ttc,{...BL,yaxis:{...BL.yaxis,range:[0,105],ticksuffix:"%"},showlegend:true,margin:{...BL.margin,t:28}},CFG);
   // Avaliações negativas
-  const ttb=["ia","saude","resolve"].map(t=>({name:t==="ia"?"Cloud Humans IA":t==="saude"?"Blis Saude":"Blis Resolve",type:"bar",x:lbs,y:D.csat[t].bad,text:D.csat[t].bad.map(v=>v>0?fmtN(v):""),textposition:"outside",textfont:{size:11,color:COL[t]},marker:{color:COL[t]+"99",line:{color:COL[t],width:1}}}));
+  const ttb=["ia","saude","resolve","logistica"].map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:D.csat[t].bad,text:D.csat[t].bad.map(v=>v>0?fmtN(v):""),textposition:"outside",textfont:{size:11,color:COL[t]},marker:{color:COL[t]+"99",line:{color:COL[t],width:1}}}));
   Plotly.newPlot("ch-trend-bad",ttb,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,t:28}},CFG);
   renderTrendTable();
 }
@@ -1388,9 +1398,10 @@ function renderResolucoesdia(){
   const MONTH_OF = d => { const m=parseInt(d.split("-")[1],10); return m-1; };
 
   const teamDefs = [
-    {key:"ia",     color:"#A78BFA", name:"Cloud Humans IA"},
-    {key:"saude",  color:"#34D399", name:"Blis Saúde"},
-    {key:"resolve",color:"#38BDF8", name:"Blis Resolve"},
+    {key:"ia",        color:"#A78BFA", name:"Cloud Humans IA"},
+    {key:"saude",     color:"#34D399", name:"Blis Saúde"},
+    {key:"resolve",   color:"#38BDF8", name:"Blis Resolve"},
+    {key:"logistica", color:"#F97316", name:"Blis Logistica"},
   ];
   const visTeams = team==="all" ? teamDefs : teamDefs.filter(t=>t.key===team);
 
@@ -1439,9 +1450,9 @@ function renderCriadosResolvidos(){
     return y+"-"+String(m).padStart(2,"0")+"-W"+String(wn).padStart(2,"0");
   };
 
-  const teamColors = {ia:"#A78BFA", saude:"#34D399", resolve:"#38BDF8"};
-  const teamNames  = {ia:"Cloud Humans IA", saude:"Blis Saúde", resolve:"Blis Resolve"};
-  const teamKeys   = team==="all" ? ["ia","saude","resolve"] : [team];
+  const teamColors = {ia:"#A78BFA", saude:"#34D399", resolve:"#38BDF8", logistica:"#F97316"};
+  const teamNames  = {ia:"Cloud Humans IA", saude:"Blis Saúde", resolve:"Blis Resolve", logistica:"Blis Logistica"};
+  const teamKeys   = team==="all" ? ["ia","saude","resolve","logistica"] : [team];
 
   const sumByDay = obj => {
     const out={};
@@ -1494,7 +1505,7 @@ function renderCriadosResolvidos(){
     const delta=avgR-avgC;
     const dColor=delta>=0?"#34D399":"#F43F5E";
 
-    const visTeams = team==="all" ? ["ia","saude","resolve"] : [team];
+    const visTeams = team==="all" ? ["ia","saude","resolve","logistica"] : [team];
     let html="";
     visTeams.forEach(t=>{
       const allDt=Array.from(new Set([...Object.keys(cd[t]||{}),...Object.keys(rd[t]||{})])).sort();
@@ -1504,7 +1515,7 @@ function renderCriadosResolvidos(){
       const wv=Object.values(ws), nw=wv.length||1;
       const ac=Math.round(wv.reduce((a,w)=>a+w.c,0)/nw);
       const ar=Math.round(wv.reduce((a,w)=>a+w.r,0)/nw);
-      const cls=t==="resolve"?"cr":t==="saude"?"cs":"ci";
+      const cls=t==="resolve"?"cr":t==="saude"?"cs":t==="logistica"?"cl":"ci";
       const col=teamColors[t];
       html+=`<div class="kc ${cls}"><div class="kl">${teamNames[t]}</div>`+
         `<div style="display:flex;gap:16px;align-items:baseline;margin-top:6px">`+
@@ -1567,10 +1578,11 @@ function setSemana(v){
   renderAll();
 }
 function setTeam(t,btn){
-  document.querySelectorAll(".fbar .fb").forEach(b=>{if(["Todos","Cloud Humans IA","Blis Saude","Blis Resolve"].includes(b.textContent.trim()))b.classList.remove("on","gs","gr");});
+  document.querySelectorAll(".fbar .fb").forEach(b=>{if(["Todos","Cloud Humans IA","Blis Saude","Blis Resolve","Blis Logistica"].includes(b.textContent.trim()))b.classList.remove("on","gs","gr","gl");});
   btn.classList.add("on");
   if(t==="saude") btn.classList.add("gs");
   if(t==="resolve") btn.classList.add("gr");
+  if(t==="logistica") btn.classList.add("gl");
   S.team=t; renderAll();
 }
 function showTab(id,el){

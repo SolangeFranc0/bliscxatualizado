@@ -171,12 +171,15 @@ def _team(row) -> str:
     v = row.get("atendido_por_ia")
     if v is True or str(v).lower() == "true":
         return "ia"
+    nome = str(row.get("nome_grupo", ""))
+    if "Logística" in nome or "Logistica" in nome:
+        return "logistica"
     return TEAM_OF_TIME.get(str(row.get("time","")), "resolve")
 
 # ── Construção dos blocos ─────────────────────────────────────────────────────
 
 def build_tickets(df: pd.DataFrame) -> dict:
-    out = {t: [0]*N_MONTHS for t in ("ia","saude","resolve")}
+    out = {t: [0]*N_MONTHS for t in ("ia","saude","resolve","logistica")}
     for _, r in df.iterrows():
         m = MONTH_IDX.get(str(r.get("ano_mes","")))
         if m is not None:
@@ -185,7 +188,7 @@ def build_tickets(df: pd.DataFrame) -> dict:
 
 def build_status(df: pd.DataFrame) -> dict:
     out = {t: {"closed":0,"solved":0,"open":0,"pending":0,"new_":0}
-           for t in ("ia","saude","resolve")}
+           for t in ("ia","saude","resolve","logistica")}
     smap = {"closed":"closed","solved":"solved","open":"open",
             "pending":"pending","new":"new_","hold":"open","deleted":"closed"}
     for _, r in df.iterrows():
@@ -201,7 +204,7 @@ def build_channels(df: pd.DataFrame) -> dict:
         "whatsapp":"WhatsApp","web":"Web/E-mail","email":"Web/E-mail",
         "native_messaging":"Native Msg","facebook":"Facebook",
     }
-    out = {"ia":{},"saude":{},"resolve":{}}
+    out = {"ia":{},"saude":{},"resolve":{},"logistica":{}}
     for _, r in df.iterrows():
         if MONTH_IDX.get(str(r.get("ano_mes",""))) is None:
             continue
@@ -216,7 +219,7 @@ def build_channels_monthly(df: pd.DataFrame) -> dict:
         "whatsapp":"WhatsApp","web":"Web/E-mail","email":"Web/E-mail",
         "native_messaging":"Native Msg","facebook":"Facebook",
     }
-    out = {t: [{} for _ in range(N_MONTHS)] for t in ("ia","saude","resolve")}
+    out = {t: [{} for _ in range(N_MONTHS)] for t in ("ia","saude","resolve","logistica")}
     for _, r in df.iterrows():
         m = MONTH_IDX.get(str(r.get("ano_mes","")))
         if m is None:
@@ -230,7 +233,7 @@ def build_channels_monthly(df: pd.DataFrame) -> dict:
 def build_semanas(df: pd.DataFrame) -> dict:
     """Agrupa tickets por semana ISO a partir de criado_em_brt."""
     col = "criado_em_brt" if "criado_em_brt" in df.columns else "criado_em"
-    teams = ("ia","saude","resolve")
+    teams = ("ia","saude","resolve","logistica")
 
     # Filtra apenas tickets com ano_mes válido — evita contar spillover BRT
     valid = df["ano_mes"].map(lambda x: str(x) in MONTH_IDX)
@@ -266,27 +269,30 @@ def build_semanas(df: pd.DataFrame) -> dict:
             weekly[t].append(int((sub["_team"] == t).sum()))
 
     return {
-        "labels": labels,
-        "datas":  datas,
-        "mesIdx": mes_idx,
-        "ia":     weekly["ia"],
-        "saude":  weekly["saude"],
-        "resolve":weekly["resolve"],
+        "labels":    labels,
+        "datas":     datas,
+        "mesIdx":    mes_idx,
+        "ia":        weekly["ia"],
+        "saude":     weekly["saude"],
+        "resolve":   weekly["resolve"],
+        "logistica": weekly["logistica"],
     }
 
 def build_csat(df_c: pd.DataFrame, df_t: pd.DataFrame) -> dict:
     out = {t: {"good":[0]*N_MONTHS,"bad":[0]*N_MONTHS}
-           for t in ("ia","saude","resolve")}
+           for t in ("ia","saude","resolve","logistica")}
     # Usa o campo `time` do CSAT como fonte primária (vem direto do group_id Zendesk).
     # Fallback para cross-referência com tabela_tickets para registros sem `time`.
     ia_ticket_ids: set = set()
+    logistica_ticket_ids: set = set()
     for _, r in df_t.iterrows():
         if pd.isna(r.get("ticket_id")):
             continue
-        is_ia = r.get("atendido_por_ia")
-        is_ia = is_ia is True or str(is_ia).lower() == "true"
-        if is_ia:
+        team = _team(r)
+        if team == "ia":
             ia_ticket_ids.add(str(r["ticket_id"]))
+        elif team == "logistica":
+            logistica_ticket_ids.add(str(r["ticket_id"]))
     for _, r in df_c.iterrows():
         score = str(r.get("score_raw",""))
         if score not in ("good","bad"):
@@ -301,6 +307,8 @@ def build_csat(df_c: pd.DataFrame, df_t: pd.DataFrame) -> dict:
             out["resolve"][score][m] += 1
         elif time_val == "IA" or "Cloud Humans" in time_val or time_val == "ia":
             out["ia"][score][m] += 1
+        elif str(r.get("ticket_id","")) in logistica_ticket_ids:
+            out["logistica"][score][m] += 1
         elif str(r.get("ticket_id","")) in ia_ticket_ids:
             # fallback: ticket marcado como IA mas sem group_id mapeado
             out["ia"][score][m] += 1
@@ -334,7 +342,7 @@ def build_status_monthly(df: pd.DataFrame) -> dict:
     smap = {"closed":"closed","solved":"solved","open":"open",
             "pending":"pending","new":"new_","hold":"open","deleted":"closed"}
     empty = lambda: {"closed":0,"solved":0,"open":0,"pending":0,"new_":0}
-    out = {t: [empty() for _ in range(N_MONTHS)] for t in ("ia","saude","resolve")}
+    out = {t: [empty() for _ in range(N_MONTHS)] for t in ("ia","saude","resolve","logistica")}
     for _, r in df.iterrows():
         m = MONTH_IDX.get(str(r.get("ano_mes","")))
         if m is None:
@@ -346,7 +354,7 @@ def build_status_monthly(df: pd.DataFrame) -> dict:
 
 def build_n2(df: pd.DataFrame) -> dict:
     """Computa escalamentos N2 por time e por mês (tag transferido_n2=True)."""
-    out = {t: [0]*N_MONTHS for t in ("ia","saude","resolve")}
+    out = {t: [0]*N_MONTHS for t in ("ia","saude","resolve","logistica")}
     for _, r in df.iterrows():
         m = MONTH_IDX.get(str(r.get("ano_mes","")))
         if m is None:
@@ -369,14 +377,15 @@ def build_motivos_data(df_t: pd.DataFrame) -> list:
     motivos = []
     for motivo_id, label in MOTIVO_LABELS.items():
         sub = df[df["motivo"] == motivo_id]
-        monthly = [0]*N_MONTHS; ia=[0]*N_MONTHS; saude=[0]*N_MONTHS; resolve=[0]*N_MONTHS
+        monthly = [0]*N_MONTHS; ia=[0]*N_MONTHS; saude=[0]*N_MONTHS; resolve=[0]*N_MONTHS; logistica=[0]*N_MONTHS
         for (team, m), grp in sub.groupby(["_team","_m"]):
             n = len(grp)
             monthly[m] += n
-            if team == "ia":      ia[m]      += n
-            elif team == "saude": saude[m]   += n
-            else:                 resolve[m] += n
-        motivos.append({"id":motivo_id,"nome":label,"monthly":monthly,"resolve":resolve,"saude":saude,"ia":ia})
+            if team == "ia":              ia[m]          += n
+            elif team == "saude":         saude[m]       += n
+            elif team == "logistica":     logistica[m]   += n
+            else:                         resolve[m]     += n
+        motivos.append({"id":motivo_id,"nome":label,"monthly":monthly,"resolve":resolve,"saude":saude,"ia":ia,"logistica":logistica})
     return motivos
 
 def build_sub_data(df_t: pd.DataFrame, tag_names: dict) -> dict:
@@ -416,7 +425,7 @@ def build_perfis_data(df_t: pd.DataFrame) -> dict:
     df["_team"] = df.apply(_team, axis=1)
 
     labels: list[str] = []; ids: list[str] = []
-    ia_c: list[int] = []; saude_c: list[int] = []; resolve_c: list[int] = []
+    ia_c: list[int] = []; saude_c: list[int] = []; resolve_c: list[int] = []; logistica_c: list[int] = []
     motivos_per_perfil: dict[str, list[str]] = {}
 
     counts_per_perfil: dict[str, dict] = {}
@@ -431,6 +440,7 @@ def build_perfis_data(df_t: pd.DataFrame) -> dict:
         ia_c.append(int(tc.get("ia", 0)))
         saude_c.append(int(tc.get("saude", 0)))
         resolve_c.append(int(tc.get("resolve", 0)))
+        logistica_c.append(int(tc.get("logistica", 0)))
         if "motivo" in sub.columns:
             vc = sub[sub["motivo"].notna()]["motivo"].value_counts()
             motivos_per_perfil[perfil_tag] = [str(m) for m in vc[vc > 0].index.tolist()]
@@ -442,17 +452,18 @@ def build_perfis_data(df_t: pd.DataFrame) -> dict:
                     continue
                 mtc = msub["_team"].value_counts()
                 counts[mot_id] = {
-                    "total": len(msub),
-                    "ia":      int(mtc.get("ia", 0)),
-                    "saude":   int(mtc.get("saude", 0)),
-                    "resolve": int(mtc.get("resolve", 0)),
+                    "total":     len(msub),
+                    "ia":        int(mtc.get("ia", 0)),
+                    "saude":     int(mtc.get("saude", 0)),
+                    "resolve":   int(mtc.get("resolve", 0)),
+                    "logistica": int(mtc.get("logistica", 0)),
                 }
             counts_per_perfil[perfil_tag] = counts
         else:
             motivos_per_perfil[perfil_tag] = []
 
     log.info(f"Perfis encontrados: {labels}")
-    return {"labels": labels, "ids": ids, "ia": ia_c, "saude": saude_c, "resolve": resolve_c,
+    return {"labels": labels, "ids": ids, "ia": ia_c, "saude": saude_c, "resolve": resolve_c, "logistica": logistica_c,
             "motivos": motivos_per_perfil, "counts": counts_per_perfil}
 
 
@@ -461,7 +472,7 @@ def build_perfis_data(df_t: pd.DataFrame) -> dict:
 def cross_check(tickets: dict, status: dict, channels: dict,
                 semanas: dict) -> list[str]:
     issues = []
-    for t in ("ia","saude","resolve"):
+    for t in ("ia","saude","resolve","logistica"):
         tt = sum(tickets[t])
         st = sum(status[t].values())
         ct = sum(channels[t].values())
@@ -545,7 +556,7 @@ def build_resolucoes_dia(df_t: pd.DataFrame) -> dict:
     df["_team"] = df.apply(_team, axis=1)
 
     result = {}
-    for team in ("resolve", "saude", "ia"):
+    for team in ("resolve", "saude", "ia", "logistica"):
         sub = df[df["_team"] == team].groupby("_dia").size()
         result[team] = {k: int(v) for k, v in sub.items()}
 
@@ -563,7 +574,7 @@ def build_criados_dia(df_t: pd.DataFrame) -> dict:
     df["_team"] = df.apply(_team, axis=1)
 
     result = {}
-    for team in ("resolve", "saude", "ia"):
+    for team in ("resolve", "saude", "ia", "logistica"):
         sub = df[df["_team"] == team].groupby("_dia").size()
         result[team] = {k: int(v) for k, v in sub.items()}
 
