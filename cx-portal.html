@@ -2136,6 +2136,8 @@ function filterArticles() { _nxKbFilter(); }
 function closeArticle()   { _nxKbBack(); }
 
 /* ── Dash Médicos ──────────────────────────────── */
+const CUPONS_CONSULTA = ['ATENDE200','ATENDE300','ATEND89','ENFE200','ATENDE160','ATENDE40'];
+
 const _med = {
   initialized: false,
   loading: false,
@@ -2427,10 +2429,12 @@ function _populateFilters() {
       '<option value="">Todos os meses</option>' + opts.join('');
   }
 
-  // Cupons — extraídos de conversaoCoupons
+  // Cupons — extraídos de conversaoCoupons (apenas os cupons autorizados)
   if (_med.raw.conversaoCoupons) {
     const rows = MetabaseService.toObjects(_med.raw.conversaoCoupons);
-    const cupons = [...new Set(rows.map(r => r.cupom).filter(Boolean))].sort();
+    const cupons = [...new Set(rows.map(r => r.cupom).filter(Boolean))]
+      .filter(c => CUPONS_CONSULTA.includes(c))
+      .sort();
     document.getElementById('filter-cupom').innerHTML =
       '<option value="">Todos os cupons</option>' +
       cupons.map(c => `<option value="${c}">${c}</option>`).join('');
@@ -2909,7 +2913,8 @@ function _renderCupons() {
 
   if (!_med.raw.conversaoCoupons) { tbody.innerHTML = '<tr><td colspan="7" style="padding:16px"><div class="skel" style="height:13px;width:80%"></div></td></tr>'; return; }
 
-  const allRows = MetabaseService.toObjects(_med.raw.conversaoCoupons);
+  const allRows = MetabaseService.toObjects(_med.raw.conversaoCoupons)
+    .filter(r => CUPONS_CONSULTA.includes(r.cupom));
   let rows = _med.cupom ? allRows.filter(r => r.cupom === _med.cupom) : allRows;
 
   // Badge de ganho total (soma de receita_primeiro_pedido das linhas visíveis)
