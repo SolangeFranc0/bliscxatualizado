@@ -30,9 +30,9 @@ import pandas as pd
 from config import (
     BASE_URL, ZENDESK_EMAIL, ZENDESK_TOKEN,
     START_DATE, END_DATE,
-    GRUPO_BLIS_SAUDE, GRUPO_BLIS_RESOLVE,
+    GRUPO_BLIS_SAUDE, GRUPO_BLIS_RESOLVE, GRUPO_BLIS_LOGISTICA,
     GRUPO_CLOUD_HUMANS_ID,
-    GRUPO_BLIS_SAUDE_ID, GRUPO_BLIS_RESOLVE_ID,
+    GRUPO_BLIS_SAUDE_ID, GRUPO_BLIS_RESOLVE_ID, GRUPO_BLIS_LOGISTICA_ID,
     N2_TAGS, FCR_TAGS,
     MESES_2026,
     CAMPO_MOTIVO_PAI, CAMPO_PERFIL, CAMPOS_SUBMOTIVO,
@@ -221,8 +221,9 @@ def build_tickets(tickets: list[dict], groups: list[dict]) -> pd.DataFrame:
 
     def time_label(group_id):
         nome = group_map.get(group_id, "")
-        if GRUPO_BLIS_SAUDE.lower()   in nome.lower(): return "Blis Saúde"
-        if GRUPO_BLIS_RESOLVE.lower() in nome.lower(): return "Blis Resolve"
+        if GRUPO_BLIS_SAUDE.lower()      in nome.lower(): return "Blis Saúde"
+        if GRUPO_BLIS_RESOLVE.lower()    in nome.lower(): return "Blis Resolve"
+        if GRUPO_BLIS_LOGISTICA.lower()  in nome.lower(): return "Blis Logística"
         return "Outros"
 
     rows = []
@@ -327,9 +328,10 @@ def build_csat(ratings: list[dict], df_tickets: pd.DataFrame) -> pd.DataFrame:
     score_num = {"good": 5, "bad": 1, "offered": None}
 
     def _time_from_group(gid):
-        if gid == GRUPO_BLIS_SAUDE_ID:   return "Blis Saúde"
-        if gid == GRUPO_BLIS_RESOLVE_ID:  return "Blis Resolve"
-        if gid == GRUPO_CLOUD_HUMANS_ID:  return "IA"
+        if gid == GRUPO_BLIS_SAUDE_ID:      return "Blis Saúde"
+        if gid == GRUPO_BLIS_RESOLVE_ID:    return "Blis Resolve"
+        if gid == GRUPO_CLOUD_HUMANS_ID:    return "IA"
+        if gid == GRUPO_BLIS_LOGISTICA_ID:  return "Blis Logística"
         return "Outros"
 
     rows = []

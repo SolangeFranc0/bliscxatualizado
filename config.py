@@ -20,19 +20,20 @@ MESES_2026 = {
 }
 
 # ── Grupos confirmados via API /api/v2/groups.json ─────────────────────────────
-GRUPO_CLOUD_HUMANS_ID = 50304023554451  # IA — Cloud Humans (ativo desde 27/03/2026)
-GRUPO_BLIS_SAUDE_ID   = 43771604769299  # Blis Saúde
-GRUPO_BLIS_RESOLVE_ID = 42056691282323  # Blis Resolve (grupo padrão)
+GRUPO_CLOUD_HUMANS_ID    = 50304023554451  # IA — Cloud Humans (ativo desde 27/03/2026)
+GRUPO_BLIS_SAUDE_ID      = 43771604769299  # Blis Saúde
+GRUPO_BLIS_RESOLVE_ID    = 42056691282323  # Blis Resolve (grupo padrão)
+GRUPO_BLIS_LOGISTICA_ID  = 48830603080723  # Blis Logística
 
-GRUPO_BLIS_SAUDE   = "Blis Saúde"
-GRUPO_BLIS_RESOLVE = "Blis Resolve"
-GRUPO_CLOUD_HUMANS = "Cloud Humans"
+GRUPO_BLIS_SAUDE      = "Blis Saúde"
+GRUPO_BLIS_RESOLVE    = "Blis Resolve"
+GRUPO_BLIS_LOGISTICA  = "Blis Logística"
+GRUPO_CLOUD_HUMANS    = "Cloud Humans"
 
 # ── Outros grupos existentes ────────────────────────────────────────────────────
 # Blis Financeiro:  43287806312851
 # Blis Gestão:      50252963716627
 # Blis Jurídico:    50252945099667
-# Blis Logística:   48830603080723
 # Blis Tech:        43287811440403
 
 # ── Tags de identificação (Cloud Humans = grupo, não tag) ──────────────────────

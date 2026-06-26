@@ -165,7 +165,7 @@ def validate_csv(df: pd.DataFrame) -> list[str]:
 
 # ── Classificação de time ─────────────────────────────────────────────────────
 
-TEAM_OF_TIME = {"Blis Saúde":"saude","Blis Resolve":"resolve","Outros":"resolve"}
+TEAM_OF_TIME = {"Blis Saúde":"saude","Blis Resolve":"resolve","Blis Logística":"logistica","Outros":"resolve"}
 
 def _team(row) -> str:
     v = row.get("atendido_por_ia")
@@ -307,6 +307,8 @@ def build_csat(df_c: pd.DataFrame, df_t: pd.DataFrame) -> dict:
             out["resolve"][score][m] += 1
         elif time_val == "IA" or "Cloud Humans" in time_val or time_val == "ia":
             out["ia"][score][m] += 1
+        elif "Logística" in time_val or "Logistica" in time_val or time_val == "logistica":
+            out["logistica"][score][m] += 1
         elif str(r.get("ticket_id","")) in logistica_ticket_ids:
             out["logistica"][score][m] += 1
         elif str(r.get("ticket_id","")) in ia_ticket_ids:
@@ -1101,7 +1103,7 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
     criados_dia       = build_criados_dia(df_full)
 
     log.info("Blocos construídos.")
-    for t in ("ia","saude","resolve"):
+    for t in ("ia","saude","resolve","logistica"):
         log.info(f"  {t}: tickets={sum(tickets_data[t])}  status={sum(status[t].values())}  channels={sum(channels[t].values())}")
     if tempos:
         log.info(f"  tempos: TMA Resolve={tempos['tma']['resolve']}  TMA Saude={tempos['tma']['saude']}")
