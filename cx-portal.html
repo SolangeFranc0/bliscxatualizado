@@ -1291,8 +1291,8 @@ canvas.med-chart{max-height:250px}
           </div>
         </div>
 
-        <!-- Bloco 5b: Cupons de Pedido -->
-        <div class="card" id="block-cupons-pedido">
+        <!-- Bloco 5b: Cupons de Pedido — oculto -->
+        <div class="card" id="block-cupons-pedido" style="display:none">
           <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">
             <div><div class="block-title">Cupons de Pedido</div><div class="block-sub">Todos os cupons de desconto em pedidos (farmácia / produtos)</div></div>
             <span class="badge" id="custo-pedido-badge" style="display:none">–</span>
@@ -2137,6 +2137,7 @@ function closeArticle()   { _nxKbBack(); }
 
 /* ── Dash Médicos ──────────────────────────────── */
 const CUPONS_CONSULTA = ['ATENDE200','ATENDE300','ATEND89','ENFE200','ATENDE160','ATENDE40'];
+const _cupomOk = c => CUPONS_CONSULTA.includes((c||'').toUpperCase());
 
 const _med = {
   initialized: false,
@@ -2433,7 +2434,7 @@ function _populateFilters() {
   if (_med.raw.conversaoCoupons) {
     const rows = MetabaseService.toObjects(_med.raw.conversaoCoupons);
     const cupons = [...new Set(rows.map(r => r.cupom).filter(Boolean))]
-      .filter(c => CUPONS_CONSULTA.includes(c))
+      .filter(c => _cupomOk(c))
       .sort();
     document.getElementById('filter-cupom').innerHTML =
       '<option value="">Todos os cupons</option>' +
@@ -2914,7 +2915,7 @@ function _renderCupons() {
   if (!_med.raw.conversaoCoupons) { tbody.innerHTML = '<tr><td colspan="7" style="padding:16px"><div class="skel" style="height:13px;width:80%"></div></td></tr>'; return; }
 
   const allRows = MetabaseService.toObjects(_med.raw.conversaoCoupons)
-    .filter(r => CUPONS_CONSULTA.includes(r.cupom));
+    .filter(r => _cupomOk(r.cupom));
   let rows = _med.cupom ? allRows.filter(r => r.cupom === _med.cupom) : allRows;
 
   // Badge de ganho total (soma de receita_primeiro_pedido das linhas visíveis)
