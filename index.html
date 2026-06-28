@@ -1292,7 +1292,7 @@ canvas.med-chart{max-height:250px}
         </div>
 
         <!-- Bloco 5b: Cupons de Pedido — oculto -->
-        <div class="card" id="block-cupons-pedido" style="display:none">
+        <div class="card" id="block-cupons-pedido" style="display:none!important">
           <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">
             <div><div class="block-title">Cupons de Pedido</div><div class="block-sub">Todos os cupons de desconto em pedidos (farmácia / produtos)</div></div>
             <span class="badge" id="custo-pedido-badge" style="display:none">–</span>
@@ -2452,7 +2452,7 @@ function _renderAll() {
   _s(_renderEvolucao);
   _s(_renderCancelamentos);
   _s(_renderCupons);
-  _s(_renderCuponsPedido);
+  // _renderCuponsPedido desativado — exibir apenas cupons de consulta autorizados
   _s(_renderCsat);
   _s(_renderCsatEvo);
   _s(_renderTempo);
