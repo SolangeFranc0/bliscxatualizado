@@ -1,75 +1,75 @@
 === AUDIT LOG — Extração Zendesk 2026 ===
-Gerado em: 2026-06-11T17:19:19.127084
+Gerado em: 2026-06-23T10:52:12.639657
 
 --- Tickets por time e mês ---
 ano_mes       2025-12  2026-01  2026-02  2026-03  2026-04  2026-05  2026-06
 time                                                                       
-Blis Resolve        0     2617     2368     2440     1975     1973      808
-Blis Saúde          1     1358     5899    10106     5825     1540      326
-Outros              0        1       30     1196     4768     3781      910
+Blis Resolve        0     2617     2361     2440     1975     1979     1667
+Blis Saúde          1     1358     5897    10106     5825     1540      858
+Outros              0        1       30     1196     4768     3775     1991
 
 --- CSAT: contagem por time e mês (positivas / negativas / offered) ---
-
-IA:
-score_raw  bad  good  offered
-ano_mes                      
-2026-04     69   166      720
-2026-05    231   860     3848
-2026-06     31   236      917
-  2026-04: 166 pos / 69 neg → CSAT 70.6%
-  2026-05: 860 pos / 231 neg → CSAT 78.8%
-  2026-06: 236 pos / 31 neg → CSAT 88.4%
-
-Blis Resolve:
-score_raw  bad  good  offered
-ano_mes                      
-2026-01     98   546     1749
-2026-02     76   375     1626
-2026-03     81   196     1191
-2026-04     21    13       30
-2026-05     18   382      722
-2026-06     10   207      541
-  2026-01: 546 pos / 98 neg → CSAT 84.8%
-  2026-02: 375 pos / 76 neg → CSAT 83.1%
-  2026-03: 196 pos / 81 neg → CSAT 70.8%
-  2026-04: 13 pos / 21 neg → CSAT 38.2%
-  2026-05: 382 pos / 18 neg → CSAT 95.5%
-  2026-06: 207 pos / 10 neg → CSAT 95.4%
 
 Blis Saúde:
 score_raw  bad  good  offered
 ano_mes                      
-2026-01     25   395      740
-2026-02     52   493     1336
-2026-03     46   460     1342
-2026-04      4     9       42
-2026-05     19   292      903
-2026-06      8   113      381
-  2026-01: 395 pos / 25 neg → CSAT 94.0%
-  2026-02: 493 pos / 52 neg → CSAT 90.5%
-  2026-03: 460 pos / 46 neg → CSAT 90.9%
-  2026-04: 9 pos / 4 neg → CSAT 69.2%
+2026-01     23   386      330
+2026-02     49   481      807
+2026-03     44   452      845
+2026-04      3     9       33
+2026-05     19   292      592
+2026-06     20   244      574
+  2026-01: 386 pos / 23 neg → CSAT 94.4%
+  2026-02: 481 pos / 49 neg → CSAT 90.8%
+  2026-03: 452 pos / 44 neg → CSAT 91.1%
+  2026-04: 9 pos / 3 neg → CSAT 75.0%
   2026-05: 292 pos / 19 neg → CSAT 93.9%
-  2026-06: 113 pos / 8 neg → CSAT 93.4%
+  2026-06: 244 pos / 20 neg → CSAT 92.4%
+
+IA:
+score_raw  bad  good  offered
+ano_mes                      
+2026-04     63   161      487
+2026-05    219   841     2782
+2026-06     71   472     1485
+  2026-04: 161 pos / 63 neg → CSAT 71.9%
+  2026-05: 841 pos / 219 neg → CSAT 79.3%
+  2026-06: 472 pos / 71 neg → CSAT 86.9%
+
+Blis Resolve:
+score_raw  bad  good  offered
+ano_mes                      
+2026-01     90   539     1116
+2026-02     72   368     1188
+2026-03     80   188      927
+2026-04     20    12       21
+2026-05     18   374      333
+2026-06     26   393      658
+  2026-01: 539 pos / 90 neg → CSAT 85.7%
+  2026-02: 368 pos / 72 neg → CSAT 83.6%
+  2026-03: 188 pos / 80 neg → CSAT 70.1%
+  2026-04: 12 pos / 20 neg → CSAT 37.5%
+  2026-05: 374 pos / 18 neg → CSAT 95.4%
+  2026-06: 393 pos / 26 neg → CSAT 93.8%
 
 Outros:
 score_raw  bad  good  offered
 ano_mes                      
-2026-02      4     2       12
-2026-03      1     8       26
+2026-02      4     2        6
+2026-03      0     8       18
 2026-04      0     0        1
-2026-05      2    10       34
-2026-06      0     3        6
+2026-05      2    10       23
+2026-06      0     4        4
   2026-02: 2 pos / 4 neg → CSAT 33.3%
-  2026-03: 8 pos / 1 neg → CSAT 88.9%
+  2026-03: 8 pos / 0 neg → CSAT 100.0%
   2026-04: 0 pos / 0 neg → CSAT None%
   2026-05: 10 pos / 2 neg → CSAT 83.3%
-  2026-06: 3 pos / 0 neg → CSAT 100.0%
+  2026-06: 4 pos / 0 neg → CSAT 100.0%
 
 --- Tickets IA (group_id = GRUPO_CLOUD_HUMANS_ID) ---
-Total IA: 10441
+Total IA: 11487
 ano_mes
 2026-03    1132
 2026-04    4702
 2026-05    3721
-2026-06     886
+2026-06    1932

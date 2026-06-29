@@ -2271,18 +2271,19 @@ async function _loadFromSupabase() {
   // Analytics de Clientes — tabelas
   const [clResRows, protoRows2, safraRows2, tipoRows2, recompRows2,
          comportRows, churnRows, canalRows, cohortRows, protoMensalRows,
-         saudeRecompraRows] = await Promise.all([
-    _sbGet('mb_clientes_resumo',    'select=*&order=data_carga.desc&limit=1').catch(() => []),
-    _sbGet('mb_protocolo_analise',  'select=*&order=soma_receita.desc').catch(() => []),
-    _sbGet('mb_safra_analise',      'select=*&order=safra.asc').catch(() => []),
-    _sbGet('mb_tipo_cliente',       'select=*').catch(() => []),
-    _sbGet('mb_recompra_mensal',    'select=*&order=periodo.asc').catch(() => []),
-    _sbGet('mb_comportamento_kpis', 'select=*&limit=1').catch(() => []),
-    _sbGet('mb_churn_mensal',       'select=*&order=churn_mes.asc').catch(() => []),
-    _sbGet('mb_funil_canal',        'select=*&order=pedido.desc').catch(() => []),
-    _sbGet('mb_cohort_pedidos',     'select=faixa_pedidos,qtd_usuarios&order=faixa_pedidos.asc').catch(() => []),
-    _sbGet('mb_protocolo_mensal',   'select=periodo,protocolo,soma_receita,qtd_pedidos,ticket_medio&order=periodo.asc').catch(() => []),
-    _sbGet('recompra_saude_cohort', 'select=*&order=safra.asc').catch(() => []),
+         saudeRecompraRows, tipoMensalRows] = await Promise.all([
+    _sbGet('mb_clientes_resumo',       'select=*&order=data_carga.desc&limit=1').catch(() => []),
+    _sbGet('mb_protocolo_analise',     'select=*&order=soma_receita.desc').catch(() => []),
+    _sbGet('mb_safra_analise',         'select=*&order=safra.asc').catch(() => []),
+    _sbGet('mb_tipo_cliente',          'select=*').catch(() => []),
+    _sbGet('mb_recompra_mensal',       'select=*&order=periodo.asc').catch(() => []),
+    _sbGet('mb_comportamento_kpis',    'select=*&limit=1').catch(() => []),
+    _sbGet('mb_churn_mensal',          'select=*&order=churn_mes.asc').catch(() => []),
+    _sbGet('mb_funil_canal',           'select=*&order=pedido.desc').catch(() => []),
+    _sbGet('mb_cohort_pedidos',        'select=faixa_pedidos,qtd_usuarios&order=faixa_pedidos.asc').catch(() => []),
+    _sbGet('mb_protocolo_mensal',      'select=periodo,protocolo,soma_receita,qtd_pedidos,ticket_medio&order=periodo.asc').catch(() => []),
+    _sbGet('recompra_saude_cohort',    'select=*&order=safra.asc').catch(() => []),
+    _sbGet('mb_tipo_cliente_mensal',   'select=periodo,tipo_cliente,qtd_usuarios,pct_do_total,media_pedidos,receita_total,ticket_medio&order=periodo.asc').catch(() => []),
   ]);
   _med.raw.clientesResumo       = clResRows[0] || null;
   _med.raw.protocoloAnalise     = protoRows2;
@@ -2295,6 +2296,7 @@ async function _loadFromSupabase() {
   _med.raw.funilCanal           = canalRows;
   _med.raw.cohortPedidos        = cohortRows;
   _med.raw.saudeRecompra        = saudeRecompraRows;
+  _med.raw.tipoClienteMensal    = tipoMensalRows.length ? tipoMensalRows : null;
   // Aguarda o preload (já disparado no início da função) e preenche lacunas do Supabase
   await _preloadP;
   if (window.MB_PRELOADED) {
@@ -2313,7 +2315,7 @@ async function _loadFromSupabase() {
   _med.raw.cancelArr = cancelRows.map(r => ({ periodo: r.periodo, consultas_criadas: r.consultas_criadas, pct: r.percentual_canceladas }));
   // Fallback: se tabelas analytics ainda não existem no Supabase, usar MB_PRELOADED
   if (!protoRows2.length && window.MB_PRELOADED) _mapClientesAnalytics();
-  console.log(`[_loadFromSupabase] analytics: protos=${protoRows2.length} safras=${safraRows2.length} canal=${canalRows.length}`);
+  console.log(`[_loadFromSupabase] analytics: protos=${protoRows2.length} safras=${safraRows2.length} canal=${canalRows.length} tipoMensal=${tipoMensalRows.length}`);
 }
 
 function _mapPerformanceMensal() {
@@ -4691,9 +4693,12 @@ function _renderTicketSegmento() {
   let rows = null;
   let periodNote = '';
 
-  // If period filter active, try monthly breakdown first
-  if ((_analytics.ano || _analytics.mes) && typeof _tipoClienteMensalInline !== 'undefined' && _tipoClienteMensalInline.length) {
-    let mensal = _tipoClienteMensalInline;
+  // If period filter active, try monthly breakdown first (Supabase preferred, inline as fallback)
+  const _tipoClienteMensal = (_med.raw.tipoClienteMensal && _med.raw.tipoClienteMensal.length)
+    ? _med.raw.tipoClienteMensal
+    : (typeof _tipoClienteMensalInline !== 'undefined' ? _tipoClienteMensalInline : []);
+  if ((_analytics.ano || _analytics.mes) && _tipoClienteMensal.length) {
+    let mensal = _tipoClienteMensal;
     if (_analytics.ano) mensal = mensal.filter(function(r){ return String(r.periodo || '').startsWith(_analytics.ano); });
     if (_analytics.mes) mensal = mensal.filter(function(r){ return String(r.periodo || '').slice(5, 7) === _analytics.mes; });
 

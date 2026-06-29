@@ -98,7 +98,9 @@
       "extravio_produto": "Extravio Produto",
       "receita_federal": " CPF Irregular Receita Federal",
       "pedido_não_alocado": "Pedido não Alocado",
-      "fiscalização_anvisa/receita_federal": "Fiscalização Anvisa/Receita Federal"
+      "fiscalização_anvisa/receita_federal": "Fiscalização Anvisa/Receita Federal",
+      "pedido_entregue_e_solicitado_estorno": "Pedido entregue e solicitado estorno",
+      "pedido_em_transito_e_solicitado_estorno": "Pedido em transito e solicitado estorno"
     }
   },
   "43754976302099": {
