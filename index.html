@@ -1396,7 +1396,8 @@ canvas.med-chart{max-height:250px}
             <button onclick="_setSaudeRecompraAno('2026')" id="srf-btn-2026" style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #D1D5DB;background:#fff;color:#374151;cursor:pointer">2026</button>
           </div>
         </div>
-        <div style="font-size:12px;color:#6B7280;margin-bottom:18px">Pacientes que contataram Blis Saúde e voltaram a comprar · Jan 2025–Jun 2026</div>
+        <div id="saude-recompra-mes-filter" style="margin-top:6px;min-height:0"></div>
+        <div style="font-size:12px;color:#6B7280;margin-bottom:18px;margin-top:8px">Pacientes que contataram Blis Saúde e voltaram a comprar · Jan 2025–Jun 2026</div>
         <div id="block-saude-recompra-body" style="padding-top:0">
           <p style="color:#6B7280;text-align:center;padding:24px;font-size:13px">Carregando…</p>
         </div>
@@ -3583,6 +3584,7 @@ function _renderReviews() {
 const _analytics = { protocolo: '', tipoCliente: '', ano: '', mes: '', protoSort: 'soma_receita', protoDir: -1, safraSort: 'safra', safraDir: 1 };
 let _chartRecompra = null, _chartSaudeRecompra = null;
 let _saudeRecompraAno = '';
+let _saudeRecompraMes = '';
 
 function _filterPeriodo(rows) {
   if (!_analytics.ano && !_analytics.mes) return rows;
@@ -4107,8 +4109,41 @@ function _renderRecompraMensal() {
   });
 }
 
+function _buildSaudeRecompraMesButtons(ano) {
+  const container = document.getElementById('saude-recompra-mes-filter');
+  if (!container) return;
+  if (!ano) { container.innerHTML = ''; return; }
+  const allRows = (typeof _saudeRecompraInline !== 'undefined' && _saudeRecompraInline.length)
+    ? _saudeRecompraInline : (_med.raw.saudeRecompra || []);
+  const meses = allRows
+    .filter(r => String(r.safra || '').startsWith(ano))
+    .map(r => String(r.safra || '').slice(5, 7))
+    .filter(Boolean);
+  if (!meses.length) { container.innerHTML = ''; return; }
+  const MESES_PT = ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const btn = (val, label, active) =>
+    `<button onclick="_setSaudeRecompraMes('${val}')" id="srf-btn-mes-${val||'todos'}" style="padding:2px 8px;font-size:10px;font-weight:700;border-radius:5px;border:1px solid #D1D5DB;cursor:pointer;background:${active?'#1B4D2E':'#fff'};color:${active?'#fff':'#374151'}">${label}</button>`;
+  container.innerHTML = '<div style="display:flex;gap:4px;flex-wrap:wrap">' +
+    btn('', 'Todos', !_saudeRecompraMes) +
+    meses.map(m => btn(m, MESES_PT[parseInt(m)] || m, _saudeRecompraMes === m)).join('') +
+    '</div>';
+}
+
+function _setSaudeRecompraMes(mes) {
+  _saudeRecompraMes = mes;
+  _buildSaudeRecompraMesButtons(_saudeRecompraAno);
+  const wrap = document.getElementById('block-saude-recompra-body');
+  if (!wrap) return;
+  const allRows = (typeof _saudeRecompraInline !== 'undefined' && _saudeRecompraInline.length)
+    ? _saudeRecompraInline : (_med.raw.saudeRecompra || []).filter(r => r.safra);
+  let rows = _saudeRecompraAno ? allRows.filter(r => String(r.safra || '').startsWith(_saudeRecompraAno)) : allRows;
+  if (_saudeRecompraMes) rows = rows.filter(r => String(r.safra || '').slice(5, 7) === _saudeRecompraMes);
+  if (rows.length) _doRenderSaudeRecompra(wrap, rows);
+}
+
 function _setSaudeRecompraAno(ano) {
   _saudeRecompraAno = ano;
+  _saudeRecompraMes = '';
   ['todos','2025','2026'].forEach(k => {
     const btn = document.getElementById('srf-btn-' + k);
     if (!btn) return;
@@ -4116,6 +4151,7 @@ function _setSaudeRecompraAno(ano) {
     btn.style.background = active ? '#1B4D2E' : '#fff';
     btn.style.color = active ? '#fff' : '#374151';
   });
+  _buildSaudeRecompraMesButtons(ano);
   const wrap = document.getElementById('block-saude-recompra-body') || document.querySelector('#block-saude-recompra .card-body');
   if (!wrap) return;
   const allRows = (typeof _saudeRecompraInline !== 'undefined' && _saudeRecompraInline.length)
@@ -4133,9 +4169,11 @@ async function _renderSaudeRecompra() {
   const allRows = (typeof _saudeRecompraInline !== 'undefined' && _saudeRecompraInline.length)
     ? _saudeRecompraInline
     : (_med.raw.saudeRecompra || []).filter(r => r.safra);
-  const rows = _saudeRecompraAno
+  let rows = _saudeRecompraAno
     ? allRows.filter(r => String(r.safra || '').startsWith(_saudeRecompraAno))
     : allRows;
+  if (_saudeRecompraMes) rows = rows.filter(r => String(r.safra || '').slice(5, 7) === _saudeRecompraMes);
+  _buildSaudeRecompraMesButtons(_saudeRecompraAno);
 
   if (rows.length) {
     _doRenderSaudeRecompra(wrap, rows);
