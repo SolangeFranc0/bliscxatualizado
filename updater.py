@@ -946,9 +946,9 @@ def build_comments_offenders(df_c: pd.DataFrame) -> tuple[dict, list]:
     for m in range(N_MONTHS):
         sub = scored[scored["m"] == m]
         for r in sub[sub["score_raw"]=="bad"].to_dict("records"):
-            bad_all.append({"m":m,"team":r["team"],"t":r["txt"]})
+            bad_all.append({"m":m,"team":r["team"],"t":r["txt"],"id":str(int(r["ticket_id"])) if r.get("ticket_id") and str(r["ticket_id"]) not in ("nan","") else ""})
         for r in sub[sub["score_raw"]=="good"].to_dict("records"):
-            good_all.append({"m":m,"team":r["team"],"t":r["txt"]})
+            good_all.append({"m":m,"team":r["team"],"t":r["txt"],"id":str(int(r["ticket_id"])) if r.get("ticket_id") and str(r["ticket_id"]) not in ("nan","") else ""})
 
     def _themes(texts):
         from collections import Counter

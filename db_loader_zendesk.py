@@ -229,14 +229,16 @@ def load_comentarios_csat(sb: Client) -> None:
 
     records: list[dict] = []
 
-    # bad / good: [{m, team, t}, ...]
+    # bad / good: [{m, team, t, id}, ...]
     for tipo in ("bad", "good"):
         for item in data.get(tipo, []):
+            tid = item.get("id") or None
             records.append({
                 "tipo":           tipo,
                 "team":           item.get("team"),
                 "texto":          item.get("t"),
                 "score_numerico": item.get("m"),
+                "ticket_id":      int(tid) if tid else None,
                 "data_carga":     TODAY,
             })
 

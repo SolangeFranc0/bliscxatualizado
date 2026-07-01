@@ -1019,7 +1019,7 @@ function renderComments(){
   document.getElementById("cnt-good").textContent=good.length;
   const tmap={ia:"IA",saude:"Saude",resolve:"Resolve",logistica:"Logistica"};
   const tcls={ia:"ti",saude:"ts",resolve:"tr",logistica:"tl"};
-  function card(c,cls){return`<div class="citem ${cls}"><div class="ctxt">${c.t}</div><div class="cmeta"><span class="ctag ${tcls[c.team]}">${tmap[c.team]}</span><span>${MSHORT[c.m]}</span></div></div>`;}
+  function card(c,cls){const tid=c.id?`<a href="https://appblis.zendesk.com/agent/tickets/${c.id}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;opacity:.7;font-weight:700">#${c.id}</a>`:'';return`<div class="citem ${cls}"><div class="ctxt">${c.t}</div><div class="cmeta"><span class="ctag ${tcls[c.team]}">${tmap[c.team]}</span><span>${MSHORT[c.m]}</span>${tid}</div></div>`;}
   document.getElementById("list-bad").innerHTML=bad.map(c=>card(c,"bd")).join("");
   document.getElementById("list-good").innerHTML=good.map(c=>card(c,"gd")).join("");
   renderWordCloud(bad);
