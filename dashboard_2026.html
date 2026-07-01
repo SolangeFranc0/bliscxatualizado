@@ -444,6 +444,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
     <button class="fb" onclick="setMes(3,this)">Abr</button>
     <button class="fb" onclick="setMes(4,this)">Mai</button>
     <button class="fb" onclick="setMes(5,this)">Jun</button>
+    <button class="fb" onclick="setMes(6,this)">Jul</button>
   </div>
   <div class="fsep"></div>
   <div style="display:flex;align-items:center;gap:7px">
@@ -715,8 +716,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 // ═══════════════════════════════════════════════════
 // DATA — Zendesk API 11/05/2026
 // ═══════════════════════════════════════════════════
-const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho"];
-const MSHORT = ["Jan","Fev","Mar","Abr","Mai","Jun"];
+const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho"];
+const MSHORT = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul"];
 
 const D = {
   // Gerado por updater.py em 23/06/2026 10:52 — fonte: Zendesk API
@@ -794,7 +795,7 @@ const BL   = {
 const COLORS_M = ["#818CF8","#38BDF8","#34D399","#FBBF24","#F43F5E","#A78BFA","#22D3EE","#84CC16","#FB923C"];
 
 function activeTeams(){return S.team==="all"?["ia","saude","resolve","logistica"]:[S.team]}
-function activeMesIndices(){return S.mes===-1?[0,1,2,3,4,5]:[S.mes]}
+function activeMesIndices(){return S.mes===-1?[0,1,2,3,4,5,6]:[S.mes]}
 function ticketsFor(team){
   if(S.semana!==-1) return D.semanas[team][S.semana]||0;
   return activeMesIndices().reduce((a,i)=>a+(D.tickets[team][i]||0),0);
@@ -841,7 +842,7 @@ function renderKPIs(){
   const solvedPct=total>0?(solved/total*100).toFixed(1):0;
   const periodoLabel=isSemana
     ?`${D.semanas.labels[S.semana]} · ${D.semanas.datas[S.semana]}`
-    :S.mes===-1?"Jan – Jun 2026":MONTHS[S.mes];
+    :S.mes===-1?"Jan – Jul 2026":MONTHS[S.mes];
   let momTotal="";
   if(!isSemana && S.mes>0){
     const curr=teams.reduce((a,t)=>a+(D.tickets[t][S.mes]||0),0);
