@@ -1663,8 +1663,7 @@ function forceSyncUI(){
 document.addEventListener("DOMContentLoaded",()=>{
   // Aplica tema salvo antes de renderizar (evita flash)
   let savedTheme; try{savedTheme=localStorage.getItem(THEME_KEY);}catch(_){}
-  if(savedTheme==="light") applyTheme("light");
-  else refreshBL(); // garante BL correto no dark (padrão)
+  applyTheme(savedTheme||"light"); // padrão: claro
 
   initPerfilFilter(); buildWsel(); renderAll();
 
