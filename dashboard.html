@@ -786,12 +786,12 @@ const TNOMES= {ia:"Cloud Humans IA", saude:"Blis Saude", resolve:"Blis Resolve",
 const CFG  = {responsive:true, displayModeBar:false};
 const BL   = {
   paper_bgcolor:"transparent", plot_bgcolor:"transparent",
-  font:{family:"Inter,system-ui,sans-serif", color:"#64748b", size:11},
-  margin:{t:8, b:44, l:48, r:10},
+  font:{family:"Inter,system-ui,sans-serif", color:"#64748b", size:10},
+  margin:{t:8, b:46, l:44, r:8},
   barcornerradius:6,
-  xaxis:{gridcolor:"rgba(0,0,0,0.06)", zerolinecolor:"rgba(0,0,0,0.06)", showgrid:false, tickfont:{color:"#64748b",size:11}},
-  yaxis:{gridcolor:"rgba(0,0,0,0.06)", zerolinecolor:"rgba(0,0,0,0.06)", tickfont:{color:"#64748b",size:11}},
-  legend:{bgcolor:"transparent", font:{color:"#475569",size:11}, orientation:"h", y:-0.2}
+  xaxis:{gridcolor:"rgba(0,0,0,0.04)", zerolinecolor:"rgba(0,0,0,0.04)", showgrid:false, tickfont:{color:"#64748b",size:10}},
+  yaxis:{gridcolor:"rgba(0,0,0,0.04)", zerolinecolor:"rgba(0,0,0,0.04)", tickfont:{color:"#64748b",size:10}},
+  legend:{bgcolor:"transparent", font:{color:"#475569",size:10}, orientation:"h", y:-0.24}
 };
 const COLORS_M = ["#818CF8","#38BDF8","#34D399","#FBBF24","#F43F5E","#A78BFA","#22D3EE","#84CC16","#FB923C"];
 
@@ -912,7 +912,7 @@ function renderTeamCards(){
     </div>`;
   }).join("");
   teams.forEach(t=>{
-    Plotly.newPlot(`mini-${t}`,[{type:"bar",x:lbs,y:mi.map(i=>D.tickets[t][i]||0),marker:{color:COL[t]+"99",line:{color:COL[t],width:1}},showlegend:false,text:mi.map(i=>fmtN(D.tickets[t][i]||0)),textposition:"outside",textfont:{size:10,color:COL[t]}}],{paper_bgcolor:"transparent",plot_bgcolor:"transparent",margin:{t:5,b:28,l:38,r:8},xaxis:{gridcolor:"rgba(255,255,255,0.05)",tickfont:{size:10,color:"#7B8BA8"},zeroline:false},yaxis:{gridcolor:"rgba(255,255,255,0.05)",tickfont:{size:10,color:"#7B8BA8"},zeroline:false}},CFG);
+    Plotly.newPlot(`mini-${t}`,[{type:"bar",x:lbs,y:mi.map(i=>D.tickets[t][i]||0),marker:{color:COL[t]+"CC",line:{color:COL[t],width:0}},showlegend:false,text:mi.map(i=>fmtN(D.tickets[t][i]||0)),textposition:"outside",textfont:{size:9,color:COL[t]}}],{paper_bgcolor:"transparent",plot_bgcolor:"transparent",barcornerradius:5,margin:{t:5,b:26,l:30,r:4},xaxis:{gridcolor:BL.xaxis.gridcolor,showgrid:false,tickfont:{size:9,color:BL.xaxis.tickfont.color},zeroline:false},yaxis:{gridcolor:BL.yaxis.gridcolor,tickfont:{size:9,color:BL.yaxis.tickfont.color},zeroline:false}},CFG);
   });
 }
 
@@ -963,8 +963,8 @@ function renderCSATCharts(){
     tvol.push({name:tshort+" Negativo",type:"bar",x:lbs,y:mi.map(i=>D.csat[t].bad[i]||0),marker:{color:"rgba(244,63,94,0.4)",line:{color:"#F43F5E",width:1}},legendgroup:t,showlegend:false});
   });
   Plotly.newPlot("ch-csat-vol",tvol,{...BL,barmode:"group",showlegend:true},CFG);
-  const tpct=teams.map(t=>({name:TNOMES[t],type:"scatter",mode:"lines+markers",x:lbs,y:mi.map(i=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;}),line:{color:COL[t],width:3},marker:{size:9,color:COL[t]}}));
-  tpct.push({name:"Meta 90%",type:"scatter",mode:"lines",x:lbs,y:lbs.map(()=>90),line:{color:"rgba(255,255,255,0.2)",width:2,dash:"dash"},showlegend:true});
+  const tpct=teams.map(t=>({name:TNOMES[t],type:"scatter",mode:"lines+markers",x:lbs,y:mi.map(i=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;}),line:{color:COL[t],width:2.5,shape:"spline"},marker:{size:5,color:COL[t]}}));
+  tpct.push({name:"Meta 90%",type:"scatter",mode:"lines",x:lbs,y:lbs.map(()=>90),line:{color:"rgba(100,116,139,0.4)",width:1.5,dash:"dash"},showlegend:true});
   Plotly.newPlot("ch-csat-pct",tpct,{...BL,yaxis:{...BL.yaxis,range:[60,100],ticksuffix:"%"},showlegend:true},CFG);
 }
 
@@ -1114,13 +1114,13 @@ function renderMotivosColCharts(){
     marker:{color:COLORS_M.slice(0,xMot.length).map(c=>c+"CC"), line:{color:COLORS_M.slice(0,xMot.length),width:1}},
     text:yMot.map(v=>fmtN(v)),
     textposition:"outside",
-    textfont:{size:11, color:"#DDE4F5"},
+    textfont:{size:10, color:BL.font.color},
     cliponaxis:false
   }],{
     ...BL,
     margin:{t:30,b:100,l:45,r:15},
-    xaxis:{...BL.xaxis, tickangle:-35, tickfont:{size:10,color:"#7B8BA8"}, automargin:true},
-    yaxis:{...BL.yaxis, tickfont:{size:11,color:"#7B8BA8"}}
+    xaxis:{...BL.xaxis, tickangle:-35, automargin:true},
+    yaxis:{...BL.yaxis}
   },CFG);
 
   // Grafico 2: volume por time (colunas verticais)
@@ -1132,13 +1132,13 @@ function renderMotivosColCharts(){
     marker:{color:tCols.map(c=>c+"CC"), line:{color:tCols,width:1}},
     text:yTime.map(v=>fmtN(v)),
     textposition:"outside",
-    textfont:{size:13, color:"#DDE4F5", family:"Inter,system-ui,sans-serif"},
+    textfont:{size:11, color:BL.font.color, family:"Inter,system-ui,sans-serif"},
     cliponaxis:false
   }],{
     ...BL,
     margin:{t:30,b:60,l:45,r:15},
-    xaxis:{...BL.xaxis, tickfont:{size:12,color:"#B8C4D8"}},
-    yaxis:{...BL.yaxis, tickfont:{size:11,color:"#7B8BA8"}}
+    xaxis:{...BL.xaxis},
+    yaxis:{...BL.yaxis}
   },CFG);
 }
 
@@ -1232,20 +1232,20 @@ function toggleSM(el){
 function renderTrends(){
   const lbs=MONTHS;
   // Volume por time
-  const ttv=["ia","saude","resolve","logistica"].map(t=>({name:TNOMES[t],type:"scatter",mode:"lines+markers+text",x:lbs,y:D.tickets[t],text:D.tickets[t].map(v=>v>0?fmtN(v):""),textposition:"top center",textfont:{size:11,color:COL[t]},line:{color:COL[t],width:3,shape:"spline"},marker:{size:9,color:COL[t]}}));
+  const ttv=["ia","saude","resolve","logistica"].map(t=>({name:TNOMES[t],type:"scatter",mode:"lines+markers",x:lbs,y:D.tickets[t],line:{color:COL[t],width:2.5,shape:"spline"},fill:"tozeroy",fillcolor:COL[t]+"18",marker:{size:5,color:COL[t]}}));
   Plotly.newPlot("ch-trend-vol",ttv,{...BL,showlegend:true,margin:{...BL.margin,t:28}},CFG);
   // Motivos
-  const ttm=(D.motivos||[]).map((m,i)=>({name:m.nome,type:"scatter",mode:"lines+markers+text",x:lbs,y:m.monthly,text:m.monthly.map(v=>v>0?fmtN(v):""),textposition:"top center",textfont:{size:10,color:COLORS_M[i]},line:{color:COLORS_M[i],width:2,shape:"spline"},marker:{size:6,color:COLORS_M[i]}}));
+  const ttm=(D.motivos||[]).map((m,i)=>({name:m.nome,type:"scatter",mode:"lines+markers",x:lbs,y:m.monthly,line:{color:COLORS_M[i],width:2,shape:"spline"},marker:{size:5,color:COLORS_M[i]}}));
   Plotly.newPlot("ch-trend-mot",ttm,{...BL,showlegend:true,legend:{...BL.legend,orientation:"v",x:1.01,y:1},margin:{t:28,b:50,l:55,r:165}},CFG);
   // CSAT %
   const ttc=["ia","saude","resolve","logistica"].map(t=>{
     const yv=MONTHS.map((_,i)=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;});
-    return{name:TNOMES[t],type:"scatter",mode:"lines+markers+text",x:lbs,y:yv,text:yv.map(v=>v!=null?v+"%":""),textposition:"top center",textfont:{size:11,color:COL[t]},line:{color:COL[t],width:3,shape:"spline"},marker:{size:9,color:COL[t]}};
+    return{name:TNOMES[t],type:"scatter",mode:"lines+markers",x:lbs,y:yv,line:{color:COL[t],width:2.5,shape:"spline"},fill:"tozeroy",fillcolor:COL[t]+"14",marker:{size:5,color:COL[t]}};
   });
-  ttc.push({name:"Meta 90%",type:"scatter",mode:"lines",x:lbs,y:lbs.map(()=>90),line:{color:"rgba(255,255,255,0.15)",width:2,dash:"dash"}});
+  ttc.push({name:"Meta 90%",type:"scatter",mode:"lines",x:lbs,y:lbs.map(()=>90),line:{color:"rgba(100,116,139,0.4)",width:1.5,dash:"dash"}});
   Plotly.newPlot("ch-trend-csat",ttc,{...BL,yaxis:{...BL.yaxis,range:[0,105],ticksuffix:"%"},showlegend:true,margin:{...BL.margin,t:28}},CFG);
   // Avaliações negativas
-  const ttb=["ia","saude","resolve","logistica"].map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:D.csat[t].bad,text:D.csat[t].bad.map(v=>v>0?fmtN(v):""),textposition:"outside",textfont:{size:11,color:COL[t]},marker:{color:COL[t]+"99",line:{color:COL[t],width:1}}}));
+  const ttb=["ia","saude","resolve","logistica"].map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:D.csat[t].bad,marker:{color:COL[t]+"CC",line:{color:COL[t],width:0}}}));
   Plotly.newPlot("ch-trend-bad",ttb,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,t:28}},CFG);
   renderTrendTable();
 }
@@ -1339,10 +1339,9 @@ function renderTempos(){
 
   const lineLayout = (ytitle) => ({...BL,
     margin:{t:20,b:65,l:60,r:20},
-    showlegend:true, legend:{orientation:"h",x:0,y:-0.25,font:{size:11,color:"#7B8BA8"}},
-    xaxis:{...BL.xaxis, tickangle:-35, tickfont:{size:10,color:"#7B8BA8"}},
-    yaxis:{...BL.yaxis, title:{text:ytitle||"horas",font:{size:10,color:"#7B8BA8"},standoff:8},
-           tickfont:{size:11,color:"#7B8BA8"}}
+    showlegend:true, legend:{...BL.legend, x:0, y:-0.28},
+    xaxis:{...BL.xaxis, tickangle:-35},
+    yaxis:{...BL.yaxis, title:{text:ytitle||"horas",font:{size:10,color:BL.font.color},standoff:8}}
   });
 
   const trR = (y,customdata,dash,sz) => ({
@@ -1373,19 +1372,19 @@ function renderTempos(){
       y:valsR,
       marker:{color:"#38BDF8CC",line:{color:"#38BDF8",width:1}},
       text:valsR.map(fmtTempo),
-      textposition:"outside",textfont:{size:12,color:"#DDE4F5"},cliponaxis:false,
+      textposition:"outside",textfont:{size:10,color:"#38BDF8"},cliponaxis:false,
       hovertemplate:"%{x}<br><b>%{text}</b><extra>Blis Resolve</extra>"}]:[]),
     ...(showS?[{name:"Blis Saude",type:"bar",x:metricas,
       y:valsS,
-      marker:{color:"#34D399CC",line:{color:"#34D399",width:1}},
+      marker:{color:"#34D399CC",line:{color:"#34D399",width:0}},
       text:valsS.map(fmtTempo),
-      textposition:"outside",textfont:{size:12,color:"#DDE4F5"},cliponaxis:false,
+      textposition:"outside",textfont:{size:10,color:"#34D399"},cliponaxis:false,
       hovertemplate:"%{x}<br><b>%{text}</b><extra>Blis Saúde</extra>"}]:[]),
   ],{...BL,barmode:"group",
-    margin:{t:40,b:70,l:50,r:20},
-    showlegend:true,legend:{orientation:"h",x:0,y:-0.2,font:{size:11,color:"#7B8BA8"}},
-    xaxis:{...BL.xaxis,tickfont:{size:11,color:"#B8C4D8"}},
-    yaxis:{...BL.yaxis,title:{text:"horas",font:{size:10,color:"#7B8BA8"}},tickfont:{size:11,color:"#7B8BA8"}}
+    margin:{t:40,b:60,l:50,r:20},
+    showlegend:true,legend:{...BL.legend,x:0,y:-0.28},
+    xaxis:{...BL.xaxis},
+    yaxis:{...BL.yaxis,title:{text:"horas",font:{size:10,color:BL.font.color},standoff:8}}
   },CFG);
 
   renderResolucoesdia();
@@ -1428,9 +1427,9 @@ function renderResolucoesdia(){
     barmode:"group",
     margin:{t:20,b:80,l:55,r:20},
     showlegend:true,
-    legend:{orientation:"h",x:0,y:-0.28,font:{size:11,color:"#7B8BA8"}},
-    xaxis:{...BL.xaxis,tickangle:-45,tickfont:{size:10,color:"#7B8BA8"},nticks:30},
-    yaxis:{...BL.yaxis,title:{text:"tickets",font:{size:10,color:"#7B8BA8"},standoff:8},tickfont:{size:11,color:"#7B8BA8"}},
+    legend:{...BL.legend,x:0,y:-0.28},
+    xaxis:{...BL.xaxis,tickangle:-45,nticks:30},
+    yaxis:{...BL.yaxis,title:{text:"tickets",font:{size:10,color:BL.font.color},standoff:8}},
   },CFG);
 }
 
@@ -1484,9 +1483,9 @@ function renderCriadosResolvidos(){
        hovertemplate:"%{x}<br><b>%{y} resolvidos</b><extra>Resolvidos</extra>"},
     ],{...BL,barmode:"group",
       margin:{t:20,b:80,l:55,r:20},showlegend:true,
-      legend:{orientation:"h",x:0,y:-0.28,font:{size:11,color:"#7B8BA8"}},
-      xaxis:{...BL.xaxis,tickangle:-45,tickfont:{size:10,color:"#7B8BA8"},nticks:30},
-      yaxis:{...BL.yaxis,title:{text:"tickets",font:{size:10,color:"#7B8BA8"},standoff:8},tickfont:{size:11,color:"#7B8BA8"}},
+      legend:{...BL.legend,x:0,y:-0.28},
+      xaxis:{...BL.xaxis,tickangle:-45,nticks:30},
+      yaxis:{...BL.yaxis,title:{text:"tickets",font:{size:10,color:BL.font.color},standoff:8}},
     },CFG);
   }
 
@@ -1601,18 +1600,18 @@ const THEME_KEY = "zd_theme";
 
 function refreshBL(){
   const light = document.documentElement.getAttribute("data-theme")==="light";
-  const gc = light?"rgba(0,0,0,0.06)":"rgba(255,255,255,0.05)";
+  const gc = light?"rgba(0,0,0,0.04)":"rgba(255,255,255,0.04)";
   const tc = light?"#64748b":"#7B8BA8";
   const lc = light?"#475569":"#B8C4D8";
   BL.font.color = tc;
   BL.xaxis.gridcolor = BL.xaxis.zerolinecolor = gc;
   BL.yaxis.gridcolor = BL.yaxis.zerolinecolor = gc;
-  BL.xaxis.tickfont  = {color:tc,size:11};
-  BL.yaxis.tickfont  = {color:tc,size:11};
+  BL.xaxis.tickfont  = {color:tc,size:10};
+  BL.yaxis.tickfont  = {color:tc,size:10};
   BL.xaxis.showgrid  = false;
-  BL.legend.font     = {color:lc,size:11};
-  BL.legend.y        = -0.2;
-  BL.margin          = {t:8,b:44,l:48,r:10};
+  BL.legend.font     = {color:lc,size:10};
+  BL.legend.y        = -0.24;
+  BL.margin          = {t:8,b:46,l:44,r:8};
 }
 
 function applyTheme(theme){
