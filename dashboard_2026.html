@@ -874,7 +874,7 @@ function renderPie(){
 
 function renderSemanas(){
   const teams=activeTeams(); const si=semIndices(); const lbs=si.map(i=>D.semanas.datas[i]);
-  const traces=teams.map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:si.map(i=>D.semanas[t][i]||0),marker:{color:COL[t]+"BB",line:{color:COL[t],width:1}}}));
+  const traces=teams.map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:si.map(i=>D.semanas[t][i]||0),text:si.map(i=>fmtN(D.semanas[t][i]||0)),textposition:"outside",textfont:{size:9,color:COL[t]},marker:{color:COL[t]+"CC",line:{color:COL[t],width:0}}}));
   const tit=S.mes===-1?"Todos os Meses":MONTHS[S.mes];
   document.getElementById("sem-title").textContent=`Tickets por Semana — ${tit}`;
   Plotly.newPlot("ch-semanas",traces,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,b:55}},CFG);
@@ -963,7 +963,7 @@ function renderCSATCharts(){
     tvol.push({name:tshort+" Negativo",type:"bar",x:lbs,y:mi.map(i=>D.csat[t].bad[i]||0),marker:{color:"rgba(244,63,94,0.4)",line:{color:"#F43F5E",width:1}},legendgroup:t,showlegend:false});
   });
   Plotly.newPlot("ch-csat-vol",tvol,{...BL,barmode:"group",showlegend:true},CFG);
-  const tpct=teams.map(t=>({name:TNOMES[t],type:"scatter",mode:"lines+markers",x:lbs,y:mi.map(i=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;}),line:{color:COL[t],width:2.5,shape:"spline"},marker:{size:5,color:COL[t]}}));
+  const tpct=teams.map(t=>{const yv=mi.map(i=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;});return{name:TNOMES[t],type:"scatter",mode:"lines+markers+text",x:lbs,y:yv,text:yv.map(v=>v!=null?v+"%":""),textposition:"top center",textfont:{size:10,color:COL[t]},line:{color:COL[t],width:2.5,shape:"spline"},marker:{size:5,color:COL[t]}};});
   tpct.push({name:"Meta 90%",type:"scatter",mode:"lines",x:lbs,y:lbs.map(()=>90),line:{color:"rgba(100,116,139,0.4)",width:1.5,dash:"dash"},showlegend:true});
   Plotly.newPlot("ch-csat-pct",tpct,{...BL,yaxis:{...BL.yaxis,range:[60,100],ticksuffix:"%"},showlegend:true},CFG);
 }
@@ -1232,20 +1232,20 @@ function toggleSM(el){
 function renderTrends(){
   const lbs=MONTHS;
   // Volume por time
-  const ttv=["ia","saude","resolve","logistica"].map(t=>({name:TNOMES[t],type:"scatter",mode:"lines+markers",x:lbs,y:D.tickets[t],line:{color:COL[t],width:2.5,shape:"spline"},fill:"tozeroy",fillcolor:COL[t]+"18",marker:{size:5,color:COL[t]}}));
+  const ttv=["ia","saude","resolve","logistica"].map(t=>({name:TNOMES[t],type:"scatter",mode:"lines+markers+text",x:lbs,y:D.tickets[t],text:D.tickets[t].map(v=>v>0?fmtN(v):""),textposition:"top center",textfont:{size:10,color:COL[t]},line:{color:COL[t],width:2.5,shape:"spline"},marker:{size:6,color:COL[t]}}));
   Plotly.newPlot("ch-trend-vol",ttv,{...BL,showlegend:true,margin:{...BL.margin,t:28}},CFG);
   // Motivos
-  const ttm=(D.motivos||[]).map((m,i)=>({name:m.nome,type:"scatter",mode:"lines+markers",x:lbs,y:m.monthly,line:{color:COLORS_M[i],width:2,shape:"spline"},marker:{size:5,color:COLORS_M[i]}}));
+  const ttm=(D.motivos||[]).map((m,i)=>({name:m.nome,type:"scatter",mode:"lines+markers+text",x:lbs,y:m.monthly,text:m.monthly.map(v=>v>0?fmtN(v):""),textposition:"top center",textfont:{size:9,color:COLORS_M[i]},line:{color:COLORS_M[i],width:2,shape:"spline"},marker:{size:5,color:COLORS_M[i]}}));
   Plotly.newPlot("ch-trend-mot",ttm,{...BL,showlegend:true,legend:{...BL.legend,orientation:"v",x:1.01,y:1},margin:{t:28,b:50,l:55,r:165}},CFG);
   // CSAT %
   const ttc=["ia","saude","resolve","logistica"].map(t=>{
     const yv=MONTHS.map((_,i)=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;});
-    return{name:TNOMES[t],type:"scatter",mode:"lines+markers",x:lbs,y:yv,line:{color:COL[t],width:2.5,shape:"spline"},fill:"tozeroy",fillcolor:COL[t]+"14",marker:{size:5,color:COL[t]}};
+    return{name:TNOMES[t],type:"scatter",mode:"lines+markers+text",x:lbs,y:yv,text:yv.map(v=>v!=null?v+"%":""),textposition:"top center",textfont:{size:10,color:COL[t]},line:{color:COL[t],width:2.5,shape:"spline"},marker:{size:5,color:COL[t]}};
   });
   ttc.push({name:"Meta 90%",type:"scatter",mode:"lines",x:lbs,y:lbs.map(()=>90),line:{color:"rgba(100,116,139,0.4)",width:1.5,dash:"dash"}});
   Plotly.newPlot("ch-trend-csat",ttc,{...BL,yaxis:{...BL.yaxis,range:[0,105],ticksuffix:"%"},showlegend:true,margin:{...BL.margin,t:28}},CFG);
   // Avaliações negativas
-  const ttb=["ia","saude","resolve","logistica"].map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:D.csat[t].bad,marker:{color:COL[t]+"CC",line:{color:COL[t],width:0}}}));
+  const ttb=["ia","saude","resolve","logistica"].map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:D.csat[t].bad,text:D.csat[t].bad.map(v=>v>0?fmtN(v):""),textposition:"outside",textfont:{size:10,color:COL[t]},marker:{color:COL[t]+"CC",line:{color:COL[t],width:0}}}));
   Plotly.newPlot("ch-trend-bad",ttb,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,t:28}},CFG);
   renderTrendTable();
 }
