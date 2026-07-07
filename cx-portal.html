@@ -824,19 +824,20 @@ canvas.med-chart{max-height:250px}
       <div class="s-header">
         <div>
           <h1 class="s-title">Time de Atendimento</h1>
-          <p class="s-sub">Performance individual por agente — Blis Resolve e Blis Saúde · Jan–Jun 2026</p>
+          <p class="s-sub">Performance individual por agente — Blis Resolve e Blis Saúde · Jan–Jul 2026</p>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <label style="font-size:12px;color:#6B7280;font-weight:500">Mês:</label>
           <select id="agentes-perf-mes-filter" onchange="_doRenderAgentesPerformance(document.getElementById('block-agentes-perf-body'), typeof _agentesPerformanceInline!=='undefined'?_agentesPerformanceInline:[])"
             style="font-size:12px;padding:5px 10px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#374151;cursor:pointer;font-family:inherit">
-            <option value="todos">Todos (Jan–Jun)</option>
+            <option value="todos">Todos (Jan–Jul)</option>
             <option value="2026-01">Janeiro 2026</option>
             <option value="2026-02">Fevereiro 2026</option>
             <option value="2026-03">Março 2026</option>
             <option value="2026-04">Abril 2026</option>
             <option value="2026-05">Maio 2026</option>
             <option value="2026-06">Junho 2026</option>
+            <option value="2026-07">Julho 2026</option>
           </select>
         </div>
       </div>
@@ -4372,8 +4373,8 @@ function _doRenderAgentesPerformance(wrap, rows) {
   const saudeAgents   = aggByAgent(filtered.filter(r => r.grupo === 'saude'));
 
   // Dias úteis por mês (Seg–Sex) — 2026
-  const diasUteis = {'2026-01':22,'2026-02':20,'2026-03':21,'2026-04':22,'2026-05':21,'2026-06':13,'todos':119};
-  const diasLabel = {'2026-01':'Jan (22 dias úteis)','2026-02':'Fev (20)','2026-03':'Mar (21)','2026-04':'Abr (22)','2026-05':'Mai (21)','2026-06':'Jun (13 até hoje)','todos':'Jan–Jun (119 dias úteis)'};
+  const diasUteis = {'2026-01':22,'2026-02':20,'2026-03':21,'2026-04':22,'2026-05':21,'2026-06':22,'2026-07':5,'todos':133};
+  const diasLabel = {'2026-01':'Jan (22 dias úteis)','2026-02':'Fev (20)','2026-03':'Mar (21)','2026-04':'Abr (22)','2026-05':'Mai (21)','2026-06':'Jun (22)','2026-07':'Jul (5 até hoje)','todos':'Jan–Jul (133 dias úteis)'};
   const dias      = diasUteis[mesFiltro] || 1;
   const totalTix  = filtered.reduce((s,r) => s + (r.total_tickets||0), 0);
   const mediaDia  = dias > 0 ? (totalTix / dias).toFixed(1) : '—';
@@ -4439,8 +4440,8 @@ function _renderAgentesPerfChart(rows) {
   const canvas = document.getElementById('chartAgentesPerf');
   if (!canvas) return;
 
-  const MESES  = ['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06'];
-  const LABELS = ['Jan','Fev','Mar','Abr','Mai','Jun'];
+  const MESES  = ['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06','2026-07'];
+  const LABELS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul'];
 
   const agentMap = {};
   for (const r of rows) {
@@ -4498,7 +4499,7 @@ function _renderTmaSemanalChart(rows) {
   if (_chartTmaSaude)   { try { _chartTmaSaude.destroy();   } catch(_){} _chartTmaSaude   = null; }
   if (!rows || !rows.length) return;
 
-  const SEMANAS = ['2026-W17','2026-W18','2026-W19','2026-W20','2026-W21','2026-W22','2026-W23','2026-W24'];
+  const SEMANAS = ['2026-W17','2026-W18','2026-W19','2026-W20','2026-W21','2026-W22','2026-W23','2026-W24','2026-W25','2026-W26','2026-W27'];
   const LABELS  = SEMANAS.map(s => s.replace('2026-',''));
 
   // Build agentMap: aid → { nome, grupo, byWeek: {semana: tma_h} }
