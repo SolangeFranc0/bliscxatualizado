@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script src="config/metabase.config.js?v=20260524"></script>
 <style>
 /* ═══════════════════════════════════════════════════════
@@ -1524,14 +1525,38 @@ canvas.med-chart{max-height:250px}
         </div>
       </div>
 
+      <!-- Compras por Número de Pedido por Mês -->
+      <div class="card" id="block-compras-por-pedido">
+        <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div>
+            <div class="block-title">Novos Clientes por Mês — por Safra de Compras</div>
+            <div class="block-sub">Clientes pelo mês da 1ª compra: quantos ficaram em 1 pedido, foram para 2ª, 3ª ou 4ª+</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <select id="compras-por-pedido-ano" style="font-size:12px;border:1px solid var(--g200);border-radius:6px;padding:4px 8px;background:var(--bg);color:var(--body);cursor:pointer" onchange="_renderComprasPorPedido()">
+              <option value="">Todos os anos</option>
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body chart-wrap" style="min-height:250px">
+          <div class="skel" style="width:100%;height:230px;border-radius:8px"></div>
+        </div>
+      </div>
+
       <!-- Safra cohort -->
       <div class="card" id="block-safra">
         <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
           <div>
             <div class="block-title">Análise por Safra (Coorte)</div>
-            <div class="block-sub">Clientes agrupados pelo mês da primeira compra — retenção e recompra por geração</div>
+            <div class="block-sub">Clientes agrupados pelo mês da 1ª compra — evolução para 1ª, 2ª, 3ª, 4ª+ compra</div>
           </div>
-          <span class="badge" id="safra-count" style="display:none"></span>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="badge" id="safra-count" style="display:none"></span>
+            <button onclick="_downloadSafraXLSX()" style="display:flex;align-items:center;gap:5px;font-size:12px;background:#059669;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-weight:600">↓ XLSX</button>
+          </div>
         </div>
         <div class="card-body" style="padding-top:8px">
           <div class="skel" style="width:100%;height:200px;border-radius:8px"></div>
@@ -3627,6 +3652,7 @@ function _mapClientesAnalytics() {
   _med.raw.safraAnalise = sfRows.map(r => ({
     safra: r[0], total_usuarios: r[1], com_recompra: r[2], pct_recompra: r[3], media_pedidos: r[4],
     avg_dias_1_2: r[5] ?? null, inativos: r[6] ?? null, pct_ativou_90d: r[7] ?? null,
+    n_1: r[8] ?? null, n_2: r[9] ?? null, n_3: r[10] ?? null, n_4plus: r[11] ?? null,
   }));
 
   // Tipo de cliente (card 404 + card 203)
@@ -3717,6 +3743,7 @@ function _renderClienteAnalytics() {
   _safe(_renderProtocolo);
   _safe(_renderTipoCliente);
   _safe(_renderRecompraMensal);
+  _safe(_renderComprasPorPedido);
   _safe(_renderSafra);
   _safe(_renderComportamentoKPIs);
   _safe(_renderSafraAvancado);
@@ -4569,6 +4596,75 @@ function _renderTmaSemanalChart(rows) {
 }
 
 let _safraSortCol = 'safra', _safraSortDir = 1;
+let _chartComprasPorPedido = null;
+function _renderComprasPorPedido() {
+  const wrap = document.querySelector('#block-compras-por-pedido .card-body');
+  if (!wrap) return;
+
+  const anoSel = (document.getElementById('compras-por-pedido-ano')?.value || '').trim();
+  const src = (_med.raw.tipoClienteMensal && _med.raw.tipoClienteMensal.length)
+    ? _med.raw.tipoClienteMensal
+    : (typeof _tipoClienteMensalInline !== 'undefined' ? _tipoClienteMensalInline : []);
+
+  let rows = src.filter(r => r && r.periodo && r.tipo_cliente);
+  if (anoSel) rows = rows.filter(r => String(r.periodo).startsWith(anoSel));
+  if (!rows.length) {
+    wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados disponíveis</p>';
+    return;
+  }
+
+  const TIPOS = ['Novo','Recorrente','Fiel','Alta Frequência'];
+  const LABELS_PT = { 'Novo':'1ª Compra (Novo)','Recorrente':'2ª-3ª Compra (Recorrente)','Fiel':'4ª-6ª Compra (Fiel)','Alta Frequência':'7ª+ Compra (Alta Freq.)' };
+  const COLORS = { 'Novo':'#6366f1','Recorrente':'#10b981','Fiel':'#f59e0b','Alta Frequência':'#ef4444' };
+
+  const months = [...new Set(rows.map(r => String(r.periodo).slice(0,7)))].sort();
+  const byMonthTipo = {};
+  for (const r of rows) {
+    const m = String(r.periodo).slice(0,7);
+    if (!byMonthTipo[m]) byMonthTipo[m] = {};
+    byMonthTipo[m][r.tipo_cliente] = (byMonthTipo[m][r.tipo_cliente] || 0) + (r.qtd_usuarios || 0);
+  }
+
+  wrap.innerHTML = '<canvas id="chartComprasPorPedido" style="max-height:280px"></canvas>';
+  if (_chartComprasPorPedido) { _chartComprasPorPedido.destroy(); _chartComprasPorPedido = null; }
+
+  _chartComprasPorPedido = new Chart(document.getElementById('chartComprasPorPedido'), {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: TIPOS.map(tipo => ({
+        label: LABELS_PT[tipo] || tipo,
+        data: months.map(m => byMonthTipo[m]?.[tipo] || 0),
+        backgroundColor: COLORS[tipo] + 'CC',
+        borderColor: COLORS[tipo],
+        borderWidth: 1,
+        borderRadius: 3,
+        stack: 'safra',
+      })),
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+        tooltip: {
+          mode: 'index', intersect: false,
+          callbacks: {
+            footer: (items) => {
+              const tot = items.reduce((s, i) => s + i.raw, 0);
+              return `Total: ${tot.toLocaleString('pt-BR')}`;
+            },
+          },
+        },
+        datalabels: { display: false },
+      },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: { stacked: true, grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { size: 10 } } },
+      },
+    },
+  });
+}
+
 function _renderSafra() {
   const wrap = document.querySelector('#block-safra .card-body');
   if (!wrap) return;
@@ -4587,30 +4683,78 @@ function _renderSafra() {
 
   if (badge) { badge.textContent = rows.length + ' safras'; badge.style.display = ''; }
 
-  const maxRec = Math.max(...rows.map(r => r.pct_recompra || 0));
+  const hasN = rows.some(r => r.n_1 != null);
   const ths = (col, label) => `<th onclick="_sortSafra('${col}')" style="cursor:pointer">${label} ${_safraSortCol===col?(_safraSortDir===1?'↑':'↓'):'↕'}</th>`;
   const _protoBannerSafra = _analytics.protocolo
     ? `<div style="margin-bottom:10px;font-size:11px;color:#1e40af;background:#eff6ff;border-radius:6px;padding:5px 10px;border-left:3px solid #3b82f6">Safras globais da base — cohort não tem breakdown por protocolo</div>`
     : '';
+
   wrap.innerHTML = _protoBannerSafra + `<div style="overflow-x:auto"><table class="safra-table">
     <thead><tr>
       <th onclick="_sortSafra('safra')" style="text-align:left;cursor:pointer">Safra ${_safraSortCol==='safra'?(_safraSortDir===1?'↑':'↓'):'↕'}</th>
-      ${ths('total_usuarios','Clientes')}${ths('com_recompra','Recompraram')}${ths('pct_recompra','% Recompra')}${ths('media_pedidos','Média Pedidos')}
+      ${ths('total_usuarios','Total')}
+      ${hasN ? `${ths('n_1','1ª Compra')}${ths('n_2','2ª Compra')}${ths('n_3','3ª Compra')}${ths('n_4plus','4ª+ Compra')}` : `${ths('com_recompra','Recompraram')}`}
+      ${ths('pct_recompra','% Recompra')}${ths('media_pedidos','Média Ped.')}
       <th>Retenção</th>
     </tr></thead>
     <tbody>${rows.map(r => {
-      const pct = r.pct_recompra != null ? (r.pct_recompra * 100).toFixed(1) + '%' : '—';
-      const pcl = r.pct_recompra >= .4 ? 'pct-good' : r.pct_recompra >= .25 ? 'pct-mid' : r.pct_recompra > 0 ? 'pct-bad' : '';
+      const pct  = r.pct_recompra != null ? (r.pct_recompra * 100).toFixed(1) + '%' : '—';
+      const pcl  = r.pct_recompra >= .4 ? 'pct-good' : r.pct_recompra >= .25 ? 'pct-mid' : r.pct_recompra > 0 ? 'pct-bad' : '';
+      const maxRec = Math.max(...rows.map(x => x.pct_recompra || 0));
       const barW = maxRec ? Math.round((r.pct_recompra || 0) / maxRec * 100) : 0;
+      const tot  = r.total_usuarios || 0;
+      const n1p  = hasN && r.n_1 != null && tot ? Math.round(r.n_1/tot*100) : null;
+      const n2p  = hasN && r.n_2 != null && tot ? Math.round(r.n_2/tot*100) : null;
+      const n3p  = hasN && r.n_3 != null && tot ? Math.round(r.n_3/tot*100) : null;
+      const n4p  = hasN && r.n_4plus != null && tot ? Math.round(r.n_4plus/tot*100) : null;
+      const nCell = (n, pct) => n != null
+        ? `${Number(n).toLocaleString('pt-BR')}<small style="color:#9CA3AF;margin-left:3px">(${pct}%)</small>`
+        : '—';
       return `<tr>
         <td>${r.safra}</td>
-        <td>${r.total_usuarios != null ? Number(r.total_usuarios).toLocaleString('pt-BR') : '—'}</td>
-        <td>${r.com_recompra   != null ? Number(r.com_recompra).toLocaleString('pt-BR')   : '—'}</td>
+        <td>${tot ? Number(tot).toLocaleString('pt-BR') : '—'}</td>
+        ${hasN
+          ? `<td style="color:#6366f1">${nCell(r.n_1, n1p)}</td>
+             <td style="color:#10b981">${nCell(r.n_2, n2p)}</td>
+             <td style="color:#f59e0b">${nCell(r.n_3, n3p)}</td>
+             <td style="color:#ef4444">${nCell(r.n_4plus, n4p)}</td>`
+          : `<td>${r.com_recompra != null ? Number(r.com_recompra).toLocaleString('pt-BR') : '—'}</td>`
+        }
         <td>${pcl ? `<span class="pct-pill ${pcl}">${pct}</span>` : pct}</td>
-        <td>${r.media_pedidos  != null ? r.media_pedidos.toFixed(2)  : '—'}</td>
+        <td>${r.media_pedidos != null ? r.media_pedidos.toFixed(2) : '—'}</td>
         <td><div style="height:6px;background:var(--g100);border-radius:3px;overflow:hidden;min-width:60px"><div style="height:100%;width:${barW}%;background:linear-gradient(90deg,var(--g600),var(--g400));border-radius:3px"></div></div></td>
       </tr>`;
     }).join('')}</tbody></table></div>`;
+}
+
+function _downloadSafraXLSX() {
+  const rows = (_med.raw.safraAnalise || []).filter(r => r && r.safra);
+  if (!rows.length) { alert('Sem dados de safra para exportar.'); return; }
+  const hasN = rows.some(r => r.n_1 != null);
+  const header = hasN
+    ? ['Safra','Total Clientes','1ª Compra','% 1ª','2ª Compra','% 2ª','3ª Compra','% 3ª','4ª+ Compra','% 4ª+','Recompraram','% Recompra','Média Pedidos','Intervalo 1→2 (dias)','Inativos','% Ativou 90d']
+    : ['Safra','Total Clientes','Recompraram','% Recompra','Média Pedidos','Intervalo 1→2 (dias)','Inativos','% Ativou 90d'];
+  const pct = v => v != null ? +(v*100).toFixed(1) : null;
+  const data = rows.map(r => {
+    const tot = r.total_usuarios || 0;
+    if (hasN) return [
+      r.safra, tot,
+      r.n_1 ?? null, tot && r.n_1 != null ? +(r.n_1/tot*100).toFixed(1) : null,
+      r.n_2 ?? null, tot && r.n_2 != null ? +(r.n_2/tot*100).toFixed(1) : null,
+      r.n_3 ?? null, tot && r.n_3 != null ? +(r.n_3/tot*100).toFixed(1) : null,
+      r.n_4plus ?? null, tot && r.n_4plus != null ? +(r.n_4plus/tot*100).toFixed(1) : null,
+      r.com_recompra ?? null, pct(r.pct_recompra),
+      r.media_pedidos ?? null, r.avg_dias_1_2 ?? null,
+      r.inativos ?? null, pct(r.pct_ativou_90d),
+    ];
+    return [r.safra, tot, r.com_recompra ?? null, pct(r.pct_recompra), r.media_pedidos ?? null, r.avg_dias_1_2 ?? null, r.inativos ?? null, pct(r.pct_ativou_90d)];
+  });
+  if (typeof XLSX === 'undefined') { alert('Biblioteca XLSX não carregada. Verifique a conexão.'); return; }
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet([header, ...data]);
+  ws['!cols'] = header.map(() => ({ wch: 18 }));
+  XLSX.utils.book_append_sheet(wb, ws, 'Safras');
+  XLSX.writeFile(wb, `safras_blis_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
 function _sortSafra(col) {
