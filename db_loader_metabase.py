@@ -620,6 +620,10 @@ def load_safra_analise(sb: Client, mb: dict) -> None:
             "avg_dias_1_2":   safe_float(r[5]) if len(r) > 5 else None,
             "inativos":       safe_int(r[6])   if len(r) > 6 else None,
             "pct_ativou_90d": safe_float(r[7]) if len(r) > 7 else None,
+            "n_1":            safe_int(r[8])   if len(r) > 8  else None,
+            "n_2":            safe_int(r[9])   if len(r) > 9  else None,
+            "n_3":            safe_int(r[10])  if len(r) > 10 else None,
+            "n_4plus":        safe_int(r[11])  if len(r) > 11 else None,
             "data_carga":     TODAY,
         })
     n = upsert_batch(sb, "mb_safra_analise", records, "safra")

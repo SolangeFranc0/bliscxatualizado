@@ -1287,6 +1287,7 @@ def sync_metabase(save_js: bool = True) -> bool:
                 'total': 0, 'com_recompra': 0, 'total_pedidos': 0,
                 'dias_1_2_sum': 0, 'dias_1_2_cnt': 0,
                 'ativou_90d': 0, 'inativos': 0,
+                'n_1': 0, 'n_2': 0, 'n_3': 0, 'n_4plus': 0,
             })
             tipo_map  = defaultdict(lambda: {'total': 0, 'total_pedidos': 0, 'receita': 0.0})
             TIPOS = [('Novo', 1, 1), ('Recorrente', 2, 3), ('Fiel', 4, 6), ('Alta Frequência', 7, 9999)]
@@ -1307,6 +1308,10 @@ def sync_metabase(save_js: bool = True) -> bool:
                     sd['total']        += 1
                     sd['com_recompra'] += (1 if tot > 1 else 0)
                     sd['total_pedidos'] += tot
+                    if tot == 1:       sd['n_1']     += 1
+                    elif tot == 2:     sd['n_2']     += 1
+                    elif tot == 3:     sd['n_3']     += 1
+                    else:              sd['n_4plus']  += 1
 
                     d1 = str(r.get('first_order_date') or '')[:10]
                     d2 = str(r.get('second_order_date') or '')[:10]
@@ -1340,6 +1345,7 @@ def sync_metabase(save_js: bool = True) -> bool:
             safra_cols = [{'name': c} for c in [
                 'safra','total_usuarios','com_recompra','pct_recompra','media_pedidos',
                 'avg_dias_1_2','inativos','pct_ativou_90d',
+                'n_1','n_2','n_3','n_4plus',
             ]]
             safra_rows = []
             for safra in sorted(safra_map.keys()):
@@ -1351,6 +1357,7 @@ def sync_metabase(save_js: bool = True) -> bool:
                     round(d['com_recompra'] / d['total'], 4) if d['total'] else 0,
                     round(d['total_pedidos'] / d['total'], 2) if d['total'] else 0,
                     avg_d12, d['inativos'], pct90,
+                    d['n_1'], d['n_2'], d['n_3'], d['n_4plus'],
                 ])
             result['safraAnalise'] = {'data': {'cols': safra_cols, 'rows': safra_rows}}
 
