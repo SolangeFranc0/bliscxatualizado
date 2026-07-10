@@ -74,7 +74,8 @@
       "estorno_consul": "Estorno Consulta",
       "nota_fiscal_consulta": "Nota Fiscal Consulta",
       "valor_de_consulta": "Valor de Consulta",
-      "valor_de_produto": "Valor de Produto"
+      "valor_de_produto": "Valor de Produto",
+      "estorno_pedido": "Estorno Pedido"
     }
   },
   "43754883922323": {
@@ -213,7 +214,8 @@
       "não_informou_motivo_desistência": "Não informou motivo desistência",
       "não_tem_a_documentação_necessária": "Não tem a documentação necessária",
       "parcelamento_errado": "Parcelamento errado",
-      "contato_fraude": "Contato Fraude"
+      "contato_fraude": "Contato Fraude",
+      "chargeback": "Chargeback"
     }
   }
 }
