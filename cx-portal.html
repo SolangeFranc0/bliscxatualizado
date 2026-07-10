@@ -3776,6 +3776,7 @@ function applyAnalyticsFilter() {
   _renderProtocolo();
   _renderTipoCliente();
   _renderRecompraMensal();
+  _renderComprasPorPedido();
   _renderSaudeRecompra();
   _renderSafra();
   _renderComportamentoKPIs();
@@ -4602,28 +4603,19 @@ function _renderComprasPorPedido() {
   if (!wrap) return;
 
   const anoSel = (document.getElementById('compras-por-pedido-ano')?.value || '').trim();
-  const src = (_med.raw.tipoClienteMensal && _med.raw.tipoClienteMensal.length)
-    ? _med.raw.tipoClienteMensal
-    : (typeof _tipoClienteMensalInline !== 'undefined' ? _tipoClienteMensalInline : []);
+  let rows = (_med.raw.safraAnalise || []).filter(r => r && r.safra && r.n_1 != null);
+  if (anoSel) rows = rows.filter(r => String(r.safra).startsWith(anoSel));
 
-  let rows = src.filter(r => r && r.periodo && r.tipo_cliente);
-  if (anoSel) rows = rows.filter(r => String(r.periodo).startsWith(anoSel));
   if (!rows.length) {
-    wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados disponíveis</p>';
+    wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de coorte disponíveis — aguarde o carregamento ou selecione outro ano</p>';
     return;
   }
 
-  const TIPOS = ['Novo','Recorrente','Fiel','Alta Frequência'];
-  const LABELS_PT = { 'Novo':'1ª Compra (Novo)','Recorrente':'2ª-3ª Compra (Recorrente)','Fiel':'4ª-6ª Compra (Fiel)','Alta Frequência':'7ª+ Compra (Alta Freq.)' };
-  const COLORS = { 'Novo':'#6366f1','Recorrente':'#10b981','Fiel':'#f59e0b','Alta Frequência':'#ef4444' };
-
-  const months = [...new Set(rows.map(r => String(r.periodo).slice(0,7)))].sort();
-  const byMonthTipo = {};
-  for (const r of rows) {
-    const m = String(r.periodo).slice(0,7);
-    if (!byMonthTipo[m]) byMonthTipo[m] = {};
-    byMonthTipo[m][r.tipo_cliente] = (byMonthTipo[m][r.tipo_cliente] || 0) + (r.qtd_usuarios || 0);
-  }
+  const labels  = rows.map(r => String(r.safra).slice(0,7));
+  const d1      = rows.map(r => r.n_1 || 0);
+  const d2      = rows.map(r => r.n_2 || 0);
+  const d3      = rows.map(r => r.n_3 || 0);
+  const d4plus  = rows.map(r => r.n_4plus || 0);
 
   wrap.innerHTML = '<canvas id="chartComprasPorPedido" style="max-height:280px"></canvas>';
   if (_chartComprasPorPedido) { _chartComprasPorPedido.destroy(); _chartComprasPorPedido = null; }
@@ -4631,17 +4623,15 @@ function _renderComprasPorPedido() {
   _chartComprasPorPedido = new Chart(document.getElementById('chartComprasPorPedido'), {
     type: 'bar',
     data: {
-      labels: months,
-      datasets: TIPOS.map(tipo => ({
-        label: LABELS_PT[tipo] || tipo,
-        data: months.map(m => byMonthTipo[m]?.[tipo] || 0),
-        backgroundColor: COLORS[tipo] + 'CC',
-        borderColor: COLORS[tipo],
-        borderWidth: 1,
-        borderRadius: 3,
-        stack: 'safra',
-      })),
+      labels,
+      datasets: [
+        { label: '1ª Compra apenas', data: d1,    backgroundColor: '#6366f1CC', borderColor: '#6366f1', borderWidth: 1, borderRadius: 3 },
+        { label: '2ª Compra',        data: d2,    backgroundColor: '#10b981CC', borderColor: '#10b981', borderWidth: 1, borderRadius: 3 },
+        { label: '3ª Compra',        data: d3,    backgroundColor: '#f59e0bCC', borderColor: '#f59e0b', borderWidth: 1, borderRadius: 3 },
+        { label: '4ª+ Compra',       data: d4plus, backgroundColor: '#ef4444CC', borderColor: '#ef4444', borderWidth: 1, borderRadius: 3 },
+      ],
     },
+    plugins: [ChartDataLabels],
     options: {
       responsive: true, maintainAspectRatio: true,
       plugins: {
@@ -4651,7 +4641,7 @@ function _renderComprasPorPedido() {
           callbacks: {
             footer: (items) => {
               const tot = items.reduce((s, i) => s + i.raw, 0);
-              return `Total: ${tot.toLocaleString('pt-BR')}`;
+              return 'Total safra: ' + tot.toLocaleString('pt-BR');
             },
           },
         },
