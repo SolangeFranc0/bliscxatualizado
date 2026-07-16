@@ -45,7 +45,26 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/metabase_data.js services/metabase.js output/update_log.txt
-          [ -f output/last_zendesk_sync.txt ] && git add output/last_zendesk_sync.txt || true
           git diff --staged --quiet || git commit -m "data: atualização automática $(TZ=America/Sao_Paulo date '+%d/%m/%Y %H:%M BRT')"
           git pull --rebase origin main
           git push
+
+      - name: Registrar falha no Supabase
+        if: failure()
+        env:
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          python3 - <<'EOF'
+          import os, json, urllib.request
+          from datetime import datetime, timezone
+          url  = os.environ['SUPABASE_URL'].rstrip('/') + '/rest/v1/cx_sync_state'
+          key  = os.environ['SUPABASE_SERVICE_KEY']
+          ts   = datetime.now(timezone.utc).isoformat()
+          body = json.dumps([{"key": "last_sync_error", "value": ts, "atualizado_em": ts}]).encode()
+          req  = urllib.request.Request(url, data=body, method='POST', headers={
+              'apikey': key, 'Authorization': f'Bearer {key}',
+              'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates'})
+          urllib.request.urlopen(req)
+          print(f"Falha registrada: {ts}")
+          EOF

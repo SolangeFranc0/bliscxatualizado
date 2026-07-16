@@ -743,6 +743,9 @@ canvas.med-chart{max-height:250px}
         <span class="cx-logo-sub">2026.1</span>
       </div>
     </div>
+    <div id="sync-status" style="display:none;margin:0 8px 10px;padding:6px 10px;border-radius:8px;font-size:10.5px;font-weight:600;line-height:1.4">
+      <span id="sync-status-icon"></span> <span id="sync-status-text"></span>
+    </div>
 
     <nav class="cx-nav">
       <button class="cx-nav-item active" id="nav-dashboard" onclick="show('dashboard',this)">
@@ -5175,7 +5178,46 @@ document.addEventListener('DOMContentLoaded', () => {
   _loadKbArticles();
   _loadLgpdData();
   filterArticles();
+  _initSyncStatus();
 });
+
+async function _initSyncStatus() {
+  try {
+    const rows = await _sbGet('cx_sync_state', 'select=key,value,atualizado_em');
+    if (!rows || !rows.length) return;
+    const st = {};
+    rows.forEach(r => st[r.key] = r.value);
+
+    const el   = document.getElementById('sync-status');
+    const icon = document.getElementById('sync-status-icon');
+    const text = document.getElementById('sync-status-text');
+    if (!el) return;
+
+    const okDate  = st.last_sync_ok    ? new Date(st.last_sync_ok)    : null;
+    const errDate = st.last_sync_error  ? new Date(st.last_sync_error)  : null;
+    const isError = errDate && (!okDate || errDate > okDate);
+    const staleMs = 11 * 60 * 60 * 1000; // 11h — mais de um ciclo sem update
+    const isStale = okDate && (Date.now() - okDate.getTime() > staleMs);
+
+    const fmt = d => d.toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'});
+
+    if (isError) {
+      el.style.cssText += ';background:#FEE2E2;color:#DC2626';
+      icon.textContent = '✗';
+      text.textContent = 'Falha na última sync';
+    } else if (isStale) {
+      el.style.cssText += ';background:#FEF3C7;color:#92400E';
+      icon.textContent = '⚠';
+      text.textContent = okDate ? `Sync: ${fmt(okDate)}` : 'Sem dados recentes';
+    } else if (okDate) {
+      el.style.cssText += ';background:#F0FDF4;color:#16a34a';
+      icon.textContent = '✓';
+      text.textContent = `Sync: ${fmt(okDate)}`;
+    }
+
+    if (okDate || isError) el.style.display = 'block';
+  } catch(e) { /* silencioso */ }
+}
 </script>
 </body>
 </html>

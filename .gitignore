@@ -4,5 +4,6 @@ __pycache__/
 config/metabase.config.js
 .env
 output/
+!output/update_log.txt
 dashboard_2026.backup.html
 .DS_Store

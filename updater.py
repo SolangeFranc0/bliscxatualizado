@@ -1103,12 +1103,19 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
         agents = _ext.fetch_agents()
         log.info(f"  agentes: {len(agents)}")
 
-        # Lê cursor do último sync bem-sucedido para fetch incremental
+        # Lê cursor incremental: Supabase primeiro, arquivo local como fallback
         since_ts = None
-        if ZD_SYNC_FILE.exists():
+        cursor_str = _sb_state_get("zendesk_cursor")
+        if cursor_str:
+            try:
+                since_ts = int(cursor_str)
+                log.info(f"Zendesk incremental (Supabase) desde ts={since_ts} ({datetime.fromtimestamp(since_ts, tz=BRT).strftime('%d/%m/%Y %H:%M BRT')})")
+            except ValueError:
+                since_ts = None
+        if since_ts is None and ZD_SYNC_FILE.exists():
             try:
                 since_ts = int(ZD_SYNC_FILE.read_text().strip())
-                log.info(f"Zendesk incremental desde ts={since_ts} ({datetime.fromtimestamp(since_ts, tz=BRT).strftime('%d/%m/%Y %H:%M BRT')})")
+                log.info(f"Zendesk incremental (arquivo) desde ts={since_ts} ({datetime.fromtimestamp(since_ts, tz=BRT).strftime('%d/%m/%Y %H:%M BRT')})")
             except (ValueError, OSError):
                 since_ts = None
 
@@ -1289,8 +1296,9 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
         except Exception as e:
             log.warning(f"Supabase: load_comentarios_csat falhou: {e}")
         log.info("Supabase Zendesk: sync concluído.")
-        # Salva cursor incremental só após sync bem-sucedido
+        # Salva cursor incremental (Supabase + arquivo local)
         if zd_end_time:
+            _sb_state_set("zendesk_cursor", str(zd_end_time))
             ZD_SYNC_FILE.write_text(str(zd_end_time))
             log.info(f"Cursor Zendesk salvo: {zd_end_time}")
     except Exception as e:
@@ -2027,7 +2035,40 @@ def _append_log(status: str, ts: str, issues: list[str]):
     with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(line + "\n")
 
+
+def _sb_state_get(key: str) -> str | None:
+    """Lê valor do cx_sync_state no Supabase."""
+    try:
+        import db_loader_metabase as _dbl
+        row = _dbl.get_client().table("cx_sync_state").select("value").eq("key", key).execute().data
+        return row[0]["value"] if row else None
+    except Exception:
+        return None
+
+
+def _sb_state_set(key: str, value: str) -> None:
+    """Upserta valor no cx_sync_state no Supabase."""
+    try:
+        import db_loader_metabase as _dbl
+        _dbl.get_client().table("cx_sync_state").upsert(
+            {"key": key, "value": value, "atualizado_em": datetime.now(BRT).isoformat()},
+            on_conflict="key"
+        ).execute()
+    except Exception as e:
+        log.warning(f"cx_sync_state set '{key}' falhou: {e}")
+
 # ── Main ──────────────────────────────────────────────────────────────────────
+
+def _refresh_tma_via_rpc() -> None:
+    """Chama refresh_cx_tma_semanal() no Supabase — 1 chamada em vez de 26+ HTTP requests."""
+    try:
+        import db_loader_metabase as _dbl
+        _dbl.get_client().rpc("refresh_cx_tma_semanal").execute()
+        log.info("cx_tma_semanal: atualizado via RPC Supabase")
+    except Exception as e:
+        log.warning(f"refresh_cx_tma_semanal RPC falhou, tentando fallback Python: {e}")
+        sync_tma_semanal()
+
 
 def run():
     now_brt = datetime.now(BRT)
@@ -2038,14 +2079,17 @@ def run():
     if not ok:
         log.error("collect_and_build falhou — pipeline interrompido.")
         _append_log("ERRO", ts, ["collect_and_build falhou"] + issues)
+        _sb_state_set("last_sync_error", now_brt.isoformat())
         return
 
     sync_metabase(save_js=True)
     sync_saude_recompra()
     sync_agent_performance()
-    sync_tma_semanal()
+    _refresh_tma_via_rpc()
+
     status_str = "OK" if not issues else f"OK_COM_AVISOS({len(issues)})"
     _append_log(status_str, ts, issues)
+    _sb_state_set("last_sync_ok", now_brt.isoformat())
     log.info(f"=== Concluido: {ts} — {status_str} ===")
 
 if __name__ == "__main__":
