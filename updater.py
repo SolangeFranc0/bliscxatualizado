@@ -1308,14 +1308,23 @@ def sync_metabase(save_js: bool = True) -> bool:
     log.info("=== sync_metabase: início ===")
 
     def mb_post(path, body=None, token=None):
+        import time as _t
         url  = f"{METABASE_URL}{path}"
         data = json.dumps(body or {}).encode()
         hdrs = {"Content-Type": "application/json"}
         if token:
             hdrs["X-Metabase-Session"] = token
-        req = urllib.request.Request(url, data=data, headers=hdrs, method="POST")
-        with urllib.request.urlopen(req, timeout=60) as r:
-            return json.loads(r.read())
+        for attempt in range(3):
+            try:
+                req = urllib.request.Request(url, data=data, headers=hdrs, method="POST")
+                with urllib.request.urlopen(req, timeout=60) as r:
+                    return json.loads(r.read())
+            except Exception as e:
+                if attempt == 2:
+                    raise
+                wait = 10 * (attempt + 1)
+                log.warning(f"Metabase {path} tentativa {attempt+1} falhou ({e}) — retry em {wait}s")
+                _t.sleep(wait)
 
     def compact(resp, limit=None):
         d = resp.get("data", {})

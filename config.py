@@ -1,4 +1,6 @@
 import os
+import calendar
+from datetime import date
 
 # ── Credenciais ────────────────────────────────────────────────────────────────
 ZENDESK_SUBDOMAIN = "appblis"
@@ -6,19 +8,22 @@ ZENDESK_EMAIL     = os.getenv("ZENDESK_EMAIL", "")
 ZENDESK_TOKEN     = os.getenv("ZENDESK_TOKEN", "")
 BASE_URL          = f"https://{ZENDESK_SUBDOMAIN}.zendesk.com/api/v2"
 
-# ── Período 2026 ───────────────────────────────────────────────────────────────
+# ── Período dinâmico: Jan/2026 até fim do mês atual ───────────────────────────
+_today     = date.today()
 START_DATE = "2026-01-01"
-END_DATE   = "2026-07-31"
+END_DATE   = f"{_today.year}-{_today.month:02d}-{calendar.monthrange(_today.year, _today.month)[1]:02d}"
 
-MESES_2026 = {
-    "2026-01": "Janeiro",
-    "2026-02": "Fevereiro",
-    "2026-03": "Março",
-    "2026-04": "Abril",
-    "2026-05": "Maio",
-    "2026-06": "Junho",
-    "2026-07": "Julho",
-}
+_MES_NOMES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+               "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"]
+
+# Gera MESES_2026 de Jan/2026 até o mês atual
+MESES_2026: dict[str, str] = {}
+_y, _m = 2026, 1
+while (_y, _m) <= (_today.year, _today.month):
+    MESES_2026[f"{_y}-{_m:02d}"] = _MES_NOMES[_m - 1]
+    _m += 1
+    if _m > 12:
+        _m, _y = 1, _y + 1
 
 # ── Grupos confirmados via API /api/v2/groups.json ─────────────────────────────
 GRUPO_CLOUD_HUMANS_ID    = 50304023554451  # IA — Cloud Humans (ativo desde 27/03/2026)

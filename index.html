@@ -4464,8 +4464,15 @@ function _renderAgentesPerfChart(rows) {
   const canvas = document.getElementById('chartAgentesPerf');
   if (!canvas) return;
 
-  const MESES  = ['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06','2026-07'];
-  const LABELS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul'];
+  const _MN = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const MESES = [], LABELS = [];
+  { let _y = 2026, _m = 1, _n = new Date();
+    while (_y < _n.getFullYear() || (_y === _n.getFullYear() && _m <= _n.getMonth() + 1)) {
+      MESES.push(`${_y}-${String(_m).padStart(2,'0')}`);
+      LABELS.push(_MN[_m - 1]);
+      if (++_m > 12) { _m = 1; _y++; }
+    }
+  }
 
   const agentMap = {};
   for (const r of rows) {
