@@ -858,6 +858,87 @@ def inject_tma_semanal_inline():
         log.warning(f"inject_tma_semanal_inline falhou: {e}")
 
 
+def sync_tma_semanal():
+    """Upserta TMA semanal por agente na tabela cx_tma_semanal (Supabase).
+    Mesma lógica de inject_tma_semanal_inline, mas persiste no banco em vez de injetar HTML.
+    """
+    try:
+        import db_loader_metabase as _dbl
+        from collections import defaultdict
+
+        sb      = _dbl.get_client()
+        GRUPOS  = {42056691282323: "resolve", 43771604769299: "saude"}
+        SKIP    = {"", "None", "Admin", "Logística Agentes", "Roberto venzi pires"}
+
+        all_tickets = []
+        for gid, grupo in GRUPOS.items():
+            offset, batch = 0, 1000
+            while True:
+                rows = (
+                    sb.table("tickets")
+                      .select("assignee_id,nome_agente,semana_iso,resolucao_h")
+                      .eq("group_id", gid)
+                      .range(offset, offset + batch - 1)
+                      .execute()
+                      .data
+                ) or []
+                for r in rows:
+                    r["_grupo"] = grupo
+                all_tickets.extend(rows)
+                if len(rows) < batch:
+                    break
+                offset += batch
+
+        agg = defaultdict(lambda: {"sum": 0.0, "n": 0, "nome": "", "grupo": ""})
+        for t in all_tickets:
+            nome = str(t.get("nome_agente") or "").strip()
+            if nome in SKIP:
+                continue
+            aid = str(t.get("assignee_id") or "").split(".")[0]
+            sem = str(t.get("semana_iso") or "").strip()
+            if not aid or not sem:
+                continue
+            try:
+                rh = float(t.get("resolucao_h") or 0)
+                if 0 < rh < 720:
+                    agg[(aid, sem)]["sum"]   += rh
+                    agg[(aid, sem)]["n"]     += 1
+                    agg[(aid, sem)]["nome"]   = nome
+                    agg[(aid, sem)]["grupo"]  = t.get("_grupo", "")
+            except (ValueError, TypeError):
+                pass
+
+        all_weeks = sorted({k[1] for k in agg})
+        recent_8  = set(all_weeks[-8:])
+        now_ts = datetime.now(BRT).isoformat()
+        records = []
+        for (aid, sem), d in sorted(agg.items()):
+            if sem not in recent_8 or not d["n"]:
+                continue
+            try:
+                aid_int = int(aid)
+            except ValueError:
+                continue
+            records.append({
+                "agente_id":    aid_int,
+                "semana":       sem,
+                "nome":         d["nome"],
+                "grupo":        d["grupo"],
+                "tma_h":        round(d["sum"] / d["n"], 1),
+                "n_tickets":    d["n"],
+                "atualizado_em": now_ts,
+            })
+
+        if not records:
+            log.warning("sync_tma_semanal: nenhum registro gerado")
+            return
+
+        sb.table("cx_tma_semanal").upsert(records, on_conflict="agente_id,semana").execute()
+        log.info(f"cx_tma_semanal: {len(records)} registros upsertados ({len(recent_8)} semanas)")
+    except Exception as e:
+        log.warning(f"sync_tma_semanal falhou: {e}")
+
+
 def inject_saude_recompra_inline():
     """Atualiza _saudeRecompraInline em cx-portal.html.
     Cohort (recompra_saude_cohort) para % e split Saúde/Sem Saúde.
@@ -1593,9 +1674,6 @@ def sync_metabase(save_js: bool = True) -> bool:
         except Exception as e:
             log.warning(f"Supabase Metabase sync falhou (não crítico): {e}")
 
-        # 6. Injeta cohort inline em cx-portal.html (usa dict em memória)
-        inject_cohort_inline(mb_result=result)
-
         log.info("=== sync_metabase: concluído ===")
         return True
 
@@ -1940,10 +2018,8 @@ def run():
 
     sync_metabase(save_js=True)
     sync_saude_recompra()
-    inject_saude_recompra_inline()
     sync_agent_performance()
-    inject_agentes_performance_inline()
-    inject_tma_semanal_inline()
+    sync_tma_semanal()
     status_str = "OK" if not issues else f"OK_COM_AVISOS({len(issues)})"
     _append_log(status_str, ts, issues)
     log.info(f"=== Concluido: {ts} — {status_str} ===")
