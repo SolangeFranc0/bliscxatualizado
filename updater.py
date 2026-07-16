@@ -24,6 +24,7 @@ DASHBOARD      = BASE / "dashboard_2026.html"
 DASHBOARD_COPY = BASE / "dashboard.html"      # cópia servida pelo portal via iframe
 PORTAL         = BASE / "cx-portal.html"
 LOG_FILE       = OUT  / "update_log.txt"
+ZD_SYNC_FILE   = OUT  / "last_zendesk_sync.txt"   # cursor incremental Zendesk
 BACKUP         = BASE / "dashboard_2026.backup.html"
 BRT       = ZoneInfo("America/Sao_Paulo")
 
@@ -1102,8 +1103,17 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
         agents = _ext.fetch_agents()
         log.info(f"  agentes: {len(agents)}")
 
+        # Lê cursor do último sync bem-sucedido para fetch incremental
+        since_ts = None
+        if ZD_SYNC_FILE.exists():
+            try:
+                since_ts = int(ZD_SYNC_FILE.read_text().strip())
+                log.info(f"Zendesk incremental desde ts={since_ts} ({datetime.fromtimestamp(since_ts, tz=BRT).strftime('%d/%m/%Y %H:%M BRT')})")
+            except (ValueError, OSError):
+                since_ts = None
+
         log.info("Buscando tickets + métricas...")
-        tickets_raw, metrics_map = _ext.fetch_tickets_with_metrics()
+        tickets_raw, metrics_map, zd_end_time = _ext.fetch_tickets_with_metrics(since_ts=since_ts)
         log.info(f"  tickets_raw: {len(tickets_raw)}")
 
         log.info("Buscando CSAT...")
@@ -1279,6 +1289,10 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
         except Exception as e:
             log.warning(f"Supabase: load_comentarios_csat falhou: {e}")
         log.info("Supabase Zendesk: sync concluído.")
+        # Salva cursor incremental só após sync bem-sucedido
+        if zd_end_time:
+            ZD_SYNC_FILE.write_text(str(zd_end_time))
+            log.info(f"Cursor Zendesk salvo: {zd_end_time}")
     except Exception as e:
         log.warning(f"Supabase Zendesk sync falhou (não crítico): {e}")
 
@@ -1342,7 +1356,7 @@ def sync_metabase(save_js: bool = True) -> bool:
         # 2. Buscar todos os cards com try/except individual
         for key, card_id in MB_CARD_IDS.items():
             try:
-                resp  = mb_post(f"/api/card/{card_id}/query", {}, token=token)
+                resp  = mb_post(f"/api/card/{card_id}/query", {"ignore_cache": True}, token=token)
                 result[key] = compact(resp, MB_ROW_LIMITS.get(key))
                 log.info(f"Metabase card {card_id} ({key}): OK ({len(result[key]['data']['rows'])} linhas)")
             except Exception as e:
@@ -1513,8 +1527,8 @@ def sync_metabase(save_js: bool = True) -> bool:
 
         # intervaloPedidos — cards 82+191
         try:
-            r82  = mb_post(f"/api/card/82/query",  {}, token=token)
-            r191 = mb_post(f"/api/card/191/query", {}, token=token)
+            r82  = mb_post(f"/api/card/82/query",  {"ignore_cache": True}, token=token)
+            r191 = mb_post(f"/api/card/191/query", {"ignore_cache": True}, token=token)
             rows82  = r82.get('data',{}).get('rows',[])
             rows191 = r191.get('data',{}).get('rows',[])
             avg12 = rows82[0][1]  if rows82  else None
@@ -1599,6 +1613,7 @@ def sync_metabase(save_js: bool = True) -> bool:
 
             # Fetch current month with longer timeout
             body_p = {
+                "ignore_cache": True,
                 "parameters": [
                     {"type": "date/single", "id": "bbc23224-c185-4e1b-8037-d1ca62d80a69", "value": start_cur, "target": ["variable", ["template-tag", "data_inicio"]]},
                     {"type": "date/single", "id": "c35fed4a-a668-40b9-a420-fea28864647f", "value": end_cur,   "target": ["variable", ["template-tag", "data_fim"]]},

@@ -97,10 +97,12 @@ def fetch_agents() -> list[dict]:
     return unique
 
 
-def fetch_tickets_with_metrics() -> tuple[list[dict], dict[int, dict]]:
+def fetch_tickets_with_metrics(since_ts: int | None = None) -> tuple[list[dict], dict[int, dict], int]:
     """Incremental export com include=metric_sets — 1000 tickets/página, única passagem.
-    ~10x menos chamadas que search/export + bulk separado."""
-    ts_start  = int(datetime.strptime(START_DATE, "%Y-%m-%d").replace(tzinfo=timezone.utc).timestamp())
+    since_ts: Unix timestamp do último sync bem-sucedido (None = usa START_DATE).
+    Retorna (tickets, metrics_map, end_time) onde end_time é o cursor para o próximo run.
+    """
+    ts_start  = since_ts or int(datetime.strptime(START_DATE, "%Y-%m-%d").replace(tzinfo=timezone.utc).timestamp())
     ts_end_dt = (datetime.strptime(END_DATE, "%Y-%m-%d").replace(tzinfo=timezone.utc)
                  + timedelta(days=1))
 
@@ -110,11 +112,14 @@ def fetch_tickets_with_metrics() -> tuple[list[dict], dict[int, dict]]:
     tickets: list[dict]       = []
     metrics_map: dict[int, dict] = {}
     seen_ids: set[int]        = set()
+    end_time: int             = ts_start
     page = 1
 
     while url:
         log.info(f"Tickets+métricas — página {page} (acumulado: {len(tickets)})...")
         data = _get(url, params if page == 1 else None)
+
+        end_time = data.get("end_time", end_time)
 
         for t in data.get("tickets", []):
             created = datetime.fromisoformat(t["created_at"].replace("Z", "+00:00"))
@@ -135,8 +140,9 @@ def fetch_tickets_with_metrics() -> tuple[list[dict], dict[int, dict]]:
     # Filtra apenas o período configurado (incremental pode trazer tickets antigos)
     tickets = [t for t in tickets
                if START_DATE <= t["created_at"][:10] <= END_DATE]
-    log.info(f"Total tickets no período (deduplicados): {len(tickets)}")
-    return tickets, metrics_map
+    mode = "incremental" if since_ts else "full"
+    log.info(f"Tickets no período ({mode}, deduplicados): {len(tickets)} | end_time={end_time}")
+    return tickets, metrics_map, end_time
 
 
 def fetch_csat(start: str, end: str) -> list[dict]:
