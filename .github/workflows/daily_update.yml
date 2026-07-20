@@ -29,6 +29,7 @@ jobs:
         run: mkdir -p output data
 
       - name: Pipeline completo (Zendesk + Metabase + Supabase)
+        id: pipeline
         env:
           ZENDESK_EMAIL:        ${{ secrets.ZENDESK_EMAIL }}
           ZENDESK_TOKEN:        ${{ secrets.ZENDESK_TOKEN }}
@@ -38,6 +39,66 @@ jobs:
           SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: python3 updater.py
+
+      - name: Smoke test (valida dados no Supabase)
+        env:
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          python3 - <<'EOF'
+          import os, json, urllib.request, sys
+          from datetime import datetime, timezone, timedelta
+
+          url = os.environ['SUPABASE_URL'].rstrip('/')
+          key = os.environ['SUPABASE_SERVICE_KEY']
+
+          def sb_get(path):
+              req = urllib.request.Request(url + path, headers={
+                  'apikey': key, 'Authorization': f'Bearer {key}',
+                  'Accept': 'application/json'})
+              with urllib.request.urlopen(req, timeout=15) as r:
+                  return json.loads(r.read())
+
+          errors = []
+
+          # 1. tickets não vazio
+          rows = sb_get('/rest/v1/tickets?select=ticket_id&limit=1')
+          if not rows:
+              errors.append('ERRO: tabela tickets vazia')
+          else:
+              print(f'OK: tickets tem dados')
+
+          # 2. cx_performance_agentes tem dados
+          rows = sb_get('/rest/v1/cx_performance_agentes?select=agente_id&limit=1')
+          if not rows:
+              errors.append('ERRO: cx_performance_agentes vazia')
+          else:
+              print(f'OK: cx_performance_agentes tem dados')
+
+          # 3. cx_tma_semanal atualizada nas últimas 24h
+          rows = sb_get('/rest/v1/cx_tma_semanal?select=atualizado_em&order=atualizado_em.desc&limit=1')
+          if not rows:
+              errors.append('ERRO: cx_tma_semanal vazia')
+          else:
+              ts = rows[0]['atualizado_em']
+              age_h = (datetime.now(timezone.utc) - datetime.fromisoformat(ts.replace('Z','+00:00'))).total_seconds() / 3600
+              if age_h > 25:
+                  errors.append(f'AVISO: cx_tma_semanal desatualizada ({age_h:.1f}h atrás)')
+              else:
+                  print(f'OK: cx_tma_semanal atualizada há {age_h:.1f}h')
+
+          # 4. last_sync_ok registrado
+          rows = sb_get("/rest/v1/cx_sync_state?key=eq.last_sync_ok&select=value")
+          if not rows:
+              errors.append('AVISO: last_sync_ok não encontrado no cx_sync_state')
+          else:
+              print(f"OK: last_sync_ok = {rows[0]['value']}")
+
+          if errors:
+              print('\n'.join(errors), file=sys.stderr)
+              sys.exit(1)
+          print('Smoke test: PASSOU')
+          EOF
 
       - name: Publicar no GitHub Pages
         run: |
@@ -50,7 +111,7 @@ jobs:
           git push
 
       - name: Registrar falha no Supabase
-        if: failure()
+        if: steps.pipeline.outcome == 'failure'
         env:
           SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
