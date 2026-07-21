@@ -3,7 +3,7 @@ __pycache__/
 *.pyo
 config/metabase.config.js
 .env
-output/
+output/*
 !output/update_log.txt
 dashboard_2026.backup.html
 .DS_Store

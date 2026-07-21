@@ -642,222 +642,6 @@ def update_sync_ts(html: str, ts: str) -> str:
         html,
     )
 
-# ── Cohort inline em cx-portal.html ─────────────────────────────────────────
-
-_RE_COHORT_INLINE = re.compile(
-    r'(// COHORT_INLINE_START\n).*?(\n// COHORT_INLINE_END)',
-    re.DOTALL,
-)
-_RE_TIPO_INLINE = re.compile(
-    r'(// TIPO_CLIENTE_INLINE_START\n).*?(\n// TIPO_CLIENTE_INLINE_END)',
-    re.DOTALL,
-)
-_RE_TIPO_MENSAL_INLINE = re.compile(
-    r'(// TIPO_CLIENTE_MENSAL_INLINE_START\n).*?(\n// TIPO_CLIENTE_MENSAL_INLINE_END)',
-    re.DOTALL,
-)
-_RE_SAUDE_INLINE = re.compile(
-    r'(// SAUDE_RECOMPRA_INLINE_START\n).*?(\n// SAUDE_RECOMPRA_INLINE_END)',
-    re.DOTALL,
-)
-_RE_AGENTES_INLINE = re.compile(
-    r'(// AGENTES_PERFORMANCE_INLINE_START\n).*?(\n// AGENTES_PERFORMANCE_INLINE_END)',
-    re.DOTALL,
-)
-_RE_TMA_SEMANAL_INLINE = re.compile(
-    r'(// TMA_SEMANAL_INLINE_START\n).*?(\n// TMA_SEMANAL_INLINE_END)',
-    re.DOTALL,
-)
-
-def inject_cohort_inline(mb_result=None):
-    """Injeta cohortPedidos e tipoCliente em cx-portal.html.
-
-    Se mb_result for fornecido, usa o dict em memória (sem I/O).
-    Caso contrário, lê do disco (backward compat).
-    """
-    try:
-        if not PORTAL.exists():
-            return
-        if mb_result is None:
-            if not MB_DATA_JS.exists():
-                return
-            js_txt = MB_DATA_JS.read_text(encoding='utf-8')
-            m = re.search(r'window\.MB_PRELOADED=(.+);\s*$', js_txt, re.DOTALL)
-            if not m:
-                log.warning("inject_cohort_inline: MB_PRELOADED não encontrado no JS")
-                return
-            mb_result = json.loads(m.group(1))
-        html = PORTAL.read_text(encoding='utf-8')
-
-        # cohortPedidos
-        rows = mb_result.get('cohortPedidos', {}).get('data', {}).get('rows', [])
-        if rows:
-            cohort = [{'faixa_pedidos': r[0], 'qtd_usuarios': r[1]} for r in rows if r and r[0]]
-            new_var = 'var _cohortInline=' + json.dumps(cohort, ensure_ascii=False, separators=(',', ':')) + ';'
-            html, n = _RE_COHORT_INLINE.subn(r'\g<1>' + new_var + r'\g<2>', html)
-            if n:
-                log.info(f"cx-portal.html: _cohortInline atualizado ({len(cohort)} faixas)")
-            else:
-                log.warning("cx-portal.html: marcadores COHORT_INLINE não encontrados")
-
-        # tipoCliente (Valor por Segmento)
-        tipo_rows = mb_result.get('tipoCliente', {}).get('data', {}).get('rows', [])
-        if tipo_rows:
-            tipos = []
-            for r in tipo_rows:
-                if r and len(r) >= 4:
-                    tipos.append({
-                        'tipo_cliente': r[0],
-                        'qtd_usuarios': r[1],
-                        'pct_do_total': round(float(r[2] or 0), 4),
-                        'media_pedidos': round(float(r[3] or 0), 2),
-                        'receita_total': round(float(r[4] or 0), 2) if len(r) > 4 else 0,
-                        'ticket_medio': round(float(r[5] or 0), 2) if len(r) > 5 else 0,
-                    })
-            if tipos:
-                new_var2 = 'var _tipoClienteInline=' + json.dumps(tipos, ensure_ascii=False, separators=(',', ':')) + ';'
-                html, n2 = _RE_TIPO_INLINE.subn(r'\g<1>' + new_var2 + r'\g<2>', html)
-                if n2:
-                    log.info(f"cx-portal.html: _tipoClienteInline atualizado ({len(tipos)} tipos)")
-                else:
-                    log.warning("cx-portal.html: marcadores TIPO_CLIENTE_INLINE não encontrados")
-
-        # tipoClienteMensal (breakdown mensal por tipo de cliente)
-        mensal_rows = mb_result.get('tipoClienteMensal', {}).get('data', {}).get('rows', [])
-        if mensal_rows:
-            mensal = []
-            for r in mensal_rows:
-                if r and len(r) >= 3 and r[0] and r[1]:
-                    mensal.append({
-                        'periodo':       str(r[0]),
-                        'tipo_cliente':  str(r[1]),
-                        'qtd_usuarios':  int(r[2] or 0),
-                        'pct_do_total':  round(float(r[3] or 0), 4) if len(r) > 3 else 0,
-                        'media_pedidos': round(float(r[4] or 0), 2) if len(r) > 4 else 0,
-                        'receita_total': round(float(r[5] or 0), 2) if len(r) > 5 else 0,
-                        'ticket_medio':  round(float(r[6] or 0), 2) if len(r) > 6 else 0,
-                    })
-            if mensal:
-                new_var3 = 'var _tipoClienteMensalInline=' + json.dumps(mensal, ensure_ascii=False, separators=(',', ':')) + ';'
-                html, n3 = _RE_TIPO_MENSAL_INLINE.subn(r'\g<1>' + new_var3 + r'\g<2>', html)
-                if n3:
-                    log.info(f"cx-portal.html: _tipoClienteMensalInline atualizado ({len(mensal)} linhas)")
-                else:
-                    log.warning("cx-portal.html: marcadores TIPO_CLIENTE_MENSAL_INLINE não encontrados")
-
-        PORTAL.write_text(html, encoding='utf-8')
-    except Exception as e:
-        log.warning(f"inject_cohort_inline falhou: {e}")
-
-
-def inject_agentes_performance_inline():
-    """Atualiza _agentesPerformanceInline em cx-portal.html com dados de cx_performance_agentes."""
-    try:
-        if not PORTAL.exists():
-            return
-        import db_loader_metabase as _dbl
-        sb = _dbl.get_client()
-        rows = sb.table('cx_performance_agentes').select('*').order('mes').execute().data
-        if not rows:
-            return
-        keep = ['agente_id','nome','grupo','mes','total_tickets','tickets_resolvidos',
-                'csat_good','csat_bad','csat_score','tma_h']
-        data = [{k: r[k] for k in keep if k in r} for r in rows]
-        html    = PORTAL.read_text(encoding='utf-8')
-        new_var = 'var _agentesPerformanceInline=' + json.dumps(data, ensure_ascii=False, separators=(',', ':')) + ';'
-        html, n = _RE_AGENTES_INLINE.subn(r'\g<1>' + new_var + r'\g<2>', html)
-        if n:
-            PORTAL.write_text(html, encoding='utf-8')
-            log.info(f"cx-portal.html: _agentesPerformanceInline atualizado ({len(data)} registros)")
-        else:
-            log.warning("cx-portal.html: marcadores AGENTES_PERFORMANCE_INLINE não encontrados")
-    except Exception as e:
-        log.warning(f"inject_agentes_performance_inline falhou: {e}")
-
-
-def inject_tma_semanal_inline():
-    """Atualiza _tmaSemanalInline em cx-portal.html com TMA semanal das últimas 8 semanas."""
-    try:
-        if not PORTAL.exists():
-            return
-        import db_loader_metabase as _dbl
-        from collections import defaultdict
-
-        sb      = _dbl.get_client()
-        GRUPOS  = {42056691282323: "resolve", 43771604769299: "saude"}
-        SKIP    = {"", "None", "Admin", "Logística Agentes", "Roberto venzi pires"}
-
-        all_tickets = []
-        for gid, grupo in GRUPOS.items():
-            offset, batch = 0, 1000
-            while True:
-                rows = (
-                    sb.table("tickets")
-                      .select("assignee_id,nome_agente,semana_iso,resolucao_h")
-                      .eq("group_id", gid)
-                      .range(offset, offset + batch - 1)
-                      .execute()
-                      .data
-                ) or []
-                for r in rows:
-                    r["_grupo"] = grupo
-                all_tickets.extend(rows)
-                if len(rows) < batch:
-                    break
-                offset += batch
-
-        agg = defaultdict(lambda: {"sum": 0.0, "n": 0, "nome": "", "grupo": ""})
-        for t in all_tickets:
-            nome = str(t.get("nome_agente") or "").strip()
-            if nome in SKIP:
-                continue
-            aid = str(t.get("assignee_id") or "").split(".")[0]
-            sem = str(t.get("semana_iso") or "").strip()
-            if not aid or not sem:
-                continue
-            try:
-                rh = float(t.get("resolucao_h") or 0)
-                if 0 < rh < 720:
-                    agg[(aid, sem)]["sum"]   += rh
-                    agg[(aid, sem)]["n"]     += 1
-                    agg[(aid, sem)]["nome"]   = nome
-                    agg[(aid, sem)]["grupo"]  = t.get("_grupo", "")
-            except (ValueError, TypeError):
-                pass
-
-        # Últimas 8 semanas
-        all_weeks = sorted({k[1] for k in agg})
-        recent_8  = set(all_weeks[-8:])
-        data = []
-        for (aid, sem), d in sorted(agg.items()):
-            if sem not in recent_8 or not d["n"]:
-                continue
-            try:
-                aid_int = int(aid)
-            except ValueError:
-                continue
-            data.append({
-                "agente_id": aid_int,
-                "nome": d["nome"],
-                "grupo": d["grupo"],
-                "semana": sem,
-                "tma_h": round(d["sum"] / d["n"], 1),
-                "n_tickets": d["n"],
-            })
-
-        if not data:
-            return
-        html    = PORTAL.read_text(encoding="utf-8")
-        new_var = "var _tmaSemanalInline=" + json.dumps(data, ensure_ascii=False, separators=(",", ":")) + ";"
-        html, n = _RE_TMA_SEMANAL_INLINE.subn(r"\g<1>" + new_var + r"\g<2>", html)
-        if n:
-            PORTAL.write_text(html, encoding="utf-8")
-            log.info(f"cx-portal.html: _tmaSemanalInline atualizado ({len(data)} registros, {len(recent_8)} semanas)")
-        else:
-            log.warning("cx-portal.html: marcadores TMA_SEMANAL_INLINE não encontrados")
-    except Exception as e:
-        log.warning(f"inject_tma_semanal_inline falhou: {e}")
-
 
 def sync_tma_semanal():
     """Upserta TMA semanal por agente na tabela cx_tma_semanal (Supabase).
@@ -939,44 +723,6 @@ def sync_tma_semanal():
     except Exception as e:
         log.warning(f"sync_tma_semanal falhou: {e}")
 
-
-def inject_saude_recompra_inline():
-    """Atualiza _saudeRecompraInline em cx-portal.html.
-    Cohort (recompra_saude_cohort) para % e split Saúde/Sem Saúde.
-    Volume mensal (mb_recompra_mensal.qtd_recompras) para barra — mesma fonte do Metabase.
-    """
-    try:
-        if not PORTAL.exists():
-            return
-        import db_loader_metabase as _dbl
-        sb = _dbl.get_client()
-        cohort_rows = sb.table('recompra_saude_cohort').select('*').order('safra').execute().data
-        if not cohort_rows:
-            return
-        # qtd_recompras mensal do Metabase (fonte única de verdade para volume)
-        mensal_rows = sb.table('mb_recompra_mensal').select('periodo,qtd_recompras').order('periodo').execute().data
-        mensal_map = {str(r['periodo'])[:7]: r.get('qtd_recompras') for r in (mensal_rows or [])}
-
-        keep_cols = ['safra', 'total_clientes', 'total_recompra',
-                     'clientes_saude', 'recompra_saude',
-                     'clientes_sem_saude', 'recompra_sem_saude',
-                     'pct_recompra_total', 'pct_recompra_saude', 'pct_recompra_sem_saude']
-        data = []
-        for r in cohort_rows:
-            rec = {k: r[k] for k in keep_cols if k in r}
-            mes = str(rec.get('safra', ''))[:7]
-            rec['qtd_recompras'] = mensal_map.get(mes)
-            data.append(rec)
-        html = PORTAL.read_text(encoding='utf-8')
-        new_var = 'var _saudeRecompraInline=' + json.dumps(data, ensure_ascii=False, separators=(',', ':')) + ';'
-        html, n = _RE_SAUDE_INLINE.subn(r'\g<1>' + new_var + r'\g<2>', html)
-        if n:
-            PORTAL.write_text(html, encoding='utf-8')
-            log.info(f"cx-portal.html: _saudeRecompraInline atualizado ({len(data)} safras)")
-        else:
-            log.warning("cx-portal.html: marcadores SAUDE_RECOMPRA_INLINE não encontrados")
-    except Exception as e:
-        log.warning(f"inject_saude_recompra_inline falhou: {e}")
 
 # ── Comentários e Offenders CSAT ─────────────────────────────────────────────
 
@@ -1103,21 +849,27 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
         agents = _ext.fetch_agents()
         log.info(f"  agentes: {len(agents)}")
 
+        # Domingo (weekday==6): força sync completo para garantir consistência semanal
+        is_sunday = datetime.now(BRT).weekday() == 6
+        if is_sunday:
+            log.info("Sync completo (domingo): cursor ignorado para reprocessar período inteiro")
+
         # Lê cursor incremental: Supabase primeiro, arquivo local como fallback
         since_ts = None
-        cursor_str = _sb_state_get("zendesk_cursor")
-        if cursor_str:
-            try:
-                since_ts = int(cursor_str)
-                log.info(f"Zendesk incremental (Supabase) desde ts={since_ts} ({datetime.fromtimestamp(since_ts, tz=BRT).strftime('%d/%m/%Y %H:%M BRT')})")
-            except ValueError:
-                since_ts = None
-        if since_ts is None and ZD_SYNC_FILE.exists():
-            try:
-                since_ts = int(ZD_SYNC_FILE.read_text().strip())
-                log.info(f"Zendesk incremental (arquivo) desde ts={since_ts} ({datetime.fromtimestamp(since_ts, tz=BRT).strftime('%d/%m/%Y %H:%M BRT')})")
-            except (ValueError, OSError):
-                since_ts = None
+        if not is_sunday:
+            cursor_str = _sb_state_get("zendesk_cursor")
+            if cursor_str:
+                try:
+                    since_ts = int(cursor_str)
+                    log.info(f"Zendesk incremental (Supabase) desde ts={since_ts} ({datetime.fromtimestamp(since_ts, tz=BRT).strftime('%d/%m/%Y %H:%M BRT')})")
+                except ValueError:
+                    since_ts = None
+            if since_ts is None and ZD_SYNC_FILE.exists():
+                try:
+                    since_ts = int(ZD_SYNC_FILE.read_text().strip())
+                    log.info(f"Zendesk incremental (arquivo) desde ts={since_ts} ({datetime.fromtimestamp(since_ts, tz=BRT).strftime('%d/%m/%Y %H:%M BRT')})")
+                except (ValueError, OSError):
+                    since_ts = None
 
         log.info("Buscando tickets + métricas...")
         tickets_raw, metrics_map, zd_end_time = _ext.fetch_tickets_with_metrics(since_ts=since_ts)
@@ -2036,7 +1788,7 @@ def _append_log(status: str, ts: str, issues: list[str]):
         f.write(line + "\n")
 
 
-def _sb_state_get(key: str) -> str | None:
+def _sb_state_get(key: str) -> "str | None":
     """Lê valor do cx_sync_state no Supabase."""
     try:
         import db_loader_metabase as _dbl
@@ -2070,6 +1822,17 @@ def _refresh_tma_via_rpc() -> None:
         sync_tma_semanal()
 
 
+def _refresh_agentes_via_rpc() -> None:
+    """Chama refresh_cx_performance_agentes() no Supabase — 1 RPC em vez de 26+ paginações HTTP."""
+    try:
+        import db_loader_metabase as _dbl
+        _dbl.get_client().rpc("refresh_cx_performance_agentes").execute()
+        log.info("cx_performance_agentes: atualizado via RPC Supabase")
+    except Exception as e:
+        log.warning(f"refresh_cx_performance_agentes RPC falhou, tentando fallback Python: {e}")
+        sync_agent_performance()
+
+
 def run():
     now_brt = datetime.now(BRT)
     ts      = now_brt.strftime("%d/%m/%Y %H:%M")
@@ -2084,7 +1847,7 @@ def run():
 
     sync_metabase(save_js=True)
     sync_saude_recompra()
-    sync_agent_performance()
+    _refresh_agentes_via_rpc()
     _refresh_tma_via_rpc()
 
     status_str = "OK" if not issues else f"OK_COM_AVISOS({len(issues)})"

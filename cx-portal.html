@@ -110,7 +110,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--surface);color:va
   border-radius:11px;
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;
-  overflow:hidden;
+  background:linear-gradient(135deg,#1B5E20 0%,#00BFA5 100%);
+  box-shadow:0 2px 8px rgba(27,94,32,0.30);
 }
 .cx-logo-text{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;color:var(--text);line-height:1.2}
 .cx-logo-sub{font-size:10px;color:var(--text-dim);display:block;font-weight:500;margin-top:1px;letter-spacing:.3px}
@@ -736,7 +737,7 @@ canvas.med-chart{max-height:250px}
   <aside class="cx-sidebar" id="sidebar">
     <div class="cx-logo">
       <div class="cx-logo-mark">
-        <img src="https://appblis.com.br/favicon.png" alt="Blis" width="38" height="38" style="display:block;width:38px;height:38px;object-fit:cover">
+        <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:21px;font-weight:800;color:#fff;line-height:1;letter-spacing:-.5px;user-select:none">B</span>
       </div>
       <div>
         <span class="cx-logo-text">Blis CX</span>
@@ -3696,6 +3697,18 @@ function _mapClientesAnalytics() {
     pct_consulta: r[8], pct_pedido: r[9], pct_recompra: r[10],
   }));
 
+  // Tipo de cliente mensal (card 404 pré-agregado por mês da 1ª compra)
+  if (!Array.isArray(_med.raw.tipoClienteMensal)) {
+    const tmRows = pre.tipoClienteMensal?.data?.rows || [];
+    _med.raw.tipoClienteMensal = tmRows.length ? tmRows.map(r => ({
+      periodo: String(r[0] || ''), tipo_cliente: String(r[1] || ''),
+      qtd_usuarios: Number(r[2]) || 0, pct_do_total: r[3] != null ? Number(r[3]) : null,
+      media_pedidos: r[4] != null ? Number(r[4]) : null,
+      receita_total: r[5] != null ? Number(r[5]) : null,
+      ticket_medio:  r[6] != null ? Number(r[6]) : null,
+    })) : null;
+  }
+
   // Cohort de pedidos — frequência de compras (card 201)
   const cpRows = pre.cohortPedidos?.data?.rows || [];
   _med.raw.cohortPedidos = cpRows.map(r => ({ faixa_pedidos: r[0], qtd_usuarios: r[1] }));
@@ -4016,12 +4029,69 @@ function filterByProtocol(proto) {
 function _renderTipoCliente() {
   const wrap = document.querySelector('#block-tipo-cliente .card-body');
   if (!wrap) return;
-  const all = _med.raw.tipoClienteAnalise || [];
+  const ICONS = { 'Novo': '🌱', 'Recorrente': '🔄', 'Fiel': '⭐', 'Alta Frequência': '🚀' };
+  const _ORDER_TIPO = ['Novo','Recorrente','Fiel','Alta Frequência'];
+  // Tenta Supabase → fallback para MB_PRELOADED se vazio
+  let _tipoMensal = (Array.isArray(_med.raw.tipoClienteMensal) && _med.raw.tipoClienteMensal.length)
+    ? _med.raw.tipoClienteMensal : [];
+  if (!_tipoMensal.length && window.MB_PRELOADED?.tipoClienteMensal?.data?.rows?.length) {
+    _tipoMensal = window.MB_PRELOADED.tipoClienteMensal.data.rows.map(function(r){
+      return { periodo: String(r[0]||''), tipo_cliente: String(r[1]||''),
+               qtd_usuarios: Number(r[2])||0, pct_do_total: r[3]!=null?Number(r[3]):null,
+               media_pedidos: r[4]!=null?Number(r[4]):null,
+               receita_total: r[5]!=null?Number(r[5]):null, ticket_medio: r[6]!=null?Number(r[6]):null };
+    });
+  }
+  let all = null;
+  let _periodNoteTipo = '';
+  if ((_analytics.ano || _analytics.mes) && _tipoMensal.length) {
+    let mensal = _tipoMensal;
+    // Filtro por ano
+    if (_analytics.ano) mensal = mensal.filter(r => String(r.periodo || '').startsWith(_analytics.ano));
+    // Filtro por mês: se só mês sem ano, pega apenas o ano mais recente disponível para esse mês
+    if (_analytics.mes) {
+      const mesFiltrado = mensal.filter(r => String(r.periodo || '').slice(5, 7) === _analytics.mes);
+      if (!_analytics.ano && mesFiltrado.length) {
+        const anosComMes = [...new Set(mesFiltrado.map(r => String(r.periodo || '').slice(0, 4)))].sort();
+        const anoMaisRecente = anosComMes[anosComMes.length - 1];
+        mensal = mesFiltrado.filter(r => String(r.periodo || '').startsWith(anoMaisRecente));
+      } else {
+        mensal = mesFiltrado;
+      }
+    }
+    if (mensal.length) {
+      const MNAMES = ['','jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+      const periodos = [...new Set(mensal.map(r => String(r.periodo || '').slice(0, 7)))].sort();
+      const labelP = periodos.length === 1
+        ? (() => { const [y,m] = periodos[0].split('-'); return `${MNAMES[+m]}/${y}`; })()
+        : (_analytics.ano ? _analytics.ano : periodos[0].slice(0,4));
+      _periodNoteTipo = `<div style="margin-bottom:10px;font-size:11px;color:#065F46;background:#D1FAE5;border-radius:6px;padding:5px 10px;border-left:3px solid #00BFA5">Dados do período: <strong>${labelP}</strong></div>`;
+
+      const byTipo = {};
+      mensal.forEach(r => {
+        const t = r.tipo_cliente; if (!t) return;
+        if (!byTipo[t]) byTipo[t] = { tipo_cliente: t, qtd_usuarios: 0, _totPed: 0, receita_total: 0 };
+        byTipo[t].qtd_usuarios  += Number(r.qtd_usuarios)  || 0;
+        byTipo[t]._totPed       += (Number(r.qtd_usuarios) || 0) * (Number(r.media_pedidos) || 0);
+        byTipo[t].receita_total += Number(r.receita_total) || 0;
+      });
+      const totalUsers = _ORDER_TIPO.reduce((s, t) => s + (byTipo[t] ? byTipo[t].qtd_usuarios : 0), 0);
+      _ORDER_TIPO.forEach(t => {
+        if (!byTipo[t]) return;
+        byTipo[t].pct_do_total  = totalUsers > 0 ? byTipo[t].qtd_usuarios / totalUsers : 0;
+        byTipo[t].media_pedidos = byTipo[t].qtd_usuarios > 0 ? byTipo[t]._totPed / byTipo[t].qtd_usuarios : 0;
+        byTipo[t].ticket_medio  = byTipo[t]._totPed > 0 ? byTipo[t].receita_total / byTipo[t]._totPed : 0;
+      });
+      all = _ORDER_TIPO.map(t => byTipo[t]).filter(Boolean);
+    } else {
+      _periodNoteTipo = '<div style="margin-bottom:10px;font-size:11px;color:#92400E;background:#FEF3C7;border-radius:6px;padding:5px 10px;border-left:3px solid #F59E0B">Sem dados mensais para o período — exibindo acumulado</div>';
+    }
+  }
+  if (!all || !all.length) all = (_med.raw.tipoClienteAnalise || []).filter(r => r && r.tipo_cliente);
   if (!all.length) {
     wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de tipo de cliente</p>';
     return;
   }
-  const ICONS = { 'Novo': '🌱', 'Recorrente': '🔄', 'Fiel': '⭐', 'Alta Frequência': '🚀' };
   const _protoBannerTipo = _analytics.protocolo
     ? `<div style="margin-bottom:10px;font-size:11px;color:#1e40af;background:#eff6ff;border-radius:6px;padding:5px 10px;border-left:3px solid #3b82f6">Dados globais da base — tipo de cliente não tem breakdown por protocolo</div>`
     : '';
@@ -4035,7 +4105,7 @@ function _renderTipoCliente() {
     const ticket = r.ticket_medio   != null ? 'R$ ' + _fmtMoney(r.ticket_medio) : '—';
     const rec    = r.receita_total  != null ? 'R$ ' + _fmtMoney(r.receita_total) : '—';
     const icon   = ICONS[r.tipo_cliente] || '👤';
-    wrap.innerHTML = _protoBannerTipo + `
+    wrap.innerHTML = _periodNoteTipo + _protoBannerTipo + `
       <div class="tipo-detalhe">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
           <span style="font-size:32px">${icon}</span>
@@ -4068,7 +4138,7 @@ function _renderTipoCliente() {
 
   // Sem filtro: mostra todos os tipos normalmente
   const maxU = Math.max(...all.map(r => r.qtd_usuarios || 0));
-  wrap.innerHTML = _protoBannerTipo + `<div class="tipo-grid">${all.map(r => {
+  wrap.innerHTML = _periodNoteTipo + _protoBannerTipo + `<div class="tipo-grid">${all.map(r => {
     const pct  = r.pct_do_total != null ? (r.pct_do_total * 100).toFixed(1) + '%' : '—';
     const bar  = maxU ? Math.round((r.qtd_usuarios / maxU) * 100) : 0;
     const icon = ICONS[r.tipo_cliente] || '👤';
@@ -4100,15 +4170,18 @@ function _renderRecompraMensal() {
     wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de evolução de recompra</p>';
     return;
   }
-  // Show full year (or all data) — never collapse to a single point
   let rows = allRows;
   if (_analytics.ano) rows = rows.filter(r => String(r.periodo || '').startsWith(_analytics.ano));
   if (!rows.length) rows = allRows;
+  // Quando apenas mês selecionado (sem ano): filtra a todos os meses iguais entre anos
+  if (!_analytics.ano && _analytics.mes) {
+    const byMes = allRows.filter(r => String(r.periodo || '').slice(5, 7) === _analytics.mes);
+    if (byMes.length) rows = byMes;
+  }
 
-  // Index of highlighted month (only if mes filter active)
-  const hiIdx = _analytics.mes
-    ? rows.findIndex(r => String(r.periodo || '').slice(5, 7) === _analytics.mes)
-    : -1;
+  const hiSet = _analytics.mes
+    ? new Set(rows.reduce((acc, r, i) => { if (String(r.periodo||'').slice(5,7) === _analytics.mes) acc.push(i); return acc; }, []))
+    : new Set();
 
   const _protoBannerRecomp = _analytics.protocolo
     ? `<div style="margin-bottom:10px;font-size:11px;color:#1e40af;background:#eff6ff;border-radius:6px;padding:5px 10px;border-left:3px solid #3b82f6">Evolução global da base — recompra mensal não tem breakdown por protocolo</div>`
@@ -4118,8 +4191,8 @@ function _renderRecompraMensal() {
   const labels    = rows.map(r => String(r.periodo || '').slice(0, 7));
   const recompras = rows.map(r => r.qtd_recompras || 0);
   const pcts      = rows.map(r => r.pct_recompra != null ? +(r.pct_recompra * 100).toFixed(1) : null);
-  const barBg     = rows.map((_, i) => i === hiIdx ? 'rgba(23,174,85,.85)' : 'rgba(23,174,85,.25)');
-  const barBdr    = rows.map((_, i) => i === hiIdx ? '#0d7a46' : '#17AE55');
+  const barBg     = rows.map((_, i) => hiSet.has(i) ? 'rgba(23,174,85,.85)' : (hiSet.size ? 'rgba(23,174,85,.15)' : 'rgba(23,174,85,.25)'));
+  const barBdr    = rows.map((_, i) => hiSet.has(i) ? '#0d7a46' : '#17AE55');
   _chartRecompra = new Chart(document.getElementById('chartRecompra'), {
     type: 'bar',
     data: {
@@ -4608,7 +4681,7 @@ function _renderComprasPorPedido() {
   const wrap = document.querySelector('#block-compras-por-pedido .card-body');
   if (!wrap) return;
 
-  const anoSel = (document.getElementById('compras-por-pedido-ano')?.value || '').trim();
+  const anoSel = (document.getElementById('compras-por-pedido-ano')?.value || _analytics.ano || '').trim();
   let rows = (_med.raw.safraAnalise || []).filter(r => r && r.safra && r.n_1 != null);
   if (anoSel) rows = rows.filter(r => String(r.safra).startsWith(anoSel));
 
@@ -4774,8 +4847,8 @@ function _renderComportamentoKPIs() {
     { icon: '⚡',  val: pct90,    label: 'Recompra em até 90 dias',   sub: 'dentre quem voltou a comprar' },
     { icon: '😴',  val: inativos, label: 'Clientes Inativos',         sub: '1 pedido há mais de 90 dias' },
   ];
-  const _protoBannerComp = _analytics.protocolo
-    ? `<div style="margin-bottom:10px;font-size:11px;color:#1e40af;background:#eff6ff;border-radius:6px;padding:5px 10px;border-left:3px solid #3b82f6">Comportamento global da base — sem breakdown por protocolo</div>`
+  const _protoBannerComp = (_analytics.protocolo || _analytics.ano || _analytics.mes)
+    ? `<div style="margin-bottom:10px;font-size:11px;color:#1e40af;background:#eff6ff;border-radius:6px;padding:5px 10px;border-left:3px solid #3b82f6">Comportamento global da base — sem breakdown por período ou protocolo</div>`
     : '';
   grid.innerHTML = _protoBannerComp + kpis.map((k, i) => _kpiCard(k, 'c' + i)).join('');
 }
@@ -4825,14 +4898,17 @@ function _renderChurnMensal() {
     wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de churn disponíveis</p>';
     return;
   }
-  // Show full year (or all data) — never collapse to a single point
   let rows = allRows;
   if (_analytics.ano) rows = rows.filter(r => String(r.churn_mes || '').startsWith(_analytics.ano));
   if (!rows.length) rows = allRows;
+  if (!_analytics.ano && _analytics.mes) {
+    const byMes = allRows.filter(r => String(r.churn_mes || '').slice(5, 7) === _analytics.mes);
+    if (byMes.length) rows = byMes;
+  }
 
-  const hiIdx = _analytics.mes
-    ? rows.findIndex(r => String(r.churn_mes || '').slice(5, 7) === _analytics.mes)
-    : -1;
+  const hiSet = _analytics.mes
+    ? new Set(rows.reduce((acc, r, i) => { if (String(r.churn_mes||'').slice(5,7) === _analytics.mes) acc.push(i); return acc; }, []))
+    : new Set();
 
   const _protoBannerChurn = _analytics.protocolo
     ? `<div style="margin-bottom:10px;font-size:11px;color:#1e40af;background:#eff6ff;border-radius:6px;padding:5px 10px;border-left:3px solid #3b82f6">Churn global da base — sem breakdown por protocolo</div>`
@@ -4841,8 +4917,8 @@ function _renderChurnMensal() {
   if (_chartChurn) { _chartChurn.destroy(); _chartChurn = null; }
   const labels = rows.map(r => String(r.churn_mes || '').slice(0, 7));
   const values = rows.map(r => r.qtd_churn || 0);
-  const barBg  = rows.map((_, i) => i === hiIdx ? 'rgba(239,68,68,.75)' : 'rgba(239,68,68,.25)');
-  const barBdr = rows.map((_, i) => i === hiIdx ? '#b91c1c' : '#EF4444');
+  const barBg  = rows.map((_, i) => hiSet.has(i) ? 'rgba(239,68,68,.75)' : (hiSet.size ? 'rgba(239,68,68,.15)' : 'rgba(239,68,68,.25)'));
+  const barBdr = rows.map((_, i) => hiSet.has(i) ? '#b91c1c' : '#EF4444');
   _chartChurn = new Chart(document.getElementById('chartChurn'), {
     type: 'bar',
     data: {
