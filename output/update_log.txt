@@ -9720,3 +9720,339 @@ postgrest.exceptions.APIError: {'message': "Could not find the table 'public.cx_
 [22/07/2026 14:24] OK
 2026-07-22 17:39:09,309 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/cx_sync_state?on_conflict=key "HTTP/2 200 OK"
 2026-07-22 17:39:09,309 INFO === Concluido: 22/07/2026 14:24 — OK ===
+2026-07-22 19:25:50,622 INFO === Atualizacao iniciada: 22/07/2026 16:25 ===
+2026-07-22 19:25:50,677 INFO === collect_and_build: início ===
+2026-07-22 19:25:50,677 INFO Backup do dashboard criado.
+2026-07-22 19:25:50,677 INFO Buscando grupos...
+2026-07-22 19:25:51,203 INFO Grupos encontrados: ['Blis Financeiro', 'Blis Gestão', 'Blis Jurídico', 'Blis Logística', 'Blis Resolve', 'Blis Saúde', 'Blis Tech', 'Cloud Humans']
+2026-07-22 19:25:51,203 INFO   grupos: 8
+2026-07-22 19:25:51,203 INFO Buscando agentes...
+2026-07-22 19:25:52,828 INFO Agentes+Admins: 11
+2026-07-22 19:25:52,828 INFO   agentes: 11
+2026-07-22 19:25:53,875 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/cx_sync_state?select=value&key=eq.zendesk_cursor "HTTP/2 200 OK"
+2026-07-22 19:25:53,876 INFO Zendesk incremental (Supabase) desde ts=1784740999 (22/07/2026 14:23 BRT)
+2026-07-22 19:25:53,876 INFO Buscando tickets + métricas...
+2026-07-22 19:25:53,876 INFO Tickets+métricas — página 1 (acumulado: 0)...
+2026-07-22 19:25:54,801 INFO Tickets no período (incremental, deduplicados): 104 | end_time=1784748291
+2026-07-22 19:25:54,801 INFO   tickets_raw: 104
+2026-07-22 19:25:54,801 INFO Buscando CSAT...
+2026-07-22 19:31:14,865 INFO CSAT: 32803 avaliações (bruto)
+2026-07-22 19:31:14,865 INFO   ratings: 32803
+2026-07-22 19:31:14,865 INFO Buscando opções de campos customizados...
+2026-07-22 19:31:18,540 INFO Opções de campos customizados: 11 campos
+2026-07-22 19:31:18,541 INFO   campo_opcoes.json salvo (11 campos)
+2026-07-22 19:31:18,541 INFO Construindo DataFrames...
+2026-07-22 19:31:18,783 INFO CSAT dedup: 8266 avaliações duplicadas removidas (32803 → 24537)
+2026-07-22 19:31:18,785 INFO   df_full: 104 tickets  df_csat: 24537
+2026-07-22 19:31:18,787 INFO Filtro CRM Blis Saude: 1 sem assignee removidos -> 0 restantes
+2026-07-22 19:31:19,629 INFO campo_opcoes: 164 tags carregadas
+2026-07-22 19:31:19,746 INFO Perfis encontrados: ['Não Baixou App', 'Fez Cadastro', 'Fez Anamnese', 'Fez Consulta', '1ª Compra <30d', '1ª Compra >30d', '2ª+ Recompra', 'Médicos', 'Pergunta']
+2026-07-22 19:31:19,765 INFO Blocos construídos.
+2026-07-22 19:31:19,765 INFO   ia: tickets=48  status=48  channels=48
+2026-07-22 19:31:19,765 INFO   saude: tickets=9  status=9  channels=9
+2026-07-22 19:31:19,765 INFO   resolve: tickets=39  status=39  channels=39
+2026-07-22 19:31:19,765 INFO   logistica: tickets=7  status=7  channels=7
+2026-07-22 19:31:19,765 INFO   tempos: TMA Resolve=[44.6, 1.0]  TMA Saude=[None, 1.1]
+2026-07-22 19:31:19,765 INFO   motivos: 9 categorias  perfis: 9
+2026-07-22 19:31:19,902 INFO CSAT comments: 502 detratores, 1763 promotores injetados.
+2026-07-22 19:31:19,904 INFO Dashboard atualizado com sucesso.
+2026-07-22 19:31:19,908 INFO comments_data.json salvo (264,077 bytes)
+2026-07-22 19:31:20,128 INFO CSVs salvos: tickets=103 csat=24537 agentes=11 grupos=8
+2026-07-22 19:31:20,172 INFO Audit log salvo: output/audit_log.txt
+2026-07-22 19:31:20,193 INFO Supabase Zendesk: iniciando sync...
+2026-07-22 19:31:22,201 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?on_conflict=ticket_id&columns=%22resolucao_h%22%2C%22primeira_resposta_h%22%2C%22num_respostas%22%2C%22group_id%22%2C%22requester_id%22%2C%22resolvido_fcr%22%2C%22atualizado_em%22%2C%22nome_grupo%22%2C%22resolucao_biz_min%22%2C%22assignee_id%22%2C%22submotivo_tag%22%2C%22organization_id%22%2C%22atendido_por_ia%22%2C%22pendencia_biz_min%22%2C%22assunto%22%2C%22criado_em%22%2C%22tags%22%2C%22pendencia_h%22%2C%22ano_mes%22%2C%22num_reabertas%22%2C%22perfil%22%2C%22motivo_tag%22%2C%22primeira_resposta_biz_min%22%2C%22ticket_id%22%2C%22transferido_n2%22%2C%22submotivo_field_id%22%2C%22semana_iso%22%2C%22nome_mes%22%2C%22pendencia_min%22%2C%22nome_agente%22%2C%22time%22%2C%22status%22%2C%22criado_em_brt%22%2C%22canal%22%2C%22dia_semana%22%2C%22primeira_resposta_min%22%2C%22prioridade%22%2C%22resolucao_min%22%2C%22motivo%22 "HTTP/2 201 Created"
+2026-07-22 19:31:22,207 INFO tickets       → 103 registros
+2026-07-22 19:31:22,573 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/metricas?on_conflict=ticket_id&columns=%22resolucao_h%22%2C%22primeira_resposta_h%22%2C%22ticket_id%22%2C%22num_respostas%22%2C%22pendencia_biz_min%22%2C%22primeira_resposta_min%22%2C%22resolucao_biz_min%22%2C%22pendencia_h%22%2C%22num_reabertas%22%2C%22resolucao_min%22%2C%22pendencia_min%22%2C%22primeira_resposta_biz_min%22 "HTTP/2 201 Created"
+2026-07-22 19:31:22,575 INFO metricas      → 103 registros
+2026-07-22 19:31:23,276 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 201 Created"
+2026-07-22 19:31:24,241 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:24,796 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:25,192 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:25,739 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:26,338 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:26,715 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:27,106 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:27,486 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:27,885 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:28,474 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:29,018 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:29,358 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:29,712 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:30,053 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:30,390 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:30,743 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:31,822 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:32,191 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:32,543 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:32,889 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:33,244 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:33,608 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:33,957 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:34,292 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:34,646 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:34,985 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:35,324 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:35,678 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:36,018 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:37,101 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:37,448 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:37,974 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:38,322 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:38,835 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:39,176 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:39,517 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:39,875 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:40,213 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:40,570 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:40,922 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:41,269 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:41,618 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:41,963 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:42,520 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:42,849 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:43,206 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:43,745 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:44,087 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:44,323 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?on_conflict=csat_id&columns=%22comentario%22%2C%22ticket_id%22%2C%22time%22%2C%22group_id%22%2C%22semana_iso%22%2C%22score%22%2C%22detrator%22%2C%22promotor%22%2C%22nome_grupo%22%2C%22csat_id%22%2C%22ano_mes%22%2C%22avaliado_em%22%2C%22assignee_id%22%2C%22score_raw%22 "HTTP/2 200 OK"
+2026-07-22 19:31:44,327 INFO csat          → 24,537 registros
+2026-07-22 19:31:44,569 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/agentes?on_conflict=agent_id&columns=%22ativo%22%2C%22role%22%2C%22nome%22%2C%22email%22%2C%22agent_id%22 "HTTP/2 200 OK"
+2026-07-22 19:31:44,569 INFO agentes       → 11 registros
+2026-07-22 19:31:44,794 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/grupos?on_conflict=group_id&columns=%22nome_grupo%22%2C%22group_id%22 "HTTP/2 200 OK"
+2026-07-22 19:31:44,795 INFO grupos        → 8 registros
+2026-07-22 19:31:45,331 INFO HTTP Request: DELETE https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/comentarios_csat?data_carga=eq.2026-07-22 "HTTP/2 200 OK"
+2026-07-22 19:31:45,903 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/comentarios_csat?columns=%22ticket_id%22%2C%22data_carga%22%2C%22tipo%22%2C%22team%22%2C%22score_numerico%22%2C%22texto%22 "HTTP/2 201 Created"
+2026-07-22 19:31:46,214 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/comentarios_csat?columns=%22ticket_id%22%2C%22data_carga%22%2C%22tipo%22%2C%22team%22%2C%22score_numerico%22%2C%22texto%22 "HTTP/2 201 Created"
+2026-07-22 19:31:46,525 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/comentarios_csat?columns=%22ticket_id%22%2C%22data_carga%22%2C%22tipo%22%2C%22team%22%2C%22score_numerico%22%2C%22texto%22 "HTTP/2 201 Created"
+2026-07-22 19:31:46,839 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/comentarios_csat?columns=%22ticket_id%22%2C%22data_carga%22%2C%22tipo%22%2C%22team%22%2C%22score_numerico%22%2C%22texto%22 "HTTP/2 201 Created"
+2026-07-22 19:31:47,128 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/comentarios_csat?columns=%22ticket_id%22%2C%22data_carga%22%2C%22tipo%22%2C%22team%22%2C%22score_numerico%22%2C%22texto%22 "HTTP/2 201 Created"
+2026-07-22 19:31:47,132 INFO comentarios_csat → 2,297 registros (data_carga=2026-07-22)
+2026-07-22 19:31:47,133 INFO Supabase Zendesk: sync concluído.
+2026-07-22 19:31:47,427 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/cx_sync_state?on_conflict=key "HTTP/2 200 OK"
+2026-07-22 19:31:47,427 INFO Cursor Zendesk salvo: 1784748291
+2026-07-22 19:31:47,427 INFO === sync_volume_diario: início ===
+2026-07-22 19:31:48,119 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/cx_volume_diario?on_conflict=data%2Ctime&columns=%22criados%22%2C%22time%22%2C%22resolvidos%22%2C%22atualizado_em%22%2C%22data%22 "HTTP/2 200 OK"
+2026-07-22 19:31:48,119 INFO cx_volume_diario → 12 registros upsertados
+2026-07-22 19:31:48,119 INFO === sync_volume_diario: concluído ===
+2026-07-22 19:31:48,119 INFO === collect_and_build: concluído ===
+2026-07-22 19:31:48,129 INFO === sync_metabase: início ===
+2026-07-22 19:31:52,021 INFO Metabase card 33 (totalConsultas): OK (1 linhas)
+2026-07-22 19:31:53,323 INFO Metabase card 130 (consultasPorStatus): OK (10 linhas)
+2026-07-22 19:31:55,075 INFO Metabase card 515 (statusTemporal): OK (600 linhas)
+2026-07-22 19:32:01,046 INFO Metabase card 95 (csatGlobal): OK (1 linhas)
+2026-07-22 19:32:06,788 INFO Metabase card 84 (performanceMedicos): OK (79 linhas)
+2026-07-22 19:32:08,316 INFO Metabase card 85 (reviewsMedicos): OK (2000 linhas)
+2026-07-22 19:32:09,329 INFO Metabase card 96 (couponsAtivos): OK (422 linhas)
+2026-07-22 19:32:10,616 INFO Metabase card 108 (couponsReceita): OK (14 linhas)
+2026-07-22 19:32:13,297 INFO Metabase card 398 (conversaoCoupons): OK (101 linhas)
+2026-07-22 19:32:25,748 INFO Metabase card 531 (custoCupomConsulta): OK (1 linhas)
+2026-07-22 19:32:28,578 INFO Metabase card 494 (cancelamentosPeriodo): OK (31 linhas)
+2026-07-22 19:32:32,289 INFO Metabase card 496 (avaliacaoPeriodo): OK (31 linhas)
+2026-07-22 19:32:36,116 INFO Metabase card 497 (npsPeriodo): OK (31 linhas)
+2026-07-22 19:32:44,430 INFO Metabase card 402 (consultasPorMedico): OK (113 linhas)
+2026-07-22 19:32:57,652 INFO Metabase card 498 (tempoMensal): OK (27 linhas)
+2026-07-22 19:33:04,443 INFO Metabase card 503 (tempoAtual): OK (1 linhas)
+2026-07-22 19:33:05,492 INFO Metabase card 462 (clientesUnicos): OK (1 linhas)
+2026-07-22 19:33:13,494 INFO Metabase card 264 (recompraProtocolo): OK (31 linhas)
+2026-07-22 19:33:16,936 INFO Metabase card 41 (consultasProtocolo): OK (31 linhas)
+2026-07-22 19:33:19,728 INFO Metabase card 110 (recompraMoM): OK (28 linhas)
+2026-07-22 19:33:20,993 INFO Metabase card 201 (cohortPedidos): OK (5 linhas)
+2026-07-22 19:33:25,035 INFO Metabase card 499 (recompraConsulta): OK (31 linhas)
+2026-07-22 19:33:26,341 INFO Metabase card 282 (funilCanal): OK (27 linhas)
+2026-07-22 19:33:31,701 INFO Metabase couponsGasto: OK (35171 pedidos, 265 cupons)
+2026-07-22 19:34:21,874 INFO Metabase card 734: 37534 usuários processados para ticket_medio
+2026-07-22 19:34:21,874 INFO Metabase baseRecompra (404): 37544 clientes → 31 safras, 4 tipos | inativos=19485 avg_d12=98.6d
+2026-07-22 19:34:38,941 INFO Metabase intervaloPedidos: 1→2=95.7d  2→3=93.7d
+2026-07-22 19:34:43,351 INFO Metabase churnMensal: 31 meses (38304 clientes em churn)
+2026-07-22 19:35:03,729 INFO Metabase performanceMedicosMensal 2026-01-01: 26 médicos
+2026-07-22 19:35:11,414 INFO Metabase performanceMedicosMensal 2026-02-01: 38 médicos
+2026-07-22 19:35:19,000 INFO Metabase performanceMedicosMensal 2026-03-01: 38 médicos
+2026-07-22 19:35:26,366 INFO Metabase performanceMedicosMensal 2026-04-01: 38 médicos
+2026-07-22 19:35:33,597 INFO Metabase performanceMedicosMensal 2026-05-01: 38 médicos
+2026-07-22 19:35:40,903 INFO Metabase performanceMedicosMensal 2026-06-01: 52 médicos
+2026-07-22 19:35:48,274 INFO Metabase performanceMedicosMensal 2026-07-01: 57 médicos
+2026-07-22 19:35:48,274 INFO Metabase performanceMedicosMensal: 287 linhas no total
+2026-07-22 19:38:24,263 INFO Metabase protocoloMensal 2026-07-01: 30 protocolos (53027 pedidos)
+2026-07-22 19:38:25,021 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_protocolo_mensal?select=%2A&order=periodo.asc "HTTP/2 200 OK"
+2026-07-22 19:38:25,024 INFO Metabase protocoloMensal: 203 linhas (173 Supabase + 30 atuais)
+2026-07-22 19:38:25,030 INFO Metabase: /home/runner/work/bliscxatualizado/bliscxatualizado/output/metabase_data.js salvo (365,880 bytes)
+2026-07-22 19:38:25,440 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_clientes_resumo?on_conflict=data_carga "HTTP/2 200 OK"
+2026-07-22 19:38:25,441 INFO mb_clientes_resumo       → 1 registro (únicos=37543)
+2026-07-22 19:38:25,702 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_safra_analise?on_conflict=safra&columns=%22n_1%22%2C%22n_2%22%2C%22data_carga%22%2C%22n_3%22%2C%22n_4plus%22%2C%22inativos%22%2C%22pct_ativou_90d%22%2C%22total_usuarios%22%2C%22media_pedidos%22%2C%22safra%22%2C%22pct_recompra%22%2C%22com_recompra%22%2C%22avg_dias_1_2%22 "HTTP/2 200 OK"
+2026-07-22 19:38:25,703 INFO mb_safra_analise         → 31 safras
+2026-07-22 19:38:25,938 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_recompra_mensal?on_conflict=periodo&columns=%22periodo%22%2C%22qtd_recompras%22%2C%22data_carga%22%2C%22pedidos_recompra%22%2C%22consultas_criadas%22%2C%22pedidos%22%2C%22pct_recompra%22 "HTTP/2 200 OK"
+2026-07-22 19:38:25,939 INFO mb_recompra_mensal       → 31 meses
+2026-07-22 19:38:26,166 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_comportamento_kpis?on_conflict=id&columns=%22data_carga%22%2C%22inativos_global%22%2C%22id%22%2C%22pct_ativou_90d%22%2C%22avg_dias_1_2%22 "HTTP/2 200 OK"
+2026-07-22 19:38:26,167 INFO mb_comportamento_kpis    → 1 linha(s)
+2026-07-22 19:38:26,408 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_churn_mensal?on_conflict=churn_mes&columns=%22data_carga%22%2C%22qtd_churn%22%2C%22churn_mes%22 "HTTP/2 200 OK"
+2026-07-22 19:38:26,409 INFO mb_churn_mensal          → 31 meses
+2026-07-22 19:38:26,632 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_funil_canal?on_conflict=canal&columns=%22recompra%22%2C%22pct_pedido%22%2C%22data_carga%22%2C%22canal%22%2C%22pre_cadastro%22%2C%22pct_consulta%22%2C%22cadastro%22%2C%22consulta%22%2C%22pct_recompra%22%2C%22pedido%22 "HTTP/2 200 OK"
+2026-07-22 19:38:26,633 INFO mb_funil_canal           → 26 canais
+2026-07-22 19:38:26,868 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_cohort_pedidos?on_conflict=faixa_pedidos&columns=%22qtd_usuarios%22%2C%22faixa_pedidos%22%2C%22data_carga%22 "HTTP/2 200 OK"
+2026-07-22 19:38:26,868 INFO mb_cohort_pedidos        → 5 faixas
+2026-07-22 19:38:27,097 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_cancelamentos_periodo?on_conflict=periodo&columns=%22percentual_canceladas%22%2C%22periodo%22%2C%22consultas_canceladas%22%2C%22consultas_criadas%22 "HTTP/2 200 OK"
+2026-07-22 19:38:27,098 INFO mb_cancelamentos_periodo → 31 registros
+2026-07-22 19:38:27,333 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_nps_periodo?on_conflict=periodo&columns=%22periodo%22%2C%22nps%22%2C%22media_avaliacoes%22%2C%22consultas_criadas%22 "HTTP/2 200 OK"
+2026-07-22 19:38:27,333 INFO mb_nps_periodo           → 31 registros
+2026-07-22 19:38:27,567 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_totais_diarios?on_conflict=data_carga "HTTP/2 200 OK"
+2026-07-22 19:38:27,567 INFO mb_totais_diarios        → 1 registro (2026-07-22)
+2026-07-22 19:38:28,094 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_performance_medicos_mes?on_conflict=periodo%2Cnome_medico&columns=%22receita%22%2C%22periodo%22%2C%22consultas_canceladas%22%2C%22nome_medico%22%2C%22quantidade_nfs%22%2C%22quantidade_orders%22%2C%22nps%22%2C%22data_carga%22%2C%22media_avaliacoes%22%2C%22consultas_criadas%22%2C%22avg_steps%22%2C%22consultas_finalizadas%22 "HTTP/2 200 OK"
+2026-07-22 19:38:28,098 INFO mb_performance_medicos_mes → 273 registros
+2026-07-22 19:38:28,393 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_status_temporal?on_conflict=periodo%2Cstatus_consulta&columns=%22periodo%22%2C%22qtd_consultas%22%2C%22status_consulta%22 "HTTP/2 201 Created"
+2026-07-22 19:38:28,641 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_status_temporal?on_conflict=periodo%2Cstatus_consulta&columns=%22periodo%22%2C%22qtd_consultas%22%2C%22status_consulta%22 "HTTP/2 200 OK"
+2026-07-22 19:38:28,642 INFO mb_status_temporal       → 600 registros
+2026-07-22 19:38:28,862 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_cancelamentos_periodo?on_conflict=periodo&columns=%22percentual_canceladas%22%2C%22periodo%22%2C%22consultas_canceladas%22%2C%22consultas_criadas%22 "HTTP/2 200 OK"
+2026-07-22 19:38:28,862 INFO mb_cancelamentos_periodo → 31 registros
+2026-07-22 19:38:29,099 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_protocolo_mensal?on_conflict=periodo%2Cprotocolo&columns=%22qtd_pedidos%22%2C%22periodo%22%2C%22protocolo%22%2C%22soma_receita%22%2C%22data_carga%22%2C%22ticket_medio%22 "HTTP/2 200 OK"
+2026-07-22 19:38:29,099 INFO mb_protocolo_mensal      → 30 registros (mês atual)
+2026-07-22 19:38:29,321 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_tipo_cliente?on_conflict=tipo_cliente&columns=%22data_carga%22%2C%22pct_do_total%22%2C%22tipo_cliente%22%2C%22ticket_medio%22%2C%22media_pedidos%22%2C%22qtd_usuarios%22%2C%22receita_total%22 "HTTP/2 200 OK"
+2026-07-22 19:38:29,321 INFO mb_tipo_cliente          → 4 tipos (ticket≈R$?)
+2026-07-22 19:38:29,575 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_tipo_cliente_mensal?on_conflict=periodo%2Ctipo_cliente&columns=%22periodo%22%2C%22data_carga%22%2C%22pct_do_total%22%2C%22tipo_cliente%22%2C%22ticket_medio%22%2C%22media_pedidos%22%2C%22qtd_usuarios%22%2C%22receita_total%22 "HTTP/2 200 OK"
+2026-07-22 19:38:29,577 INFO mb_tipo_cliente_mensal   → 117 registros
+2026-07-22 19:38:29,801 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/mb_protocolo_analise?on_conflict=protocolo&columns=%22qtd_pedidos%22%2C%22qtd_recompras%22%2C%22protocolo%22%2C%22soma_receita%22%2C%22qtd_consultas%22%2C%22data_carga%22%2C%22ticket_medio%22%2C%22total_usuarios%22%2C%22pct_recompra%22 "HTTP/2 200 OK"
+2026-07-22 19:38:29,802 INFO mb_protocolo_analise     → 31 protocolos
+2026-07-22 19:38:29,802 INFO Supabase: protocoloAnalise atualizado com card 445.
+2026-07-22 19:38:29,802 INFO Supabase Metabase: sync concluído.
+2026-07-22 19:38:29,802 INFO === sync_metabase: concluído ===
+2026-07-22 19:38:29,825 INFO === sync_saude_recompra: início ===
+2026-07-22 19:38:30,785 INFO sync_saude_recompra: Metabase auth OK
+2026-07-22 19:38:53,426 INFO sync_saude_recompra: card 733 → 37547 usuários
+2026-07-22 19:38:53,822 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=0&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:54,170 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=1000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:54,489 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=2000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:54,799 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=3000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:55,134 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=4000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:55,439 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=5000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:55,752 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=6000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:56,058 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=7000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:56,357 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=8000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:56,665 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=9000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:56,954 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=10000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:57,238 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=11000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:57,554 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=12000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:57,853 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=13000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:58,129 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=14000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:58,463 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=15000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:58,761 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=16000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:59,048 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=17000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:59,345 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=18000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:59,640 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=19000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:38:59,918 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=20000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:00,197 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=21000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:00,510 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=22000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:00,827 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=23000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:01,153 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=24000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:01,623 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=25000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:02,359 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=requester_id&group_id=eq.43771604769299&offset=26000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:02,360 INFO sync_saude_recompra: 10384 zendesk_ids únicos contataram Saúde
+2026-07-22 19:39:02,620 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/recompra_saude_cohort?on_conflict=safra&columns=%22clientes_saude%22%2C%22total_recompra%22%2C%22pct_recompra_saude%22%2C%22total_clientes%22%2C%22recompra_sem_saude%22%2C%22pct_recompra_sem_saude%22%2C%22atualizado_em%22%2C%22safra%22%2C%22recompra_saude%22%2C%22pct_recompra_total%22%2C%22clientes_sem_saude%22 "HTTP/2 200 OK"
+2026-07-22 19:39:02,621 INFO recompra_saude_cohort → 19 safras upsertadas
+2026-07-22 19:39:02,621 INFO === sync_saude_recompra: concluído ===
+2026-07-22 19:39:02,945 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/rpc/refresh_cx_performance_agentes "HTTP/2 404 Not Found"
+2026-07-22 19:39:02,945 WARNING refresh_cx_performance_agentes RPC falhou, tentando fallback Python: {'message': 'Could not find the function public.refresh_cx_performance_agentes without parameters in the schema cache', 'code': 'PGRST202', 'hint': 'Perhaps you meant to call the function public.refresh_cx_tma_semanal', 'details': 'Searched for the function public.refresh_cx_performance_agentes without parameters or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.'}
+2026-07-22 19:39:02,945 INFO === sync_agent_performance: início ===
+2026-07-22 19:39:03,248 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=0&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:03,480 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=1000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:03,711 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=2000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:03,944 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=3000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:04,177 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=4000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:04,407 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=5000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:04,643 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=6000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:04,881 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=7000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:05,116 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=8000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:05,352 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=9000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:05,591 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=10000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:05,827 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=11000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:06,066 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=12000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:06,306 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=13000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:06,597 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=14000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:06,878 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=15000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:07,243 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.42056691282323&offset=16000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:07,471 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=0&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:07,699 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=1000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:07,931 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=2000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:08,166 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=3000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:08,402 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=4000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:08,631 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=5000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:08,872 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=6000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:09,106 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=7000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:09,346 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=8000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:09,580 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=9000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:09,812 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=10000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:10,045 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=11000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:10,280 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=12000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:10,517 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=13000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:10,754 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=14000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:11,011 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=15000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:11,278 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=16000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:11,535 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=17000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:11,781 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=18000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:12,021 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=19000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:12,265 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=20000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:12,511 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=21000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:12,756 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=22000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:12,996 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=23000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:13,238 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=24000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:13,483 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=25000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:13,725 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Cano_mes%2Cstatus%2Cresolucao_h&group_id=eq.43771604769299&offset=26000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:14,008 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?select=assignee_id%2Cano_mes%2Cscore_raw&group_id=eq.42056691282323&score_raw=in.%28good%2Cbad%29&offset=0&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:14,253 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?select=assignee_id%2Cano_mes%2Cscore_raw&group_id=eq.42056691282323&score_raw=in.%28good%2Cbad%29&offset=1000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:14,497 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?select=assignee_id%2Cano_mes%2Cscore_raw&group_id=eq.42056691282323&score_raw=in.%28good%2Cbad%29&offset=2000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:14,726 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?select=assignee_id%2Cano_mes%2Cscore_raw&group_id=eq.42056691282323&score_raw=in.%28good%2Cbad%29&offset=3000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:14,955 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?select=assignee_id%2Cano_mes%2Cscore_raw&group_id=eq.43771604769299&score_raw=in.%28good%2Cbad%29&offset=0&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:15,194 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?select=assignee_id%2Cano_mes%2Cscore_raw&group_id=eq.43771604769299&score_raw=in.%28good%2Cbad%29&offset=1000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:15,423 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/csat?select=assignee_id%2Cano_mes%2Cscore_raw&group_id=eq.43771604769299&score_raw=in.%28good%2Cbad%29&offset=2000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:15,425 INFO sync_agent_performance: 42392 tickets, 5402 avaliações CSAT
+2026-07-22 19:39:15,704 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/cx_performance_agentes?on_conflict=agente_id%2Cmes&columns=%22tickets_resolvidos%22%2C%22nome%22%2C%22atualizado_em%22%2C%22agente_id%22%2C%22tma_h%22%2C%22csat_good%22%2C%22csat_bad%22%2C%22grupo%22%2C%22csat_score%22%2C%22mes%22%2C%22total_tickets%22 "HTTP/2 200 OK"
+2026-07-22 19:39:15,705 INFO cx_performance_agentes → 33 registros upsertados
+2026-07-22 19:39:15,705 INFO === sync_agent_performance: concluído ===
+2026-07-22 19:39:16,579 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/rpc/refresh_cx_tma_semanal "HTTP/2 500 Internal Server Error"
+2026-07-22 19:39:16,580 WARNING refresh_cx_tma_semanal RPC falhou, tentando fallback Python: {'message': 'ON CONFLICT DO UPDATE command cannot affect row a second time', 'code': '21000', 'hint': 'Ensure that no rows proposed for insertion within the same command have duplicate constrained values.', 'details': None}
+2026-07-22 19:39:17,271 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=0&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:17,845 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=1000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:18,416 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=2000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:18,640 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=3000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:18,849 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=4000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:19,058 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=5000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:19,272 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=6000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:19,497 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=7000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:19,712 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=8000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:19,931 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=9000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:20,161 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=10000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:20,381 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=11000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:20,597 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=12000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:20,811 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=13000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:21,043 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=14000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:21,258 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=15000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:21,471 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.42056691282323&offset=16000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:21,688 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=0&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:21,902 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=1000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:22,107 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=2000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:22,335 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=3000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:22,544 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=4000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:22,751 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=5000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:22,977 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=6000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:23,202 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=7000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:23,412 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=8000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:23,623 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=9000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:23,833 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=10000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:24,063 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=11000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:24,277 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=12000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:24,491 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=13000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:24,723 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=14000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:24,937 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=15000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:25,152 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=16000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:25,382 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=17000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:25,598 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=18000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:25,823 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=19000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:26,040 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=20000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:26,255 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=21000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:26,487 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=22000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:27,127 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=23000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:27,354 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=24000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:27,592 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=25000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:27,810 INFO HTTP Request: GET https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/tickets?select=assignee_id%2Cnome_agente%2Csemana_iso%2Cresolucao_h&group_id=eq.43771604769299&offset=26000&limit=1000 "HTTP/2 200 OK"
+2026-07-22 19:39:28,042 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/cx_tma_semanal?on_conflict=agente_id%2Csemana&columns=%22nome%22%2C%22atualizado_em%22%2C%22agente_id%22%2C%22n_tickets%22%2C%22tma_h%22%2C%22semana%22%2C%22grupo%22 "HTTP/2 200 OK"
+2026-07-22 19:39:28,043 INFO cx_tma_semanal: 50 registros upsertados (8 semanas)
+[22/07/2026 16:25] OK
+2026-07-22 19:39:28,364 INFO HTTP Request: POST https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1/cx_sync_state?on_conflict=key "HTTP/2 200 OK"
+2026-07-22 19:39:28,364 INFO === Concluido: 22/07/2026 16:25 — OK ===
