@@ -1,9 +1,9 @@
-name: Atualização Diária
+name: Atualização Automática
 
 on:
   schedule:
-    - cron: '0 11,15,20 * * *'  # 08h, 12h, 17h BRT (UTC-3) — 3x ao dia
-  workflow_dispatch:              # permite rodar manualmente pelo painel do GitHub
+    - cron: '0 * * * *'  # a cada hora, o dia todo
+  workflow_dispatch:      # permite rodar manualmente pelo painel do GitHub
 
 permissions:
   contents: write
