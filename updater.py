@@ -825,6 +825,62 @@ def inject_comments(html: str, comments: dict, offenders: list) -> str:
         log.warning("Padrão OFFENDERS não encontrado — bloco não substituído")
     return html3
 
+# ── Carrega dataset completo do Supabase para gerar o dashboard ───────────────
+
+def _load_full_from_supabase() -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Carrega todos os tickets e CSAT de 2026 do Supabase (paginado) para
+    construir os blocos do dashboard.html com dados históricos completos."""
+    import db_loader_zendesk as zdl
+    sb = zdl.get_client()
+
+    months = list(MONTH_IDX.keys())  # ex: ["2026-01", ..., "2026-07"]
+
+    TICKET_COLS = (
+        "ticket_id,criado_em,criado_em_brt,atualizado_em,status,canal,"
+        "group_id,nome_grupo,time,assignee_id,atendido_por_ia,transferido_n2,"
+        "resolvido_fcr,ano_mes,motivo,motivo_tag,submotivo_tag,submotivo_field_id,"
+        "perfil,nome_agente,primeira_resposta_min,primeira_resposta_biz_min,"
+        "resolucao_min,resolucao_biz_min,pendencia_min,pendencia_biz_min"
+    )
+    CSAT_COLS = (
+        "csat_id,ticket_id,assignee_id,score_raw,score,comentario,"
+        "avaliado_em,ano_mes,semana_iso,group_id,nome_grupo,time"
+    )
+
+    PAGE = 1000
+
+    def fetch_all(table, cols, filters):
+        rows, offset = [], 0
+        while True:
+            resp = (sb.table(table)
+                      .select(cols)
+                      .in_("ano_mes", filters)
+                      .range(offset, offset + PAGE - 1)
+                      .execute())
+            batch = resp.data or []
+            rows.extend(batch)
+            if len(batch) < PAGE:
+                break
+            offset += PAGE
+        return rows
+
+    try:
+        log.info("Supabase: carregando tickets históricos 2026...")
+        t_rows = fetch_all("tickets", TICKET_COLS, months)
+        log.info(f"  {len(t_rows)} tickets carregados")
+
+        log.info("Supabase: carregando CSAT histórico 2026...")
+        c_rows = fetch_all("csat", CSAT_COLS, months)
+        log.info(f"  {len(c_rows)} registros CSAT carregados")
+
+        df_t = pd.DataFrame(t_rows) if t_rows else pd.DataFrame()
+        df_c = pd.DataFrame(c_rows) if c_rows else pd.DataFrame()
+        return df_t, df_c
+    except Exception as e:
+        log.warning(f"Falha ao carregar histórico Supabase: {e}")
+        return pd.DataFrame(), pd.DataFrame()
+
+
 # ── Pipeline principal ────────────────────────────────────────────────────────
 
 def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
@@ -936,22 +992,27 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
     for i in issues:
         log.warning(i)
 
-    # 5. Construção dos blocos
-    tickets_data      = build_tickets(df_full)
-    status            = build_status(df_full)
-    channels          = build_channels(df_full)
-    channels_monthly  = build_channels_monthly(df_full)
-    semanas           = build_semanas(df_full)
-    csat              = build_csat(df_csat, df_full)
-    tempos            = build_tempos(df_full)
-    n2_data           = build_n2(df_full)
-    status_monthly    = build_status_monthly(df_full)
+    # 5. Construção dos blocos — usa dataset completo do Supabase
+    df_sb, df_csat_sb = _load_full_from_supabase()
+    df_build = df_sb if len(df_sb) > len(df_full) else df_full
+    df_csat_build = df_csat_sb if len(df_csat_sb) > len(df_csat) else df_csat
+    log.info(f"Dataset para build: {len(df_build)} tickets, {len(df_csat_build)} CSAT")
+
+    tickets_data      = build_tickets(df_build)
+    status            = build_status(df_build)
+    channels          = build_channels(df_build)
+    channels_monthly  = build_channels_monthly(df_build)
+    semanas           = build_semanas(df_build)
+    csat              = build_csat(df_csat_build, df_build)
+    tempos            = build_tempos(df_build)
+    n2_data           = build_n2(df_build)
+    status_monthly    = build_status_monthly(df_build)
     tag_names         = load_opcoes()
-    motivos_data      = build_motivos_data(df_full)
-    sub_data          = build_sub_data(df_full, tag_names)
-    perfis_data       = build_perfis_data(df_full)
-    resolucoes_dia    = build_resolucoes_dia(df_full)
-    criados_dia       = build_criados_dia(df_full)
+    motivos_data      = build_motivos_data(df_build)
+    sub_data          = build_sub_data(df_build, tag_names)
+    perfis_data       = build_perfis_data(df_build)
+    resolucoes_dia    = build_resolucoes_dia(df_build)
+    criados_dia       = build_criados_dia(df_build)
 
     log.info("Blocos construídos.")
     for t in ("ia","saude","resolve","logistica"):
@@ -980,7 +1041,7 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
 
         # 8. Comentários e Offenders CSAT
         try:
-            comments, offenders = build_comments_offenders(df_csat)
+            comments, offenders = build_comments_offenders(df_csat_build)
             html = inject_comments(html, comments, offenders)
             log.info(f"CSAT comments: {len(comments['bad'])} detratores, {len(comments['good'])} promotores injetados.")
         except Exception as ec:
