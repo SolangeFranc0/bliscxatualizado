@@ -4408,7 +4408,7 @@ async function _renderAgentesPerformance() {
     const [fresh, tma, vol] = await Promise.all([
       _sbGet('cx_performance_agentes', 'select=*&order=mes.asc'),
       _sbGet('cx_tma_semanal', 'select=*&order=semana.asc'),
-      _sbGet('cx_volume_diario', 'select=data,time,criados&time=in.(resolve,saude)&order=data.asc'),
+      _sbGet('cx_volume_diario', 'select=data,time,criados&time=in.(resolve,saude,ia)&order=data.asc'),
     ]);
     if (fresh && fresh.length) {
       if (_med.raw) _med.raw.agentesPerf = fresh;
@@ -4494,6 +4494,7 @@ function _doRenderAgentesPerformance(wrap, rows) {
 
   const resolveAgents = aggByAgent(filtered.filter(r => r.grupo === 'resolve'));
   const saudeAgents   = aggByAgent(filtered.filter(r => r.grupo === 'saude'));
+  const iaAgents      = aggByAgent(filtered.filter(r => r.grupo === 'ia'));
 
   // Dias úteis por mês (Seg–Sex) — calculado dinamicamente
   function _bdaysForMes(mes) {
@@ -4530,9 +4531,10 @@ function _doRenderAgentesPerformance(wrap, rows) {
     totalTix = filtered.reduce((s,r) => s + (r.total_tickets||0), 0);
   }
   const mediaDia  = dias > 0 ? (totalTix / dias).toFixed(1) : '—';
-  const agentivos = new Set(filtered.map(r => r.agente_id)).size;
-  const allGood   = filtered.reduce((s,r) => s+(r.csat_good||0), 0);
-  const allBad    = filtered.reduce((s,r) => s+(r.csat_bad||0), 0);
+  const humanFiltered = filtered.filter(r => r.grupo !== 'ia');
+  const agentivos = new Set(humanFiltered.map(r => r.agente_id)).size;
+  const allGood   = humanFiltered.reduce((s,r) => s+(r.csat_good||0), 0);
+  const allBad    = humanFiltered.reduce((s,r) => s+(r.csat_bad||0), 0);
   const csatGeral = (allGood+allBad) >= 5 ? (allGood/(allGood+allBad)*100).toFixed(1)+'%' : '—';
 
   const kpiStyle = 'background:var(--surface,#F7F9FC);border:1px solid var(--border,#E5E7EB);border-radius:14px;padding:14px 18px;display:flex;flex-direction:column;gap:4px';
@@ -4567,6 +4569,7 @@ function _doRenderAgentesPerformance(wrap, rows) {
       <div>${tableFor(resolveAgents, 'Blis Resolve', '#6366F1')}</div>
       <div>${tableFor(saudeAgents,   'Blis Saúde',   '#10b981')}</div>
     </div>
+    ${iaAgents.length ? `<div style="margin-bottom:20px">${tableFor(iaAgents, 'Cloud Humans (IA)', '#F59E0B')}</div>` : ''}
     <canvas id="chartAgentesPerf" style="max-height:180px;margin-bottom:24px"></canvas>
     <div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px">TMA — Tempo Médio de Resolução por Agente (horas úteis · Seg–Sex)</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">

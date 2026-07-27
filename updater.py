@@ -1728,7 +1728,11 @@ def sync_agent_performance() -> bool:
 
         sb = _dbl.get_client()
 
-        GRUPOS = {"resolve": 42056691282323, "saude": 43771604769299}
+        GRUPOS = {
+            "resolve": 42056691282323,   # Blis Resolve
+            "saude":   43771604769299,   # Blis Saúde
+            "ia":      50304023554451,   # Cloud Humans (IA)
+        }
         SKIP_AGENTS = {"", "None", "Admin", "Logística Agentes", "Roberto venzi pires"}
 
         # Tabela de nomes por agent_id (fallback quando nome_agente está null no ticket)
@@ -1736,7 +1740,7 @@ def sync_agent_performance() -> bool:
         agents_map = {str(a["agent_id"]): str(a.get("nome") or "").strip() for a in agents_rows}
         log.info(f"sync_agent_performance: {len(agents_map)} agentes carregados do lookup")
 
-        # Lê tickets de ambos os grupos (inclui ano_mes para filtrar só 2026)
+        # Lê tickets dos três grupos (inclui ano_mes para filtrar só 2026)
         months_filter = list(MONTH_IDX.keys())
         all_tickets = []
         for grupo_nome, grupo_id in GRUPOS.items():
@@ -1758,7 +1762,7 @@ def sync_agent_performance() -> bool:
                     break
                 offset += batch
 
-        # Lê CSAT de ambos os grupos
+        # Lê CSAT dos três grupos
         all_csat = []
         for grupo_id in GRUPOS.values():
             offset, batch = 0, 1000
