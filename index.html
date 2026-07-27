@@ -3717,16 +3717,22 @@ function _normalizeTipoFromCohort() {
   const tot    = novoCt + recCt + fielCt + altaCt || 1;
   const tipoMap = {};
   tipo.forEach(r => { tipoMap[r.tipo_cliente] = r; });
+  // Receita calculada a partir das novas contagens × pedidos × ticket (não carrega valor antigo)
+  const _r = (ct, mp, tm) => (ct > 0 && mp > 0 && tm != null) ? Math.round(ct * mp * tm * 100) / 100 : null;
+  const recMed = recCt ? (rec2*2+rec3*3)/recCt : 2.0;
   _med.raw.tipoClienteAnalise = [
     { tipo_cliente:'Novo',            qtd_usuarios:novoCt, pct_do_total:novoCt/tot, media_pedidos:1.0,
-      ticket_medio:tipoMap['Novo']?.ticket_medio,            receita_total:tipoMap['Novo']?.receita_total },
-    { tipo_cliente:'Recorrente',      qtd_usuarios:recCt,  pct_do_total:recCt/tot,
-      media_pedidos:recCt ? (rec2*2+rec3*3)/recCt : 2.0,
-      ticket_medio:tipoMap['Recorrente']?.ticket_medio,      receita_total:tipoMap['Recorrente']?.receita_total },
+      ticket_medio:tipoMap['Novo']?.ticket_medio,
+      receita_total:_r(novoCt, 1.0, tipoMap['Novo']?.ticket_medio) },
+    { tipo_cliente:'Recorrente',      qtd_usuarios:recCt,  pct_do_total:recCt/tot,  media_pedidos:recMed,
+      ticket_medio:tipoMap['Recorrente']?.ticket_medio,
+      receita_total:_r(recCt, recMed, tipoMap['Recorrente']?.ticket_medio) },
     { tipo_cliente:'Fiel',            qtd_usuarios:fielCt, pct_do_total:fielCt/tot, media_pedidos:4.0,
-      ticket_medio:tipoMap['Fiel']?.ticket_medio,            receita_total:tipoMap['Fiel']?.receita_total },
+      ticket_medio:tipoMap['Fiel']?.ticket_medio,
+      receita_total:_r(fielCt, 4.0, tipoMap['Fiel']?.ticket_medio) },
     { tipo_cliente:'Alta Frequência', qtd_usuarios:altaCt, pct_do_total:altaCt/tot, media_pedidos:6.0,
-      ticket_medio:tipoMap['Alta Frequência']?.ticket_medio, receita_total:tipoMap['Alta Frequência']?.receita_total },
+      ticket_medio:tipoMap['Alta Frequência']?.ticket_medio,
+      receita_total:_r(altaCt, 6.0, tipoMap['Alta Frequência']?.ticket_medio) },
   ].filter(r => r.qtd_usuarios > 0);
 }
 
@@ -4060,7 +4066,11 @@ function _renderTipoCliente() {
     const pct    = r.pct_do_total   != null ? (r.pct_do_total * 100).toFixed(1) + '%' : '—';
     const media  = r.media_pedidos  != null ? r.media_pedidos.toFixed(1) : '—';
     const ticket = r.ticket_medio   != null ? 'R$ ' + _fmtMoney(r.ticket_medio) : '—';
-    const rec    = r.receita_total  != null ? 'R$ ' + _fmtMoney(r.receita_total) : '—';
+    // Receita calculada como clientes × pedidos/cliente × ticket médio (consistente com os KPIs exibidos)
+    const recVal = (r.qtd_usuarios && r.media_pedidos && r.ticket_medio)
+      ? r.qtd_usuarios * r.media_pedidos * r.ticket_medio
+      : r.receita_total;
+    const rec    = recVal != null ? 'R$ ' + _fmtMoney(recVal) : '—';
     const icon   = ICONS[r.tipo_cliente] || '👤';
     wrap.innerHTML = _protoBannerTipo + `
       <div class="tipo-detalhe">
@@ -4078,7 +4088,7 @@ function _renderTipoCliente() {
           <div class="tipo-kpi-mini"><div class="tipo-kpi-val">${media}</div><div class="tipo-kpi-lbl">Pedidos/cliente</div></div>
           <div class="tipo-kpi-mini"><div class="tipo-kpi-val">${ticket}</div><div class="tipo-kpi-lbl">Ticket médio</div></div>
         </div>
-        ${r.receita_total != null ? `<div style="margin-top:12px;padding:10px 14px;background:var(--g50);border-radius:8px;border-left:3px solid var(--g500)"><span style="font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:.06em">Receita total do segmento</span><div style="font-size:20px;font-weight:800;color:var(--g800);margin-top:2px">${rec}</div></div>` : ''}
+        ${recVal != null ? `<div style="margin-top:12px;padding:10px 14px;background:var(--g50);border-radius:8px;border-left:3px solid var(--g500)"><span style="font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:.06em">Receita total do segmento</span><div style="font-size:20px;font-weight:800;color:var(--g800);margin-top:2px">${rec}</div></div>` : ''}
         <div style="margin-top:10px;font-size:11px;color:#9CA3AF">Clique em outro tipo abaixo para comparar · Protocolos e safras mostram dados globais</div>
         <div class="tipo-grid" style="margin-top:12px;opacity:.45">${all.filter(x => x.tipo_cliente !== _analytics.tipoCliente).map(x => {
           const px  = x.pct_do_total != null ? (x.pct_do_total * 100).toFixed(1) + '%' : '—';
