@@ -4568,8 +4568,8 @@ function _doRenderAgentesPerformance(wrap, rows) {
       <div>${tableFor(saudeAgents,   'Blis Saúde',   '#10b981')}</div>
     </div>
     <canvas id="chartAgentesPerf" style="max-height:180px;margin-bottom:24px"></canvas>
-    <div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px">TMA Semanal por Agente — horas (W17–W24)</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px">TMA — Tempo Médio de Resolução por Agente (horas úteis · Seg–Sex)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
       <div>
         <div style="font-size:11px;color:#9CA3AF;margin-bottom:6px">Blis Resolve</div>
         <canvas id="chartTmaResolve" style="max-height:210px"></canvas>
@@ -4577,6 +4577,17 @@ function _doRenderAgentesPerformance(wrap, rows) {
       <div>
         <div style="font-size:11px;color:#9CA3AF;margin-bottom:6px">Blis Saúde</div>
         <canvas id="chartTmaSaude" style="max-height:210px"></canvas>
+      </div>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px">Tempo de Primeiro Atendimento por Agente (horas úteis · Seg–Sex)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div>
+        <div style="font-size:11px;color:#9CA3AF;margin-bottom:6px">Blis Resolve</div>
+        <canvas id="chartTmrResolve" style="max-height:210px"></canvas>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#9CA3AF;margin-bottom:6px">Blis Saúde</div>
+        <canvas id="chartTmrSaude" style="max-height:210px"></canvas>
       </div>
     </div>
   `;
@@ -4651,32 +4662,36 @@ function _renderAgentesPerfChart(rows) {
 }
 
 let _chartTmaResolve = null, _chartTmaSaude = null;
+let _chartTmrResolve = null, _chartTmrSaude = null;
 
 function _renderTmaSemanalChart(rows) {
   if (_chartTmaResolve) { try { _chartTmaResolve.destroy(); } catch(_){} _chartTmaResolve = null; }
   if (_chartTmaSaude)   { try { _chartTmaSaude.destroy();   } catch(_){} _chartTmaSaude   = null; }
+  if (_chartTmrResolve) { try { _chartTmrResolve.destroy(); } catch(_){} _chartTmrResolve = null; }
+  if (_chartTmrSaude)   { try { _chartTmrSaude.destroy();   } catch(_){} _chartTmrSaude   = null; }
   if (!rows || !rows.length) return;
 
   const SEMANAS = ['2026-W17','2026-W18','2026-W19','2026-W20','2026-W21','2026-W22','2026-W23','2026-W24','2026-W25','2026-W26','2026-W27'];
   const LABELS  = SEMANAS.map(s => s.replace('2026-',''));
 
-  // Build agentMap: aid → { nome, grupo, byWeek: {semana: tma_h} }
+  // Build agentMap: aid → { nome, grupo, tmaByWeek, tmrByWeek }
   const agentMap = {};
   for (const r of rows) {
     const aid = String(r.agente_id);
-    if (!agentMap[aid]) agentMap[aid] = { nome: r.nome, grupo: r.grupo, byWeek: {} };
-    agentMap[aid].byWeek[r.semana] = r.tma_h;
+    if (!agentMap[aid]) agentMap[aid] = { nome: r.nome, grupo: r.grupo, tmaByWeek: {}, tmrByWeek: {} };
+    agentMap[aid].tmaByWeek[r.semana] = r.tma_h;
+    agentMap[aid].tmrByWeek[r.semana] = r.tmr_h != null ? r.tmr_h : null;
   }
 
   const COLORS_R = ['#6366F1','#818CF8','#A5B4FC','#C7D2FE'];
   const COLORS_S = ['#10b981','#34d399','#6ee7b7'];
 
-  function buildDatasets(grupo, colors) {
+  function buildDatasets(grupo, colors, field) {
     return Object.values(agentMap)
       .filter(a => a.grupo === grupo)
       .map((a, i) => ({
         label: a.nome.split(' ')[0],
-        data: SEMANAS.map(w => a.byWeek[w] != null ? a.byWeek[w] : null),
+        data: SEMANAS.map(w => a[field][w] != null ? a[field][w] : null),
         borderColor: colors[i % colors.length],
         backgroundColor: colors[i % colors.length] + '22',
         borderWidth: 2,
@@ -4708,7 +4723,7 @@ function _renderTmaSemanalChart(rows) {
     if (canvasR) {
       _chartTmaResolve = new Chart(canvasR, {
         type: 'line',
-        data: { labels: LABELS, datasets: buildDatasets('resolve', COLORS_R) },
+        data: { labels: LABELS, datasets: buildDatasets('resolve', COLORS_R, 'tmaByWeek') },
         options: chartOpts,
       });
     }
@@ -4719,7 +4734,29 @@ function _renderTmaSemanalChart(rows) {
     if (canvasS) {
       _chartTmaSaude = new Chart(canvasS, {
         type: 'line',
-        data: { labels: LABELS, datasets: buildDatasets('saude', COLORS_S) },
+        data: { labels: LABELS, datasets: buildDatasets('saude', COLORS_S, 'tmaByWeek') },
+        options: chartOpts,
+      });
+    }
+  } catch(e) {}
+
+  try {
+    const canvasR2 = document.getElementById('chartTmrResolve');
+    if (canvasR2) {
+      _chartTmrResolve = new Chart(canvasR2, {
+        type: 'line',
+        data: { labels: LABELS, datasets: buildDatasets('resolve', COLORS_R, 'tmrByWeek') },
+        options: chartOpts,
+      });
+    }
+  } catch(e) {}
+
+  try {
+    const canvasS2 = document.getElementById('chartTmrSaude');
+    if (canvasS2) {
+      _chartTmrSaude = new Chart(canvasS2, {
+        type: 'line',
+        data: { labels: LABELS, datasets: buildDatasets('saude', COLORS_S, 'tmrByWeek') },
         options: chartOpts,
       });
     }

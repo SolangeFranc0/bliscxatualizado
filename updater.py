@@ -645,15 +645,25 @@ def update_sync_ts(html: str, ts: str) -> str:
 
 def sync_tma_semanal():
     """Upserta TMA semanal por agente na tabela cx_tma_semanal (Supabase).
-    Mesma lógica de inject_tma_semanal_inline, mas persiste no banco em vez de injetar HTML.
+    Usa métricas de horas úteis (resolucao_biz_min, primeira_resposta_biz_min)
+    e filtra apenas tickets criados em dias úteis (Seg–Sex).
     """
     try:
         import db_loader_metabase as _dbl
         from collections import defaultdict
+        from datetime import datetime as _dt_cls
 
         sb      = _dbl.get_client()
         GRUPOS  = {42056691282323: "resolve", 43771604769299: "saude"}
         SKIP    = {"", "None", "Admin", "Logística Agentes", "Roberto venzi pires"}
+
+        def _is_weekday(date_str):
+            """Retorna True se a data cair em Seg–Sex."""
+            try:
+                s = str(date_str or "").strip().replace("Z", "+00:00").replace(" ", "T")
+                return _dt_cls.fromisoformat(s).weekday() < 5
+            except Exception:
+                return True  # inclui se não conseguir parsear
 
         all_tickets = []
         for gid, grupo in GRUPOS.items():
@@ -661,7 +671,8 @@ def sync_tma_semanal():
             while True:
                 rows = (
                     sb.table("tickets")
-                      .select("assignee_id,nome_agente,semana_iso,resolucao_h")
+                      .select("assignee_id,nome_agente,semana_iso,"
+                              "criado_em_brt,resolucao_biz_min,primeira_resposta_biz_min")
                       .eq("group_id", gid)
                       .range(offset, offset + batch - 1)
                       .execute()
@@ -674,8 +685,15 @@ def sync_tma_semanal():
                     break
                 offset += batch
 
-        agg = defaultdict(lambda: {"sum": 0.0, "n": 0, "nome": "", "grupo": ""})
+        agg = defaultdict(lambda: {
+            "tma_sum": 0.0, "tma_n": 0,
+            "tmr_sum": 0.0, "tmr_n": 0,
+            "nome": "", "grupo": "",
+        })
         for t in all_tickets:
+            # Apenas dias úteis (Seg–Sex)
+            if not _is_weekday(t.get("criado_em_brt")):
+                continue
             nome = str(t.get("nome_agente") or "").strip()
             if nome in SKIP:
                 continue
@@ -683,13 +701,23 @@ def sync_tma_semanal():
             sem = str(t.get("semana_iso") or "").strip()
             if not aid or not sem:
                 continue
+            key = (aid, sem)
+            agg[key]["nome"]  = nome
+            agg[key]["grupo"] = t.get("_grupo", "")
             try:
-                rh = float(t.get("resolucao_h") or 0)
-                if 0 < rh < 720:
-                    agg[(aid, sem)]["sum"]   += rh
-                    agg[(aid, sem)]["n"]     += 1
-                    agg[(aid, sem)]["nome"]   = nome
-                    agg[(aid, sem)]["grupo"]  = t.get("_grupo", "")
+                # TMA: resolucao_biz_min → horas úteis
+                rbm = float(t.get("resolucao_biz_min") or 0)
+                if 0 < rbm < 43200:  # < 30 dias em minutos
+                    agg[key]["tma_sum"] += rbm / 60
+                    agg[key]["tma_n"]   += 1
+            except (ValueError, TypeError):
+                pass
+            try:
+                # TMR: primeira_resposta_biz_min → horas úteis
+                prbm = float(t.get("primeira_resposta_biz_min") or 0)
+                if 0 < prbm < 2880:  # < 48h em minutos
+                    agg[key]["tmr_sum"] += prbm / 60
+                    agg[key]["tmr_n"]   += 1
             except (ValueError, TypeError):
                 pass
 
@@ -698,7 +726,9 @@ def sync_tma_semanal():
         now_ts = datetime.now(BRT).isoformat()
         records = []
         for (aid, sem), d in sorted(agg.items()):
-            if sem not in recent_8 or not d["n"]:
+            if sem not in recent_8:
+                continue
+            if not d["tma_n"] and not d["tmr_n"]:
                 continue
             try:
                 aid_int = int(aid)
@@ -709,8 +739,9 @@ def sync_tma_semanal():
                 "semana":       sem,
                 "nome":         d["nome"],
                 "grupo":        d["grupo"],
-                "tma_h":        round(d["sum"] / d["n"], 1),
-                "n_tickets":    d["n"],
+                "tma_h":        round(d["tma_sum"] / d["tma_n"], 1) if d["tma_n"] else None,
+                "tmr_h":        round(d["tmr_sum"] / d["tmr_n"], 1) if d["tmr_n"] else None,
+                "n_tickets":    d["tma_n"] or d["tmr_n"],
                 "atualizado_em": now_ts,
             })
 
