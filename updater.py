@@ -1700,7 +1700,13 @@ def sync_agent_performance() -> bool:
         GRUPOS = {"resolve": 42056691282323, "saude": 43771604769299}
         SKIP_AGENTS = {"", "None", "Admin", "Logística Agentes", "Roberto venzi pires"}
 
-        # Lê tickets de ambos os grupos
+        # Tabela de nomes por agent_id (fallback quando nome_agente está null no ticket)
+        agents_rows = sb.table("agentes").select("agent_id,nome").execute().data or []
+        agents_map = {str(a["agent_id"]): str(a.get("nome") or "").strip() for a in agents_rows}
+        log.info(f"sync_agent_performance: {len(agents_map)} agentes carregados do lookup")
+
+        # Lê tickets de ambos os grupos (inclui ano_mes para filtrar só 2026)
+        months_filter = list(MONTH_IDX.keys())
         all_tickets = []
         for grupo_nome, grupo_id in GRUPOS.items():
             offset, batch = 0, 1000
@@ -1709,6 +1715,7 @@ def sync_agent_performance() -> bool:
                     sb.table("tickets")
                       .select("assignee_id,nome_agente,ano_mes,status,resolucao_h")
                       .eq("group_id", grupo_id)
+                      .in_("ano_mes", months_filter)
                       .range(offset, offset + batch - 1)
                       .execute()
                       .data
@@ -1730,6 +1737,7 @@ def sync_agent_performance() -> bool:
                       .select("assignee_id,ano_mes,score_raw")
                       .eq("group_id", grupo_id)
                       .in_("score_raw", ["good", "bad"])
+                      .in_("ano_mes", months_filter)
                       .range(offset, offset + batch - 1)
                       .execute()
                       .data
@@ -1744,12 +1752,17 @@ def sync_agent_performance() -> bool:
         # Agrega tickets por (mes, assignee_id)
         t_agg = defaultdict(lambda: {"total": 0, "resolvidos": 0, "res_h": [], "nome": "", "grupo": ""})
         for t in all_tickets:
-            nome = str(t.get("nome_agente") or "").strip()
-            if nome in SKIP_AGENTS:
-                continue
             aid = str(t.get("assignee_id") or "").split(".")[0]
+            if not aid or aid == "None":
+                continue
+            # Prioriza nome_agente do ticket; fallback para tabela agentes
+            nome = str(t.get("nome_agente") or "").strip()
+            if not nome or nome in SKIP_AGENTS:
+                nome = agents_map.get(aid, "").strip()
+            if not nome or nome in SKIP_AGENTS:
+                continue
             mes = str(t.get("ano_mes") or "")[:7]
-            if not aid or len(mes) != 7:
+            if len(mes) != 7:
                 continue
             key = (mes, aid)
             t_agg[key]["total"]   += 1
