@@ -2333,6 +2333,8 @@ async function _loadFromSupabase() {
       _med.raw.tipoClienteAnalise = _tp.map(function(r){ return { tipo_cliente: r[0], qtd_usuarios: r[1], pct_do_total: r[2], media_pedidos: r[3] }; });
     }
   }
+  // Se tipo_cliente tiver contagem muito menor que cohort, deriva dos buckets de frequência
+  _normalizeTipoFromCohort();
   // Period arrays for analytics KPIs (month filter) — from already-fetched dashboard data
   _med.raw.npsArr    = npsRows.map(r => ({ periodo: r.periodo, consultas_criadas: r.consultas_criadas, nps: r.nps }));
   _med.raw.avalArr   = npsRows.map(r => ({ periodo: r.periodo, consultas_criadas: r.consultas_criadas, media_avaliacao: r.media_avaliacoes }));
@@ -3695,6 +3697,37 @@ function _mapClientesAnalytics() {
   _med.raw.cohortPedidos = cpRows.map(r => ({ faixa_pedidos: r[0], qtd_usuarios: r[1] }));
 
   console.log(`[_mapClientesAnalytics] protos=${_med.raw.protocoloAnalise?.length} safras=${_med.raw.safraAnalise?.length} cohort=${_med.raw.cohortPedidos?.length}`);
+  _normalizeTipoFromCohort();
+}
+
+function _normalizeTipoFromCohort() {
+  const cohort = _med.raw.cohortPedidos || [];
+  const tipo   = _med.raw.tipoClienteAnalise || [];
+  const cohortTotal = cohort.reduce((s, r) => s + (r.qtd_usuarios || 0), 0);
+  const tipoTotal   = tipo.reduce((s, r)   => s + (r.qtd_usuarios || 0), 0);
+  if (!cohortTotal || cohortTotal <= tipoTotal * 1.5) return;
+  const cp = {};
+  cohort.forEach(r => { cp[r.faixa_pedidos] = r.qtd_usuarios || 0; });
+  const novoCt = cp['1 pedido']          || 0;
+  const rec2   = cp['2 pedidos']         || 0;
+  const rec3   = cp['3 pedidos']         || 0;
+  const recCt  = rec2 + rec3;
+  const fielCt = cp['4 pedidos']         || 0;
+  const altaCt = cp['Mais de 5 pedidos'] || 0;
+  const tot    = novoCt + recCt + fielCt + altaCt || 1;
+  const tipoMap = {};
+  tipo.forEach(r => { tipoMap[r.tipo_cliente] = r; });
+  _med.raw.tipoClienteAnalise = [
+    { tipo_cliente:'Novo',            qtd_usuarios:novoCt, pct_do_total:novoCt/tot, media_pedidos:1.0,
+      ticket_medio:tipoMap['Novo']?.ticket_medio,            receita_total:tipoMap['Novo']?.receita_total },
+    { tipo_cliente:'Recorrente',      qtd_usuarios:recCt,  pct_do_total:recCt/tot,
+      media_pedidos:recCt ? (rec2*2+rec3*3)/recCt : 2.0,
+      ticket_medio:tipoMap['Recorrente']?.ticket_medio,      receita_total:tipoMap['Recorrente']?.receita_total },
+    { tipo_cliente:'Fiel',            qtd_usuarios:fielCt, pct_do_total:fielCt/tot, media_pedidos:4.0,
+      ticket_medio:tipoMap['Fiel']?.ticket_medio,            receita_total:tipoMap['Fiel']?.receita_total },
+    { tipo_cliente:'Alta Frequência', qtd_usuarios:altaCt, pct_do_total:altaCt/tot, media_pedidos:6.0,
+      ticket_medio:tipoMap['Alta Frequência']?.ticket_medio, receita_total:tipoMap['Alta Frequência']?.receita_total },
+  ].filter(r => r.qtd_usuarios > 0);
 }
 
 function _populateAnalyticsFilterOptions() {
