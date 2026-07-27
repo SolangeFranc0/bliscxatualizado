@@ -4303,20 +4303,37 @@ function _doRenderSaudeRecompra(wrap, rows) {
 // ── Performance de Agentes ────────────────────────────────────────────────────
 let _chartAgentesPerf = null;
 
+function _bdays(yearStr, monthStr) {
+  const yr = parseInt(yearStr, 10), mo = parseInt(monthStr, 10);
+  const now = new Date();
+  const isCur = (yr === now.getFullYear() && mo === now.getMonth() + 1);
+  const lastD = isCur ? now.getDate() : new Date(yr, mo, 0).getDate();
+  let cnt = 0;
+  for (let d = 1; d <= lastD; d++) {
+    const wd = new Date(yr, mo - 1, d).getDay();
+    if (wd !== 0 && wd !== 6) cnt++;
+  }
+  return cnt || 1;
+}
+
 async function _renderAgentesPerformance() {
   const wrap = document.getElementById('block-agentes-perf-body');
   if (!wrap) return;
 
   try {
-    const [fresh, tma] = await Promise.all([
+    const [fresh, tma, vol] = await Promise.all([
       _sbGet('cx_performance_agentes', 'select=*&order=mes.asc'),
       _sbGet('cx_tma_semanal', 'select=*&order=semana.asc'),
+      _sbGet('cx_volume_diario', 'select=data,time,criados&time=in.(resolve,saude)&order=data.asc'),
     ]);
     if (fresh && fresh.length) {
       if (_med.raw) _med.raw.agentesPerf = fresh;
     }
     if (tma && tma.length) {
       if (_med.raw) _med.raw.tmaSemanal = tma;
+    }
+    if (vol && vol.length) {
+      if (_med.raw) _med.raw.cxVolumeRS = vol;
     }
   } catch(e) { /* silencioso */ }
 
@@ -4394,11 +4411,40 @@ function _doRenderAgentesPerformance(wrap, rows) {
   const resolveAgents = aggByAgent(filtered.filter(r => r.grupo === 'resolve'));
   const saudeAgents   = aggByAgent(filtered.filter(r => r.grupo === 'saude'));
 
-  // Dias úteis por mês (Seg–Sex) — 2026
-  const diasUteis = {'2026-01':22,'2026-02':20,'2026-03':21,'2026-04':22,'2026-05':21,'2026-06':22,'2026-07':5,'todos':133};
-  const diasLabel = {'2026-01':'Jan (22 dias úteis)','2026-02':'Fev (20)','2026-03':'Mar (21)','2026-04':'Abr (22)','2026-05':'Mai (21)','2026-06':'Jun (22)','2026-07':'Jul (5 até hoje)','todos':'Jan–Jul (133 dias úteis)'};
-  const dias      = diasUteis[mesFiltro] || 1;
-  const totalTix  = filtered.reduce((s,r) => s + (r.total_tickets||0), 0);
+  // Dias úteis por mês (Seg–Sex) — calculado dinamicamente
+  function _bdaysForMes(mes) {
+    if (mes === 'todos') {
+      let t = 0;
+      for (let m = 1; m <= 7; m++) t += _bdays(2026, m);
+      return t;
+    }
+    const [y, mo] = mes.split('-');
+    return _bdays(y, mo);
+  }
+  function _labelForMes(mes) {
+    const _MN = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    if (mes === 'todos') {
+      const d = _bdaysForMes('todos');
+      return `Jan–Jul (${d} dias úteis)`;
+    }
+    const [, mo] = mes.split('-');
+    const d = _bdaysForMes(mes);
+    return `${_MN[parseInt(mo,10)-1]} (${d} dias úteis)`;
+  }
+  const dias = _bdaysForMes(mesFiltro);
+
+  // Total de tickets via cx_volume_diario (resolve + saude), com fallback para cx_performance_agentes
+  const _vol = (_med.raw && _med.raw.cxVolumeRS) ? _med.raw.cxVolumeRS : [];
+  let totalTix;
+  if (_vol.length) {
+    const prefix = mesFiltro === 'todos' ? null : mesFiltro;
+    totalTix = _vol.reduce((s, r) => {
+      if (prefix && !(r.data || '').startsWith(prefix)) return s;
+      return s + (r.criados || 0);
+    }, 0);
+  } else {
+    totalTix = filtered.reduce((s,r) => s + (r.total_tickets||0), 0);
+  }
   const mediaDia  = dias > 0 ? (totalTix / dias).toFixed(1) : '—';
   const agentivos = new Set(filtered.map(r => r.agente_id)).size;
   const allGood   = filtered.reduce((s,r) => s+(r.csat_good||0), 0);
@@ -4415,7 +4461,7 @@ function _doRenderAgentesPerformance(wrap, rows) {
       <div style="${kpiStyle}">
         <span style="${kpiLabel}">Total de Tickets</span>
         <span style="${kpiVal}">${totalTix.toLocaleString('pt-BR')}</span>
-        <span style="${kpiSub}">${diasLabel[mesFiltro]||''}</span>
+        <span style="${kpiSub}">${_labelForMes(mesFiltro)}</span>
       </div>
       <div style="${kpiStyle}">
         <span style="${kpiLabel}">Média por Dia Útil</span>
