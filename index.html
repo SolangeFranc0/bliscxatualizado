@@ -4089,17 +4089,59 @@ function filterByTipo(tipo) {
 function _renderRecompraMensal() {
   const wrap = document.querySelector('#block-recompra-mensal .card-body');
   if (!wrap) return;
+  if (_chartRecompra) { _chartRecompra.destroy(); _chartRecompra = null; }
+
+  const tc = _analytics.tipoCliente;
+
+  if (tc) {
+    // Filtered by tipo de cliente — use mb_tipo_cliente_mensal
+    const allTipo = (_med.raw.tipoClienteMensal || []).filter(r => r.tipo_cliente === tc);
+    let rows = allTipo;
+    if (_analytics.ano) rows = rows.filter(r => String(r.periodo || '').startsWith(_analytics.ano));
+    if (!rows.length) rows = allTipo;
+    if (!rows.length) {
+      wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados para ' + tc + '</p>';
+      return;
+    }
+    wrap.innerHTML = '<canvas id="chartRecompra" style="max-height:240px"></canvas>';
+    const hiIdx = _analytics.mes ? rows.findIndex(r => String(r.periodo || '').slice(5, 7) === _analytics.mes) : -1;
+    const labels = rows.map(r => String(r.periodo || '').slice(0, 7));
+    const qtds   = rows.map(r => r.qtd_usuarios || 0);
+    const pcts   = rows.map(r => r.pct_do_total != null ? +(r.pct_do_total * 100).toFixed(1) : null);
+    const barBg  = rows.map((_, i) => i === hiIdx ? 'rgba(23,174,85,.85)' : 'rgba(23,174,85,.25)');
+    const barBdr = rows.map((_, i) => i === hiIdx ? '#0d7a46' : '#17AE55');
+    _chartRecompra = new Chart(document.getElementById('chartRecompra'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { type: 'bar',  label: 'Clientes', data: qtds, backgroundColor: barBg, borderColor: barBdr, borderWidth: 1.5, borderRadius: 4, yAxisID: 'y' },
+          { type: 'line', label: '% do Total', data: pcts, borderColor: '#6366F1', borderWidth: 2, pointRadius: 3, tension: .35, yAxisID: 'y2', spanGaps: true },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }, tooltip: { mode: 'index', intersect: false } },
+        scales: {
+          y:  { position: 'left',  grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { size: 10 } } },
+          y2: { position: 'right', grid: { drawOnChartArea: false }, ticks: { font: { size: 10 }, callback: v => v != null ? v + '%' : '' }, min: 0, max: 100 },
+          x:  { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } },
+        },
+      },
+    });
+    return;
+  }
+
+  // Global view — use mb_recompra_mensal
   const allRows = (_med.raw.recompraAnalise || []).filter(r => r.qtd_recompras != null);
   if (!allRows.length) {
     wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de evolução de recompra</p>';
     return;
   }
-  // Show full year (or all data) — never collapse to a single point
   let rows = allRows;
   if (_analytics.ano) rows = rows.filter(r => String(r.periodo || '').startsWith(_analytics.ano));
   if (!rows.length) rows = allRows;
 
-  // Index of highlighted month (only if mes filter active)
   const hiIdx = _analytics.mes
     ? rows.findIndex(r => String(r.periodo || '').slice(5, 7) === _analytics.mes)
     : -1;
@@ -4108,7 +4150,6 @@ function _renderRecompraMensal() {
     ? `<div style="margin-bottom:10px;font-size:11px;color:#1e40af;background:#eff6ff;border-radius:6px;padding:5px 10px;border-left:3px solid #3b82f6">Evolução global da base — recompra mensal não tem breakdown por protocolo</div>`
     : '';
   wrap.innerHTML = _protoBannerRecomp + '<canvas id="chartRecompra" style="max-height:240px"></canvas>';
-  if (_chartRecompra) { _chartRecompra.destroy(); _chartRecompra = null; }
   const labels    = rows.map(r => String(r.periodo || '').slice(0, 7));
   const recompras = rows.map(r => r.qtd_recompras || 0);
   const pcts      = rows.map(r => r.pct_recompra != null ? +(r.pct_recompra * 100).toFixed(1) : null);
