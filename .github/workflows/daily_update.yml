@@ -105,7 +105,7 @@ jobs:
           cp output/metabase_data.js data/metabase_data.js
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/metabase_data.js services/metabase.js output/update_log.txt
+          git add data/metabase_data.js services/metabase.js output/update_log.txt dashboard.html dashboard_2026.html
           git diff --staged --quiet || git commit -m "data: atualização automática $(TZ=America/Sao_Paulo date '+%d/%m/%Y %H:%M BRT')"
           git pull --rebase --autostash origin main
           git push
