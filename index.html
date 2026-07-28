@@ -2211,25 +2211,6 @@ async function _sbGet(table, params) {
   return res.json();
 }
 
-// Conta tickets diretamente na tabela tickets (fonte de verdade)
-// Grupos CX: Blis Resolve, Blis Saúde, Cloud Humans
-const _CX_GRUPOS = '42056691282323,43771604769299,50304023554451';
-async function _sbCountTickets(mesFiltro) {
-  try {
-    const mes = (mesFiltro && mesFiltro !== 'todos') ? `ano_mes=eq.${mesFiltro}&` : '';
-    const url = _SB_URL + `/tickets?${mes}group_id=in.(${_CX_GRUPOS})&select=ticket_id&limit=0`;
-    const res = await fetch(url, {
-      headers: {
-        'apikey': _SB_KEY,
-        'Authorization': 'Bearer ' + _SB_KEY,
-        'Prefer': 'count=exact',
-      }
-    });
-    if (!res.ok) return null;
-    const cr = res.headers.get('Content-Range');
-    return cr ? parseInt(cr.split('/')[1] || '0', 10) : null;
-  } catch(e) { return null; }
-}
 
 function _sbCard(colNames, dataRows) {
   return { data: { cols: colNames.map(n => ({ name: n })), rows: dataRows } };
@@ -4425,12 +4406,10 @@ async function _renderAgentesPerformance() {
   if (!wrap) return;
 
   try {
-    const MESES_FILTER = ['todos','2026-01','2026-02','2026-03','2026-04','2026-05','2026-06','2026-07'];
-    const [fresh, tma, vol, ...countArr] = await Promise.all([
+    const [fresh, tma, vol] = await Promise.all([
       _sbGet('cx_performance_agentes', 'select=*&order=mes.asc'),
       _sbGet('cx_tma_semanal', 'select=*&order=semana.asc'),
       _sbGet('cx_volume_diario', 'select=data,time,criados&time=in.(resolve,saude,ia)&order=data.asc'),
-      ...MESES_FILTER.map(m => _sbCountTickets(m)),
     ]);
     if (fresh && fresh.length) {
       if (_med.raw) _med.raw.agentesPerf = fresh;
@@ -4440,12 +4419,6 @@ async function _renderAgentesPerformance() {
     }
     if (vol && vol.length) {
       if (_med.raw) _med.raw.cxVolumeRS = vol;
-    }
-    // Mapa de contagem direta da tabela tickets (fonte de verdade)
-    if (_med.raw) {
-      const countMap = {};
-      MESES_FILTER.forEach((m, i) => { if (countArr[i] != null) countMap[m] = countArr[i]; });
-      _med.raw.agentesTicketCounts = countMap;
     }
   } catch(e) { /* silencioso */ }
 
@@ -4546,23 +4519,17 @@ function _doRenderAgentesPerformance(wrap, rows) {
   }
   const dias = _bdaysForMes(mesFiltro);
 
-  // Total de tickets: fonte de verdade = contagem direta da tabela tickets no Supabase
-  // Fallback: cx_volume_diario → cx_performance_agentes
-  const _countMap = (_med.raw && _med.raw.agentesTicketCounts) || {};
+  // Total de tickets: cx_volume_diario (resolve + saude + ia) com fallback para cx_performance_agentes
+  const _vol = (_med.raw && _med.raw.cxVolumeRS) ? _med.raw.cxVolumeRS : [];
   let totalTix;
-  if (_countMap[mesFiltro] != null) {
-    totalTix = _countMap[mesFiltro];
+  if (_vol.length) {
+    const prefix = mesFiltro === 'todos' ? null : mesFiltro;
+    totalTix = _vol.reduce((s, r) => {
+      if (prefix && !(r.data || '').startsWith(prefix)) return s;
+      return s + (r.criados || 0);
+    }, 0);
   } else {
-    const _vol = (_med.raw && _med.raw.cxVolumeRS) ? _med.raw.cxVolumeRS : [];
-    if (_vol.length) {
-      const prefix = mesFiltro === 'todos' ? null : mesFiltro;
-      totalTix = _vol.reduce((s, r) => {
-        if (prefix && !(r.data || '').startsWith(prefix)) return s;
-        return s + (r.criados || 0);
-      }, 0);
-    } else {
-      totalTix = filtered.reduce((s,r) => s + (r.total_tickets||0), 0);
-    }
+    totalTix = filtered.reduce((s,r) => s + (r.total_tickets||0), 0);
   }
   const mediaDia  = dias > 0 ? (totalTix / dias).toFixed(1) : '—';
   const humanFiltered = filtered.filter(r => r.grupo !== 'ia');

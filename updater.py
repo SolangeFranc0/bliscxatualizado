@@ -167,16 +167,31 @@ def validate_csv(df: pd.DataFrame) -> list[str]:
 
 # ── Classificação de time ─────────────────────────────────────────────────────
 
-TEAM_OF_TIME = {"Blis Saúde":"saude","Blis Resolve":"resolve","Blis Logística":"logistica","Outros":"resolve"}
+TEAM_OF_TIME = {
+    "Blis Saúde": "saude", "Blis Resolve": "resolve",
+    "Blis Logística": "logistica", "Outros": "resolve",
+    "IA": "ia", "Cloud Humans": "ia",
+}
+_CLOUD_HUMANS_GID = 50304023554451  # config.GRUPO_CLOUD_HUMANS_ID
 
 def _team(row) -> str:
+    # 1. flag explícita
     v = row.get("atendido_por_ia")
     if v is True or str(v).lower() == "true":
         return "ia"
+    # 2. group_id direto (cobre histórico sem atendido_por_ia setado)
+    try:
+        if int(str(row.get("group_id") or 0).split(".")[0]) == _CLOUD_HUMANS_GID:
+            return "ia"
+    except (ValueError, TypeError):
+        pass
+    # 3. nome do grupo
     nome = str(row.get("nome_grupo", ""))
+    if "Cloud Humans" in nome or "CloudHumans" in nome:
+        return "ia"
     if "Logística" in nome or "Logistica" in nome:
         return "logistica"
-    return TEAM_OF_TIME.get(str(row.get("time","")), "resolve")
+    return TEAM_OF_TIME.get(str(row.get("time", "")), "resolve")
 
 # ── Construção dos blocos ─────────────────────────────────────────────────────
 
