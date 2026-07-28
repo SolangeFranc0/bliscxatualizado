@@ -4406,10 +4406,11 @@ async function _renderAgentesPerformance() {
   if (!wrap) return;
 
   try {
-    const [fresh, tma, vol] = await Promise.all([
+    const [fresh, tma, vol, tixCounts] = await Promise.all([
       _sbGet('cx_performance_agentes', 'select=*&order=mes.asc'),
       _sbGet('cx_tma_semanal', 'select=*&order=semana.asc'),
       _sbGet('cx_volume_diario', 'select=data,time,criados&time=in.(resolve,saude,ia)&order=data.asc'),
+      _sbGet('rpc/get_ticket_counts_por_mes', '').catch(() => null),
     ]);
     if (fresh && fresh.length) {
       if (_med.raw) _med.raw.agentesPerf = fresh;
@@ -4419,6 +4420,9 @@ async function _renderAgentesPerformance() {
     }
     if (vol && vol.length) {
       if (_med.raw) _med.raw.cxVolumeRS = vol;
+    }
+    if (tixCounts && tixCounts.length) {
+      if (_med.raw) _med.raw.tixCountsByMes = tixCounts;
     }
   } catch(e) { /* silencioso */ }
 
@@ -4519,17 +4523,28 @@ function _doRenderAgentesPerformance(wrap, rows) {
   }
   const dias = _bdaysForMes(mesFiltro);
 
-  // Total de tickets: cx_volume_diario (resolve + saude + ia) com fallback para cx_performance_agentes
-  const _vol = (_med.raw && _med.raw.cxVolumeRS) ? _med.raw.cxVolumeRS : [];
+  // Total de tickets: RPC get_ticket_counts_por_mes (direto da tabela tickets, bypassa RLS)
+  // Fallback: cx_volume_diario → cx_performance_agentes
+  const _tixCounts = (_med.raw && _med.raw.tixCountsByMes) ? _med.raw.tixCountsByMes : [];
   let totalTix;
-  if (_vol.length) {
-    const prefix = mesFiltro === 'todos' ? null : mesFiltro;
-    totalTix = _vol.reduce((s, r) => {
-      if (prefix && !(r.data || '').startsWith(prefix)) return s;
-      return s + (r.criados || 0);
-    }, 0);
+  if (_tixCounts.length) {
+    if (mesFiltro === 'todos') {
+      totalTix = _tixCounts.reduce((s, r) => s + (r.total || 0), 0);
+    } else {
+      const row = _tixCounts.find(r => r.ano_mes === mesFiltro);
+      totalTix = row ? (row.total || 0) : 0;
+    }
   } else {
-    totalTix = filtered.reduce((s,r) => s + (r.total_tickets||0), 0);
+    const _vol = (_med.raw && _med.raw.cxVolumeRS) ? _med.raw.cxVolumeRS : [];
+    if (_vol.length) {
+      const prefix = mesFiltro === 'todos' ? null : mesFiltro;
+      totalTix = _vol.reduce((s, r) => {
+        if (prefix && !(r.data || '').startsWith(prefix)) return s;
+        return s + (r.criados || 0);
+      }, 0);
+    } else {
+      totalTix = filtered.reduce((s,r) => s + (r.total_tickets||0), 0);
+    }
   }
   const mediaDia  = dias > 0 ? (totalTix / dias).toFixed(1) : '—';
   const humanFiltered = filtered.filter(r => r.grupo !== 'ia');
