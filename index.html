@@ -4410,7 +4410,11 @@ async function _renderAgentesPerformance() {
       _sbGet('cx_performance_agentes', 'select=*&order=mes.asc'),
       _sbGet('cx_tma_semanal', 'select=*&order=semana.asc'),
       _sbGet('cx_volume_diario', 'select=data,time,criados&time=in.(resolve,saude,ia)&order=data.asc'),
-      _sbGet('rpc/get_ticket_counts_por_mes', '').catch(() => null),
+      fetch(_SB_URL + '/rpc/get_ticket_counts_por_mes', {
+        method: 'POST',
+        headers: { 'apikey': _SB_KEY, 'Authorization': 'Bearer ' + _SB_KEY, 'Content-Type': 'application/json' },
+        body: '{}',
+      }).then(r => r.ok ? r.json() : null).catch(() => null),
     ]);
     if (fresh && fresh.length) {
       if (_med.raw) _med.raw.agentesPerf = fresh;
