@@ -1670,6 +1670,30 @@ document.addEventListener("DOMContentLoaded",()=>{
 
   initPerfilFilter(); buildWsel(); renderAll();
 
+  // Sobrescreve D.tickets com contagens diretas da tabela tickets (bypassa RLS)
+  (async () => {
+    try {
+      const _SBU = 'https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1';
+      const _SBK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1enFqbmJ0eHVmaGtvenljbHFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4OTY4NzMsImV4cCI6MjA5NTQ3Mjg3M30.LbMlUGOTEKtbKVdkSiPHdUi1FsacfoiFbPDCFynYPv0';
+      const res = await fetch(_SBU + '/rpc/get_ticket_counts_por_mes', {
+        method: 'POST',
+        headers: {'apikey': _SBK, 'Authorization': 'Bearer ' + _SBK, 'Content-Type': 'application/json'},
+        body: '{}',
+      });
+      if (!res.ok) return;
+      const rows = await res.json();
+      if (!rows || !rows.length) return;
+      rows.forEach(r => {
+        const mo = parseInt((r.ano_mes||'').split('-')[1], 10) - 1;
+        if (mo < 0 || mo > 11) return;
+        if (D.tickets.ia)      D.tickets.ia[mo]      = r.total_ia      || 0;
+        if (D.tickets.saude)   D.tickets.saude[mo]   = r.total_saude   || 0;
+        if (D.tickets.resolve) D.tickets.resolve[mo] = r.total_resolve || 0;
+      });
+      renderKPIs(); renderMensal(); renderPie();
+    } catch(_) {}
+  })();
+
   let lastSync; try{lastSync=localStorage.getItem(SYNC_KEY);}catch(_){}
   syncSetOK(lastSync||"28/07/2026 21:06");
 });
