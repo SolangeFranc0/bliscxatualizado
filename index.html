@@ -2299,7 +2299,7 @@ async function _loadFromSupabase() {
          comportRows, churnRows, canalRows, cohortRows, protoMensalRows,
          saudeRecompraRows, tipoMensalRows] = await Promise.all([
     _sbGet('mb_clientes_resumo',       'select=*&order=data_carga.desc&limit=1').catch(() => []),
-    _sbGet('mb_protocolo_analise',     'select=*&order=soma_receita.desc').catch(() => []),
+    _sbGet('mb_protocolo_analise',     'select=*&order=qtd_recompras.desc').catch(() => []),
     _sbGet('mb_safra_analise',         'select=*&order=safra.asc').catch(() => []),
     _sbGet('mb_tipo_cliente',          'select=*').catch(() => []),
     _sbGet('mb_recompra_mensal',       'select=*&order=periodo.asc').catch(() => []),
@@ -2312,8 +2312,27 @@ async function _loadFromSupabase() {
     _sbGet('mb_tipo_cliente_mensal',   'select=periodo,tipo_cliente,qtd_usuarios,pct_do_total,media_pedidos,receita_total,ticket_medio&order=periodo.asc').catch(() => []),
   ]);
   _med.raw.clientesResumo       = clResRows[0] || null;
-  _med.raw.protocoloAnalise     = protoRows2;
   _med.raw.protocoloMensal      = protoMensalRows;
+  // Agrega receita de mb_protocolo_mensal em mb_protocolo_analise quando soma_receita é null
+  if (protoMensalRows.length) {
+    const _mensalAgg = {};
+    for (const r of protoMensalRows) {
+      const p = r.protocolo; if (!p) continue;
+      if (!_mensalAgg[p]) _mensalAgg[p] = { soma_receita: 0, qtd_pedidos: 0 };
+      _mensalAgg[p].soma_receita += Number(r.soma_receita) || 0;
+      _mensalAgg[p].qtd_pedidos  += Number(r.qtd_pedidos)  || 0;
+    }
+    _med.raw.protocoloAnalise = protoRows2.map(r => {
+      const m = _mensalAgg[r.protocolo];
+      if (!m) return r;
+      const rec = r.soma_receita != null ? r.soma_receita : (m.soma_receita || null);
+      const ped = r.qtd_pedidos  != null ? r.qtd_pedidos  : (m.qtd_pedidos  || null);
+      const tkt = ped > 0 ? rec / ped : (r.ticket_medio || null);
+      return { ...r, soma_receita: rec, qtd_pedidos: ped, ticket_medio: tkt };
+    });
+  } else {
+    _med.raw.protocoloAnalise = protoRows2;
+  }
   _med.raw.safraAnalise         = safraRows2;
   _med.raw.tipoClienteAnalise   = tipoRows2;
   _med.raw.recompraAnalise      = recompRows2;
@@ -3739,8 +3758,11 @@ function _normalizeTipoFromCohort() {
 }
 
 function _populateAnalyticsFilterOptions() {
-  const recompRows = _med.raw.recompraAnalise || [];
-  const years = [...new Set(recompRows.map(r => String(r.periodo || r.churn_mes || '').slice(0, 4)).filter(y => /^\d{4}$/.test(y)))].sort();
+  const recompRows   = _med.raw.recompraAnalise    || [];
+  const tipoRows     = _med.raw.tipoClienteMensal  || [];
+  const protoMensal  = _med.raw.protocoloMensal    || [];
+  const allPeriodRows = [...recompRows, ...tipoRows, ...protoMensal];
+  const years = [...new Set(allPeriodRows.map(r => String(r.periodo || r.churn_mes || '').slice(0, 4)).filter(y => /^\d{4}$/.test(y)))].sort();
   const anoSel = document.getElementById('filter-ano-analytics');
   if (anoSel && years.length) {
     const cur = anoSel.value;
@@ -3751,10 +3773,12 @@ function _populateAnalyticsFilterOptions() {
 }
 
 function _updateMesAnalyticsOptions() {
-  const recompRows = _med.raw.recompraAnalise || [];
-  const churnRows  = _med.raw.churnMensal     || [];
+  const recompRows  = _med.raw.recompraAnalise   || [];
+  const churnRows   = _med.raw.churnMensal        || [];
+  const tipoRows    = _med.raw.tipoClienteMensal  || [];
+  const protoMensal = _med.raw.protocoloMensal    || [];
   const ano = _analytics.ano || '';
-  const allRows = [...recompRows, ...churnRows];
+  const allRows = [...recompRows, ...churnRows, ...tipoRows, ...protoMensal];
   const availMonths = new Set(
     allRows
       .filter(r => !ano || String(r.periodo || r.churn_mes || '').startsWith(ano))
