@@ -809,7 +809,7 @@ canvas.med-chart{max-height:250px}
     <!-- ── SECTION 1: Dashboard ── -->
     <section class="cx-section cx-section--dash active" id="section-dashboard">
       <iframe
-        src="dashboard.html?v=202607291517"
+        src="dashboard.html?v=202608031200"
         title="Dashboard CX Appblis"
         allowfullscreen
         id="dashFrame"
@@ -822,13 +822,13 @@ canvas.med-chart{max-height:250px}
       <div class="s-header">
         <div>
           <h1 class="s-title">Time de Atendimento</h1>
-          <p class="s-sub">Performance individual por agente — Blis Resolve e Blis Saúde · Jan–Jul 2026</p>
+          <p class="s-sub">Performance individual por agente — Blis Resolve e Blis Saúde · Jan–Ago 2026</p>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <label style="font-size:12px;color:#6B7280;font-weight:500">Mês:</label>
           <select id="agentes-perf-mes-filter" onchange="_doRenderAgentesPerformance(document.getElementById('block-agentes-perf-body'), (_med.raw&&_med.raw.agentesPerf)||[])"
             style="font-size:12px;padding:5px 10px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#374151;cursor:pointer;font-family:inherit">
-            <option value="todos">Todos (Jan–Jul)</option>
+            <option value="todos">Todos (Jan–Ago)</option>
             <option value="2026-01">Janeiro 2026</option>
             <option value="2026-02">Fevereiro 2026</option>
             <option value="2026-03">Março 2026</option>
@@ -836,6 +836,7 @@ canvas.med-chart{max-height:250px}
             <option value="2026-05">Maio 2026</option>
             <option value="2026-06">Junho 2026</option>
             <option value="2026-07">Julho 2026</option>
+            <option value="2026-08">Agosto 2026</option>
           </select>
         </div>
       </div>
@@ -4519,7 +4520,7 @@ function _doRenderAgentesPerformance(wrap, rows) {
     const _MN = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
     if (mes === 'todos') {
       const d = _bdaysForMes('todos');
-      return `Jan–Jul (${d} dias úteis)`;
+      return `Jan–Ago (${d} dias úteis)`;
     }
     const [, mo] = mes.split('-');
     const d = _bdaysForMes(mes);

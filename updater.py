@@ -83,10 +83,10 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-MONTH_IDX = {"2026-01":0,"2026-02":1,"2026-03":2,"2026-04":3,"2026-05":4,"2026-06":5,"2026-07":6}
-N_MONTHS  = 7
+MONTH_IDX = {"2026-01":0,"2026-02":1,"2026-03":2,"2026-04":3,"2026-05":4,"2026-06":5,"2026-07":6,"2026-08":7}
+N_MONTHS  = 8
 
-# Semanas ISO 2026 mapeadas para mês (0=Jan ... 6=Jul)
+# Semanas ISO 2026 mapeadas para mês (0=Jan ... 7=Ago)
 # Semana começa segunda. Critério: maioria dos dias no mês.
 WEEK_TO_MONTH = {
     1:0, 2:0, 3:0, 4:0,           # Jan: S01-S04
@@ -96,6 +96,7 @@ WEEK_TO_MONTH = {
     19:4,20:4,21:4,22:4,           # Mai: S19-S22
     23:5,24:5,25:5,26:5,           # Jun: S23-S26
     27:6,28:6,29:6,30:6,31:6,      # Jul: S27-S31
+    32:7,33:7,34:7,35:7,           # Ago: S32-S35
 }
 
 # ── Motivos / Perfis ──────────────────────────────────────────────────────────
