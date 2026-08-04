@@ -1308,11 +1308,12 @@ function renderTempos(){
 
   const avg = arr => { const v=arr.filter(x=>x!=null); return v.length?+(v.reduce((a,b)=>a+b,0)/v.length).toFixed(2):null; };
 
-  // Formata horas decimais com unidade automática
+  // Formata horas decimais como Xh Ymin
   const fmtTempo = h => {
     if(h==null) return "—";
-    if(h < 1)   return Math.round(h*60)+" min";
-    if(h < 24)  return h.toFixed(1)+" h";
+    const m = Math.round(h * 60);
+    if(m < 60)  return m + "min";
+    if(h < 24)  { const hr=Math.floor(m/60),mn=m%60; return mn===0?hr+"h":hr+"h "+mn+"min"; }
     return (h/24).toFixed(1)+" dias";
   };
 
