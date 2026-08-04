@@ -4733,23 +4733,24 @@ function _renderTmaSemanalChart(rows) {
     SEMANAS.push(`2026-W${String(w).padStart(2,'0')}`);
   const LABELS  = SEMANAS.map(s => s.replace('2026-',''));
 
-  // Build agentMap: aid → { nome, grupo, tmaByWeek }
+  // Build agentMap: aid → { nome, grupo, tmaByWeek, tmrByWeek }
   const agentMap = {};
   for (const r of rows) {
     const aid = String(r.agente_id);
-    if (!agentMap[aid]) agentMap[aid] = { nome: r.nome, grupo: r.grupo, tmaByWeek: {} };
-    agentMap[aid].tmaByWeek[r.semana] = r.tma_h;
+    if (!agentMap[aid]) agentMap[aid] = { nome: r.nome, grupo: r.grupo, tmaByWeek: {}, tmrByWeek: {} };
+    agentMap[aid].tmaByWeek[r.semana] = r.tma_h != null ? r.tma_h : null;
+    agentMap[aid].tmrByWeek[r.semana] = r.tmr_h != null ? r.tmr_h : null;
   }
 
   const COLORS_R = ['#6366F1','#818CF8','#A5B4FC','#C7D2FE'];
   const COLORS_S = ['#10b981','#34d399','#6ee7b7'];
 
-  function buildDatasets(grupo, colors) {
+  function buildDatasets(grupo, colors, field) {
     return Object.values(agentMap)
       .filter(a => a.grupo === grupo)
       .map((a, i) => ({
         label: a.nome.split(' ')[0],
-        data: SEMANAS.map(w => a.tmaByWeek[w] != null ? a.tmaByWeek[w] : null),
+        data: SEMANAS.map(w => a[field][w] != null ? a[field][w] : null),
         borderColor: colors[i % colors.length],
         backgroundColor: colors[i % colors.length] + '22',
         borderWidth: 2,
@@ -4795,7 +4796,7 @@ function _renderTmaSemanalChart(rows) {
     if (canvasR) {
       _chartTmaResolve = new Chart(canvasR, {
         type: 'line',
-        data: { labels: LABELS, datasets: buildDatasets('resolve', COLORS_R) },
+        data: { labels: LABELS, datasets: buildDatasets('resolve', COLORS_R, 'tmaByWeek') },
         options: chartOpts,
       });
     }
@@ -4806,7 +4807,7 @@ function _renderTmaSemanalChart(rows) {
     if (canvasS) {
       _chartTmaSaude = new Chart(canvasS, {
         type: 'line',
-        data: { labels: LABELS, datasets: buildDatasets('saude', COLORS_S) },
+        data: { labels: LABELS, datasets: buildDatasets('saude', COLORS_S, 'tmaByWeek') },
         options: chartOpts,
       });
     }
@@ -4817,7 +4818,7 @@ function _renderTmaSemanalChart(rows) {
     if (canvasR2) {
       _chartTmrResolve = new Chart(canvasR2, {
         type: 'line',
-        data: { labels: LABELS, datasets: buildDatasets('resolve', COLORS_R) },
+        data: { labels: LABELS, datasets: buildDatasets('resolve', COLORS_R, 'tmrByWeek') },
         options: chartOpts,
       });
     }
@@ -4828,7 +4829,7 @@ function _renderTmaSemanalChart(rows) {
     if (canvasS2) {
       _chartTmrSaude = new Chart(canvasS2, {
         type: 'line',
-        data: { labels: LABELS, datasets: buildDatasets('saude', COLORS_S) },
+        data: { labels: LABELS, datasets: buildDatasets('saude', COLORS_S, 'tmrByWeek') },
         options: chartOpts,
       });
     }

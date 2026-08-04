@@ -756,6 +756,7 @@ def sync_tma_semanal():
                 "nome":         d["nome"],
                 "grupo":        d["grupo"],
                 "tma_h":        round(d["tma_sum"] / d["tma_n"], 1) if d["tma_n"] else None,
+                "tmr_h":        round(d["tmr_sum"] / d["tmr_n"], 2) if d["tmr_n"] else None,
                 "n_tickets":    d["tma_n"] or d["tmr_n"],
                 "atualizado_em": now_ts,
             })
