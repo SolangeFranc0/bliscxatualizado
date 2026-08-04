@@ -4221,7 +4221,12 @@ function _renderRecompraMensal() {
   wrap.innerHTML = _protoBannerRecomp + '<canvas id="chartRecompra" style="max-height:240px"></canvas>';
   const labels    = rows.map(r => String(r.periodo || '').slice(0, 7));
   const recompras = rows.map(r => r.qtd_recompras || 0);
-  const pcts      = rows.map(r => r.pct_recompra != null ? +(r.pct_recompra * 100).toFixed(1) : null);
+  const pcts      = rows.map(r => {
+    if (r.pct_recompra != null && r.pct_recompra > 0) return +(r.pct_recompra * 100).toFixed(1);
+    if ((r.qtd_recompras || 0) > 0 && (r.consultas_criadas || 0) > 0)
+      return +(r.qtd_recompras / r.consultas_criadas * 100).toFixed(1);
+    return null;
+  });
   const barBg     = rows.map((_, i) => i === hiIdx ? 'rgba(23,174,85,.85)' : 'rgba(23,174,85,.25)');
   const barBdr    = rows.map((_, i) => i === hiIdx ? '#0d7a46' : '#17AE55');
   _chartRecompra = new Chart(document.getElementById('chartRecompra'), {
