@@ -808,7 +808,7 @@ def build_comments_offenders(df_c: pd.DataFrame) -> tuple[dict, list]:
         txt = re.sub(r'\b\d{3}\.\d{3}\.\d{3}-\d{2}\b', '[CPF]', txt)
         return " ".join(txt.split())
 
-    MONTH_IDX = {"2026-01":0,"2026-02":1,"2026-03":2,"2026-04":3,"2026-05":4,"2026-06":5,"2026-07":6}
+    MONTH_IDX = {"2026-01":0,"2026-02":1,"2026-03":2,"2026-04":3,"2026-05":4,"2026-06":5,"2026-07":6,"2026-08":7}
     has_com = df_c["comentario"].fillna("").str.strip() != ""
     scored  = df_c[df_c["score_raw"].isin(["good","bad"]) & has_com].copy()
     scored["m"]    = scored["ano_mes"].map(MONTH_IDX)
