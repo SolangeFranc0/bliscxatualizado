@@ -864,13 +864,13 @@ function renderKPIs(){
 function renderMensal(){
   const teams=activeTeams(); const mi=activeMesIndices(); const lbs=mi.map(i=>MONTHS[i]);
   const traces=teams.map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:mi.map(i=>D.tickets[t][i]||0),marker:{color:COL[t]+"BB",line:{color:COL[t],width:1}},text:mi.map(i=>fmtN(D.tickets[t][i]||0)),textposition:"outside",textfont:{size:10,color:COL[t]}}));
-  Plotly.newPlot("ch-mensal",traces,{...BL,barmode:"group",showlegend:true},CFG);
+  Plotly.react("ch-mensal",traces,{...BL,barmode:"group",showlegend:true},CFG);
 }
 
 function renderPie(){
   const teams=["ia","saude","resolve","logistica"]; const lbs=teams.map(t=>TNOMES[t]);
   const vals=teams.map(t=>ticketsFor(t));
-  Plotly.newPlot("ch-pie",[{type:"pie",labels:lbs,values:vals,marker:{colors:teams.map(t=>COL[t])},textinfo:"percent+label",textfont:{size:11,color:"#B8C4D8"},hole:0.42,hovertemplate:"<b>%{label}</b><br>%{value:,}<br>%{percent}<extra></extra>"}],{...BL,showlegend:false,margin:{t:10,b:10,l:10,r:10}},CFG);
+  Plotly.react("ch-pie",[{type:"pie",labels:lbs,values:vals,marker:{colors:teams.map(t=>COL[t])},textinfo:"percent+label",textfont:{size:11,color:"#B8C4D8"},hole:0.42,hovertemplate:"<b>%{label}</b><br>%{value:,}<br>%{percent}<extra></extra>"}],{...BL,showlegend:false,margin:{t:10,b:10,l:10,r:10}},CFG);
 }
 
 function renderSemanas(){
@@ -878,7 +878,7 @@ function renderSemanas(){
   const traces=teams.map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:si.map(i=>D.semanas[t][i]||0),text:si.map(i=>fmtN(D.semanas[t][i]||0)),textposition:"outside",textfont:{size:9,color:COL[t]},marker:{color:COL[t]+"CC",line:{color:COL[t],width:0}}}));
   const tit=S.mes===-1?"Todos os Meses":MONTHS[S.mes];
   document.getElementById("sem-title").textContent=`Tickets por Semana — ${tit}`;
-  Plotly.newPlot("ch-semanas",traces,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,b:55}},CFG);
+  Plotly.react("ch-semanas",traces,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,b:55}},CFG);
 }
 
 function renderTeamCards(){
@@ -913,7 +913,7 @@ function renderTeamCards(){
     </div>`;
   }).join("");
   teams.forEach(t=>{
-    Plotly.newPlot(`mini-${t}`,[{type:"bar",x:lbs,y:mi.map(i=>D.tickets[t][i]||0),marker:{color:COL[t]+"CC",line:{color:COL[t],width:0}},showlegend:false,text:mi.map(i=>fmtN(D.tickets[t][i]||0)),textposition:"outside",textfont:{size:9,color:COL[t]}}],{paper_bgcolor:"transparent",plot_bgcolor:"transparent",barcornerradius:5,margin:{t:5,b:26,l:30,r:4},xaxis:{gridcolor:BL.xaxis.gridcolor,showgrid:false,tickfont:{size:9,color:BL.xaxis.tickfont.color},zeroline:false},yaxis:{gridcolor:BL.yaxis.gridcolor,tickfont:{size:9,color:BL.yaxis.tickfont.color},zeroline:false}},CFG);
+    Plotly.react(`mini-${t}`,[{type:"bar",x:lbs,y:mi.map(i=>D.tickets[t][i]||0),marker:{color:COL[t]+"CC",line:{color:COL[t],width:0}},showlegend:false,text:mi.map(i=>fmtN(D.tickets[t][i]||0)),textposition:"outside",textfont:{size:9,color:COL[t]}}],{paper_bgcolor:"transparent",plot_bgcolor:"transparent",barcornerradius:5,margin:{t:5,b:26,l:30,r:4},xaxis:{gridcolor:BL.xaxis.gridcolor,showgrid:false,tickfont:{size:9,color:BL.xaxis.tickfont.color},zeroline:false},yaxis:{gridcolor:BL.yaxis.gridcolor,tickfont:{size:9,color:BL.yaxis.tickfont.color},zeroline:false}},CFG);
   });
 }
 
@@ -922,7 +922,7 @@ function renderStatus(){
   const SLBLS=["Fechado","Resolvido","Aberto","Pendente","Novo"]; const SKEYS=["closed","solved","open","pending","new_"];
   const SCOLS=["#818CF8","#34D399","#FBBF24","#F43F5E","#7B8BA8"];
   const traces=SKEYS.map((k,i)=>({name:SLBLS[i],type:"bar",x:lbs,y:teams.map(t=>statusFor(t,k)||0),marker:{color:SCOLS[i]+"BB"},text:teams.map(t=>fmtN(statusFor(t,k)||0)),textposition:"outside",textfont:{size:10}}));
-  Plotly.newPlot("ch-status",traces,{...BL,barmode:"stack",showlegend:true,margin:{...BL.margin,b:55}},CFG);
+  Plotly.react("ch-status",traces,{...BL,barmode:"stack",showlegend:true,margin:{...BL.margin,b:55}},CFG);
 }
 
 function renderCanal(){
@@ -935,7 +935,7 @@ function renderCanal(){
   const allC=[...new Set(teams.flatMap(t=>Object.keys(D.channels[t])))];
   const CCOLS=["#818CF8","#34D399","#38BDF8","#FBBF24","#7B8BA8"];
   const traces=allC.map((c,ci)=>({name:c,type:"bar",x:lbs,y:teams.map(t=>chanFor(t,c)),marker:{color:CCOLS[ci]+"BB"},text:teams.map(t=>fmtN(chanFor(t,c))),textposition:"outside",textfont:{size:10}}));
-  Plotly.newPlot("ch-canal",traces,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,b:55}},CFG);
+  Plotly.react("ch-canal",traces,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,b:55}},CFG);
 }
 
 function renderGauges(){
@@ -963,10 +963,10 @@ function renderCSATCharts(){
     tvol.push({name:tshort+" Positivo",type:"bar",x:lbs,y:mi.map(i=>D.csat[t].good[i]||0),marker:{color:COL[t]+"99",line:{color:COL[t],width:1}},legendgroup:t});
     tvol.push({name:tshort+" Negativo",type:"bar",x:lbs,y:mi.map(i=>D.csat[t].bad[i]||0),marker:{color:"rgba(244,63,94,0.4)",line:{color:"#F43F5E",width:1}},legendgroup:t,showlegend:false});
   });
-  Plotly.newPlot("ch-csat-vol",tvol,{...BL,barmode:"group",showlegend:true},CFG);
+  Plotly.react("ch-csat-vol",tvol,{...BL,barmode:"group",showlegend:true},CFG);
   const tpct=teams.map(t=>{const yv=mi.map(i=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;});return{name:TNOMES[t],type:"scatter",mode:"lines+markers+text",x:lbs,y:yv,text:yv.map(v=>v!=null?v+"%":""),textposition:"top center",textfont:{size:10,color:COL[t]},line:{color:COL[t],width:2.5,shape:"spline"},marker:{size:5,color:COL[t]}};});
   tpct.push({name:"Meta 90%",type:"scatter",mode:"lines",x:lbs,y:lbs.map(()=>90),line:{color:"rgba(100,116,139,0.4)",width:1.5,dash:"dash"},showlegend:true});
-  Plotly.newPlot("ch-csat-pct",tpct,{...BL,yaxis:{...BL.yaxis,range:[60,100],ticksuffix:"%"},showlegend:true},CFG);
+  Plotly.react("ch-csat-pct",tpct,{...BL,yaxis:{...BL.yaxis,range:[60,100],ticksuffix:"%"},showlegend:true},CFG);
 }
 
 function renderCSATAudit(){
@@ -1110,7 +1110,7 @@ function renderMotivosColCharts(){
   const sorted=[...visibleM].sort((a,b)=>getVol(b)-getVol(a));
   const xMot=sorted.map(m=>m.nome);
   const yMot=sorted.map(m=>getVol(m));
-  Plotly.newPlot("ch-mot-col",[{
+  Plotly.react("ch-mot-col",[{
     type:"bar", x:xMot, y:yMot,
     marker:{color:COLORS_M.slice(0,xMot.length).map(c=>c+"CC"), line:{color:COLORS_M.slice(0,xMot.length),width:1}},
     text:yMot.map(v=>fmtN(v)),
@@ -1128,7 +1128,7 @@ function renderMotivosColCharts(){
   const xTime=activeT.map(t=>TNOMES[t]);
   const yTime=activeT.map(t=>visibleM.reduce((a,m)=>a+getTeamVol(m,t),0));
   const tCols=activeT.map(t=>COL[t]);
-  Plotly.newPlot("ch-time-col",[{
+  Plotly.react("ch-time-col",[{
     type:"bar", x:xTime, y:yTime,
     marker:{color:tCols.map(c=>c+"CC"), line:{color:tCols,width:1}},
     text:yTime.map(v=>fmtN(v)),
@@ -1234,20 +1234,20 @@ function renderTrends(){
   const lbs=MONTHS;
   // Volume por time
   const ttv=["ia","saude","resolve","logistica"].map(t=>({name:TNOMES[t],type:"scatter",mode:"lines+markers+text",x:lbs,y:D.tickets[t],text:D.tickets[t].map(v=>v>0?fmtN(v):""),textposition:"top center",textfont:{size:10,color:COL[t]},line:{color:COL[t],width:2.5,shape:"spline"},marker:{size:6,color:COL[t]}}));
-  Plotly.newPlot("ch-trend-vol",ttv,{...BL,showlegend:true,margin:{...BL.margin,t:28}},CFG);
+  Plotly.react("ch-trend-vol",ttv,{...BL,showlegend:true,margin:{...BL.margin,t:28}},CFG);
   // Motivos
   const ttm=(D.motivos||[]).map((m,i)=>({name:m.nome,type:"scatter",mode:"lines+markers+text",x:lbs,y:m.monthly,text:m.monthly.map(v=>v>0?fmtN(v):""),textposition:"top center",textfont:{size:9,color:COLORS_M[i]},line:{color:COLORS_M[i],width:2,shape:"spline"},marker:{size:5,color:COLORS_M[i]}}));
-  Plotly.newPlot("ch-trend-mot",ttm,{...BL,showlegend:true,legend:{...BL.legend,orientation:"v",x:1.01,y:1},margin:{t:28,b:50,l:55,r:165}},CFG);
+  Plotly.react("ch-trend-mot",ttm,{...BL,showlegend:true,legend:{...BL.legend,orientation:"v",x:1.01,y:1},margin:{t:28,b:50,l:55,r:165}},CFG);
   // CSAT %
   const ttc=["ia","saude","resolve","logistica"].map(t=>{
     const yv=MONTHS.map((_,i)=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;});
     return{name:TNOMES[t],type:"scatter",mode:"lines+markers+text",x:lbs,y:yv,text:yv.map(v=>v!=null?v+"%":""),textposition:"top center",textfont:{size:10,color:COL[t]},line:{color:COL[t],width:2.5,shape:"spline"},marker:{size:5,color:COL[t]}};
   });
   ttc.push({name:"Meta 90%",type:"scatter",mode:"lines",x:lbs,y:lbs.map(()=>90),line:{color:"rgba(100,116,139,0.4)",width:1.5,dash:"dash"}});
-  Plotly.newPlot("ch-trend-csat",ttc,{...BL,yaxis:{...BL.yaxis,range:[0,105],ticksuffix:"%"},showlegend:true,margin:{...BL.margin,t:28}},CFG);
+  Plotly.react("ch-trend-csat",ttc,{...BL,yaxis:{...BL.yaxis,range:[0,105],ticksuffix:"%"},showlegend:true,margin:{...BL.margin,t:28}},CFG);
   // Avaliações negativas
   const ttb=["ia","saude","resolve","logistica"].map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:D.csat[t].bad,text:D.csat[t].bad.map(v=>v>0?fmtN(v):""),textposition:"outside",textfont:{size:10,color:COL[t]},marker:{color:COL[t]+"CC",line:{color:COL[t],width:0}}}));
-  Plotly.newPlot("ch-trend-bad",ttb,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,t:28}},CFG);
+  Plotly.react("ch-trend-bad",ttb,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,t:28}},CFG);
   renderTrendTable();
 }
 
@@ -1287,7 +1287,7 @@ function renderTempos(){
         </div>
       </div>`;
     ["ch-tma-semana","ch-tmr-semana","ch-tempos-col"].forEach(id=>{
-      Plotly.newPlot(id,[],{...BL,annotations:[{text:"Sem dados para IA",showarrow:false,font:{color:"#4A566E",size:13},xref:"paper",yref:"paper",x:0.5,y:0.5}]},CFG);
+      Plotly.react(id,[],{...BL,annotations:[{text:"Sem dados para IA",showarrow:false,font:{color:"#4A566E",size:13},xref:"paper",yref:"paper",x:0.5,y:0.5}]},CFG);
     });
     renderResolucoesdia();
     renderCriadosResolvidos();
@@ -1358,17 +1358,17 @@ function renderTempos(){
     line:{color:"#34D399",width:2.5,dash:dash||"solid"},marker:{color:"#34D399",size:sz||6}
   });
 
-  Plotly.newPlot("ch-tma-semana",
+  Plotly.react("ch-tma-semana",
     [...(showR?[trR(tmaR,hoverFmt(tmaR))]:[]  ), ...(showS?[trS(tmaS,hoverFmt(tmaS))]:[] )],
     lineLayout("horas"), CFG);
-  Plotly.newPlot("ch-tmr-semana",
+  Plotly.react("ch-tmr-semana",
     [...(showR?[trR(tmrR,hoverFmt(tmrR),"dot",5)]:[] ), ...(showS?[trS(tmrS,hoverFmt(tmrS),"dot",5)]:[] )],
     lineLayout("horas"), CFG);
   // ── Colunas comparativas com unidade automática ────
   const metricas = ["Resolucao","1ª Resposta"];
   const valsR = [avg(tmaR),avg(tmrR)];
   const valsS = [avg(tmaS),avg(tmrS)];
-  Plotly.newPlot("ch-tempos-col",[
+  Plotly.react("ch-tempos-col",[
     ...(showR?[{name:"Blis Resolve",type:"bar",x:metricas,
       y:valsR,
       marker:{color:"#38BDF8CC",line:{color:"#38BDF8",width:1}},
@@ -1413,7 +1413,7 @@ function renderResolucoesdia(){
   if(mi.length<6) dates = dates.filter(d => mi.includes(MONTH_OF(d)));
 
   if(!dates.length){
-    Plotly.newPlot("ch-resolucoes-dia",[],{...BL,annotations:[{text:"Sem dados",showarrow:false,font:{color:"#4A566E",size:13},xref:"paper",yref:"paper",x:0.5,y:0.5}]},CFG);
+    Plotly.react("ch-resolucoes-dia",[],{...BL,annotations:[{text:"Sem dados",showarrow:false,font:{color:"#4A566E",size:13},xref:"paper",yref:"paper",x:0.5,y:0.5}]},CFG);
     return;
   }
 
@@ -1424,7 +1424,7 @@ function renderResolucoesdia(){
       hovertemplate:"%{x}<br><b>%{y} tickets</b><extra>"+name+"</extra>"};
   });
 
-  Plotly.newPlot("ch-resolucoes-dia",traces,{...BL,
+  Plotly.react("ch-resolucoes-dia",traces,{...BL,
     barmode:"group",
     margin:{t:20,b:80,l:55,r:20},
     showlegend:true,
@@ -1470,12 +1470,12 @@ function renderCriadosResolvidos(){
 
   // ── Gráfico primeiro — sempre renderiza independente dos cards ─────────────
   if(!dates.length){
-    Plotly.newPlot("ch-criados-resolvidos",[],{...BL,annotations:[{text:"Sem dados",showarrow:false,font:{color:"#4A566E",size:13},xref:"paper",yref:"paper",x:0.5,y:0.5}]},CFG);
+    Plotly.react("ch-criados-resolvidos",[],{...BL,annotations:[{text:"Sem dados",showarrow:false,font:{color:"#4A566E",size:13},xref:"paper",yref:"paper",x:0.5,y:0.5}]},CFG);
   } else {
     const baseColor = team==="all" ? null : teamColors[team];
     const criadoColor    = baseColor ? baseColor+"99" : "#94A3B899";
     const resolvidoColor = baseColor ? baseColor+"EE" : "#38BDF8EE";
-    Plotly.newPlot("ch-criados-resolvidos",[
+    Plotly.react("ch-criados-resolvidos",[
       {name:"Criados",type:"bar",x:dates,y:dates.map(d=>criados[d]||0),
        marker:{color:criadoColor,line:{color:"#94A3B8",width:0.5}},
        hovertemplate:"%{x}<br><b>%{y} criados</b><extra>Criados</extra>"},
@@ -1557,10 +1557,10 @@ function renderAll(){
 }
 
 function setMes(idx,btn){
-  document.querySelectorAll(".fbar .fb").forEach(b=>{if(["Todos","Jan","Fev","Mar","Abr","Mai"].includes(b.textContent.trim()))b.classList.remove("on");});
+  document.querySelectorAll(".fbar .fb").forEach(b=>{if(["Todos","Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago"].includes(b.textContent.trim()))b.classList.remove("on");});
   btn.classList.add("on");
   S.mes=idx; S.semana=-1;
-  buildWsel(); renderAll();
+  buildWsel(); requestAnimationFrame(()=>renderAll());
 }
 function setSemana(v){
   S.semana=v;
@@ -1568,7 +1568,7 @@ function setSemana(v){
     const mIdx=D.semanas.mesIdx[v];
     if(S.mes!==mIdx){
       S.mes=mIdx;
-      const MLBLS=["Jan","Fev","Mar","Abr","Mai"];
+      const MLBLS=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago"];
       document.querySelectorAll(".fbar .fb").forEach(b=>{
         const txt=b.textContent.trim();
         if(["Todos",...MLBLS].includes(txt)) b.classList.remove("on");
@@ -1577,7 +1577,7 @@ function setSemana(v){
       buildWsel();
     }
   }
-  renderAll();
+  requestAnimationFrame(()=>renderAll());
 }
 function setTeam(t,btn){
   document.querySelectorAll(".fbar .fb").forEach(b=>{if(["Todos","Cloud Humans IA","Blis Saude","Blis Resolve","Blis Logistica"].includes(b.textContent.trim()))b.classList.remove("on","gs","gr","gl");});
@@ -1585,7 +1585,7 @@ function setTeam(t,btn){
   if(t==="saude") btn.classList.add("gs");
   if(t==="resolve") btn.classList.add("gr");
   if(t==="logistica") btn.classList.add("gl");
-  S.team=t; renderAll();
+  S.team=t; requestAnimationFrame(()=>renderAll());
 }
 function showTab(id,el){
   document.querySelectorAll(".ntab").forEach(t=>t.classList.remove("on"));
