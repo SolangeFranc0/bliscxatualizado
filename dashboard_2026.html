@@ -52,7 +52,7 @@
 }
 [data-theme="light"] .hdr{background:rgba(248,250,252,0.96)}
 [data-theme="light"] .nav{background:#FFFFFF}
-[data-theme="light"] .fbar{background:#FFFFFF}
+[data-theme="light"] .fbar{background:#FFFFFF;border-bottom:1px solid #E2E8F0}
 [data-theme="light"] ::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.14)}
 [data-theme="light"] ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,0.24)}
 [data-theme="light"] .to{background:rgba(0,0,0,0.05)}
@@ -61,8 +61,18 @@
 [data-theme="light"] .citem.bd{background:rgba(220,38,38,0.04)}
 [data-theme="light"] .offrow{background:rgba(220,38,38,0.03);border-color:rgba(220,38,38,0.1)}
 [data-theme="light"] .live-dot{box-shadow:0 0 7px #14B8A6}
-[data-theme="light"] .kc::after{opacity:0.5}
+[data-theme="light"] .kc::after{opacity:0.85}
 [data-theme="light"] .fb.on{box-shadow:0 0 10px rgba(99,102,241,0.25)}
+/* KPI cards — light mode: sombra + fundo colorido por time */
+[data-theme="light"] .kc{box-shadow:0 2px 8px rgba(0,0,0,0.07),0 1px 3px rgba(0,0,0,0.04)}
+[data-theme="light"] .kc:hover{box-shadow:0 6px 20px rgba(0,0,0,0.11),0 2px 6px rgba(0,0,0,0.06);transform:translateY(-3px)}
+[data-theme="light"] .kc.ci{background:linear-gradient(145deg,rgba(99,102,241,0.07) 0%,#fff 55%);border-color:rgba(99,102,241,0.25)}
+[data-theme="light"] .kc.cs{background:linear-gradient(145deg,rgba(20,184,166,0.07) 0%,#fff 55%);border-color:rgba(20,184,166,0.25)}
+[data-theme="light"] .kc.cr{background:linear-gradient(145deg,rgba(14,165,233,0.07) 0%,#fff 55%);border-color:rgba(14,165,233,0.25)}
+[data-theme="light"] .kc.cl{background:linear-gradient(145deg,rgba(249,115,22,0.07) 0%,#fff 55%);border-color:rgba(249,115,22,0.25)}
+[data-theme="light"] .kc.ct{border-color:rgba(99,102,241,0.2)}
+[data-theme="light"] .kc.cg{border-color:rgba(16,185,129,0.25)}
+[data-theme="light"] .kc.cw{border-color:rgba(217,119,6,0.25)}
 
 /* ── Theme toggle button ─────────────────────────────── */
 #btn-theme{
@@ -233,7 +243,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .kc.cr{--accent-gl:rgba(56,189,248,0.07)}.kc.cr::before{background:var(--res)}
 .kc.cl{--accent-gl:rgba(249,115,22,0.07)}.kc.cl::before{background:var(--log)}
 .kc.cb{--accent-gl:rgba(244,63,94,0.07)}.kc.cb::before{background:var(--bad)}
-.kl{font-size:11px;color:var(--text-sec);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.ki{font-size:22px;margin-bottom:8px;line-height:1;display:block;opacity:.8}
+.kl{font-size:10.5px;color:var(--text-sec);font-weight:700;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px}
 .kv{font-size:34px;font-weight:800;line-height:1;letter-spacing:-1.5px;color:var(--text)}
 .ks{font-size:12px;color:var(--text-sec);margin-top:8px}
 .kdelta{font-size:11px;font-weight:600;margin-top:5px}
@@ -429,12 +440,13 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 <!-- FILTER BAR -->
 <div class="fbar">
   <!-- Perfil: filtro mestre — restringe motivos/submotivos disponíveis -->
-  <div style="display:flex;align-items:center;gap:5px;width:100%;flex-basis:100%;flex-wrap:wrap">
-    <span class="fl" style="margin-right:4px">Perfil</span>
-    <button class="fb pf on" id="pb-all" onclick="setPerfil(null,this)">Todos</button>
-    <span id="perfil-btns" style="display:contents"></span>
+  <div style="display:flex;align-items:center;gap:7px">
+    <span class="fl">Perfil</span>
+    <select class="fsel" id="perfil-sel" onchange="setPerfil(this.value||null)" style="min-width:200px;max-width:280px">
+      <option value="">Todos os perfis</option>
+    </select>
   </div>
-  <div style="width:100%;flex-basis:100%;height:1px;background:var(--border);margin:1px 0"></div>
+  <div class="fsep"></div>
   <div style="display:flex;align-items:center;gap:7px">
     <span class="fl">Periodo</span>
     <button class="fb on" onclick="setMes(-1,this)">Todos</button>
@@ -755,28 +767,23 @@ const OFFENDERS = [[{"theme":"Atendimento por IA / Bot","ex":"Atendimento por IA
 const S = {mes:-1, semana:-1, team:"all"};
 let activePerfil = null;
 
-function setPerfil(tag, btn) {
-  document.querySelectorAll(".fb.pf").forEach(b => b.classList.remove("on"));
-  if (tag === null) {
-    document.getElementById("pb-all").classList.add("on");
-  } else {
-    btn.classList.add("on");
-  }
-  activePerfil = tag;
+function setPerfil(tag) {
+  activePerfil = tag || null;
+  const sel = document.getElementById("perfil-sel");
+  if (sel) sel.value = tag || "";
   renderAll();
 }
 
 function initPerfilFilter() {
   if (!D.perfis || !D.perfis.labels || !D.perfis.labels.length) return;
-  const container = document.getElementById("perfil-btns");
+  const sel = document.getElementById("perfil-sel");
+  if (!sel) return;
   D.perfis.labels.forEach((label, i) => {
-    const btn = document.createElement("button");
-    btn.className = "fb pf";
     const total = (D.perfis.ia[i]||0) + (D.perfis.saude[i]||0) + (D.perfis.resolve[i]||0);
-    btn.innerHTML = label + (total ? '<span class="pf-ct">' + total.toLocaleString("pt-BR") + '</span>' : '');
-    const tag = D.perfis.ids[i];
-    btn.onclick = function() { setPerfil(tag, this); };
-    container.appendChild(btn);
+    const opt = document.createElement("option");
+    opt.value = D.perfis.ids[i];
+    opt.textContent = label + (total ? "  (" + total.toLocaleString("pt-BR") + ")" : "");
+    sel.appendChild(opt);
   });
 }
 
@@ -852,13 +859,13 @@ function renderKPIs(){
     if(prev>0){const d=((curr-prev)/prev*100).toFixed(1);momTotal=`<div class="kdelta ${+d>=0?'up':'dn'}">${+d>0?'▲':'▼'} ${Math.abs(d)}% vs ${MSHORT[S.mes-1]}</div>`;}
   }
   document.getElementById("kpis").innerHTML=`
-    <div class="kc ct"><div class="kl">Total de Tickets</div><div class="kv">${fmtN(total)}</div>${momTotal}<div class="ks">${periodoLabel}</div></div>
-    <div class="kc cg"><div class="kl">Resolvidos / Fechados</div><div class="kv">${fmtN(solved)}</div><div class="ks"><span class="badge bg">${solvedPct}%</span></div></div>
-    <div class="kc cw"><div class="kl">Em Andamento</div><div class="kv">${fmtN(open_)}</div><div class="ks">abertos · pendentes · novos</div></div>
-    <div class="kc ci"><div class="kl">Cloud Humans IA</div><div class="kv">${fmtN(ia)}</div><div class="ks"><span class="badge bp">${total>0?(ia/total*100).toFixed(1):0}%</span> ativo desde mar/26</div></div>
-    <div class="kc cs"><div class="kl">Blis Saude</div><div class="kv">${fmtN(saude)}</div><div class="ks"><span class="badge bg">${total>0?(saude/total*100).toFixed(1):0}%</span></div></div>
-    <div class="kc cr"><div class="kl">Blis Resolve</div><div class="kv">${fmtN(resolve)}</div><div class="ks"><span class="badge bl">${total>0?(resolve/total*100).toFixed(1):0}%</span></div></div>
-    <div class="kc cl"><div class="kl">Blis Logistica</div><div class="kv">${fmtN(logistica)}</div><div class="ks"><span class="badge" style="background:var(--log-gl);color:var(--log)">${total>0?(logistica/total*100).toFixed(1):0}%</span></div></div>`;
+    <div class="kc ct"><span class="ki">🎫</span><div class="kl">Total de Tickets</div><div class="kv">${fmtN(total)}</div>${momTotal}<div class="ks">${periodoLabel}</div></div>
+    <div class="kc cg"><span class="ki">✅</span><div class="kl">Resolvidos / Fechados</div><div class="kv">${fmtN(solved)}</div><div class="ks"><span class="badge bg">${solvedPct}%</span></div></div>
+    <div class="kc cw"><span class="ki">⏳</span><div class="kl">Em Andamento</div><div class="kv">${fmtN(open_)}</div><div class="ks">abertos · pendentes · novos</div></div>
+    <div class="kc ci"><span class="ki">🤖</span><div class="kl">Cloud Humans IA</div><div class="kv">${fmtN(ia)}</div><div class="ks"><span class="badge bp">${total>0?(ia/total*100).toFixed(1):0}%</span> do volume</div></div>
+    <div class="kc cs"><span class="ki">🩺</span><div class="kl">Blis Saúde</div><div class="kv">${fmtN(saude)}</div><div class="ks"><span class="badge bg">${total>0?(saude/total*100).toFixed(1):0}%</span></div></div>
+    <div class="kc cr"><span class="ki">🔧</span><div class="kl">Blis Resolve</div><div class="kv">${fmtN(resolve)}</div><div class="ks"><span class="badge bl">${total>0?(resolve/total*100).toFixed(1):0}%</span></div></div>
+    <div class="kc cl"><span class="ki">📦</span><div class="kl">Blis Logística</div><div class="kv">${fmtN(logistica)}</div><div class="ks"><span class="badge" style="background:var(--log-gl);color:var(--log)">${total>0?(logistica/total*100).toFixed(1):0}%</span></div></div>`;
 }
 
 function renderMensal(){
