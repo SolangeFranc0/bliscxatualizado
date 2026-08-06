@@ -794,12 +794,14 @@ const TNOMES= {ia:"Cloud Humans IA", saude:"Blis Saude", resolve:"Blis Resolve",
 const CFG  = {responsive:true, displayModeBar:false};
 const BL   = {
   paper_bgcolor:"transparent", plot_bgcolor:"transparent",
-  font:{family:"Inter,system-ui,sans-serif", color:"#64748b", size:10},
-  margin:{t:8, b:46, l:44, r:8},
-  barcornerradius:6,
-  xaxis:{gridcolor:"rgba(0,0,0,0.04)", zerolinecolor:"rgba(0,0,0,0.04)", showgrid:false, tickfont:{color:"#64748b",size:10}},
-  yaxis:{gridcolor:"rgba(0,0,0,0.04)", zerolinecolor:"rgba(0,0,0,0.04)", tickfont:{color:"#64748b",size:10}},
-  legend:{bgcolor:"transparent", font:{color:"#475569",size:10}, orientation:"h", y:-0.24}
+  font:{family:"Inter,system-ui,sans-serif", color:"#94A3B8", size:11},
+  margin:{t:12, b:50, l:12, r:12},
+  barcornerradius:8,
+  bargap:0.3,
+  bargroupgap:0.08,
+  xaxis:{gridcolor:"rgba(0,0,0,0)", zerolinecolor:"rgba(0,0,0,0)", showgrid:false, zeroline:false, showline:false, tickfont:{color:"#94A3B8",size:11}},
+  yaxis:{gridcolor:"rgba(0,0,0,0.05)", zerolinecolor:"rgba(0,0,0,0)", showgrid:true, zeroline:false, showticklabels:false},
+  legend:{bgcolor:"transparent", font:{color:"#64748B",size:11}, orientation:"h", y:-0.3, x:0.5, xanchor:"center"}
 };
 const COLORS_M = ["#818CF8","#38BDF8","#34D399","#FBBF24","#F43F5E","#A78BFA","#22D3EE","#84CC16","#FB923C"];
 
@@ -870,7 +872,7 @@ function renderKPIs(){
 
 function renderMensal(){
   const teams=activeTeams(); const mi=activeMesIndices(); const lbs=mi.map(i=>MONTHS[i]);
-  const traces=teams.map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:mi.map(i=>D.tickets[t][i]||0),marker:{color:COL[t]+"BB",line:{color:COL[t],width:1}},text:mi.map(i=>fmtN(D.tickets[t][i]||0)),textposition:"outside",textfont:{size:10,color:COL[t]}}));
+  const traces=teams.map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:mi.map(i=>D.tickets[t][i]||0),marker:{color:COL[t]+"99",line:{width:0}},hovertemplate:"<b>%{x}</b><br>"+TNOMES[t]+": <b>%{y:,}</b><extra></extra>"}));
   Plotly.react("ch-mensal",traces,{...BL,barmode:"group",showlegend:true},CFG);
 }
 
@@ -882,7 +884,7 @@ function renderPie(){
 
 function renderSemanas(){
   const teams=activeTeams(); const si=semIndices(); const lbs=si.map(i=>D.semanas.datas[i]);
-  const traces=teams.map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:si.map(i=>D.semanas[t][i]||0),text:si.map(i=>fmtN(D.semanas[t][i]||0)),textposition:"outside",textfont:{size:9,color:COL[t]},marker:{color:COL[t]+"CC",line:{color:COL[t],width:0}}}));
+  const traces=teams.map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:si.map(i=>D.semanas[t][i]||0),marker:{color:COL[t]+"99",line:{width:0}},hovertemplate:"<b>%{x}</b><br>"+TNOMES[t]+": <b>%{y:,}</b><extra></extra>"}));
   const tit=S.mes===-1?"Todos os Meses":MONTHS[S.mes];
   document.getElementById("sem-title").textContent=`Tickets por Semana — ${tit}`;
   Plotly.react("ch-semanas",traces,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,b:55}},CFG);
