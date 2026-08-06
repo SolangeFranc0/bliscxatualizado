@@ -1317,6 +1317,8 @@ function renderTempos(){
   const tmrS = filt(D.tempos.tmr.saude);
 
   const avg = arr => { const v=arr.filter(x=>x!=null); return v.length?+(v.reduce((a,b)=>a+b,0)/v.length).toFixed(2):null; };
+  // KPI cards: quando mostrando tudo, usa últimas 4 semanas (performance atual)
+  const kpiAvg = arr => { const v=arr.filter(x=>x!=null); const r=mi.length>1?v.slice(-4):v; return r.length?+(r.reduce((a,b)=>a+b,0)/r.length).toFixed(2):null; };
 
   // Formata horas decimais como Xh Ymin
   const fmtTempo = h => {
@@ -1333,18 +1335,18 @@ function renderTempos(){
   // ── KPI cards (apenas times visíveis) ─────────────
   const kpiR = showR ? `
     <div class="kc cr"><div class="kl">Resolucao — Blis Resolve</div>
-      <div class="kv" style="font-size:26px;color:var(--res)">${fmtTempo(avg(tmaR))}</div>
+      <div class="kv" style="font-size:26px;color:var(--res)">${fmtTempo(kpiAvg(tmaR))}</div>
       <div class="ks">Mediana · tempo para fechar o ticket · dias úteis</div></div>
     <div class="kc cr"><div class="kl">1ª Resposta — Blis Resolve</div>
-      <div class="kv" style="font-size:26px;color:var(--res)">${fmtTempo(avg(tmrR))}</div>
+      <div class="kv" style="font-size:26px;color:var(--res)">${fmtTempo(kpiAvg(tmrR))}</div>
       <div class="ks">Mediana · tempo até o agente responder pela 1ª vez · dias úteis</div></div>
 ` : "";
   const kpiS = showS ? `
     <div class="kc cs"><div class="kl">Resolucao — Blis Saude</div>
-      <div class="kv" style="font-size:26px;color:var(--saude)">${fmtTempo(avg(tmaS))}</div>
+      <div class="kv" style="font-size:26px;color:var(--saude)">${fmtTempo(kpiAvg(tmaS))}</div>
       <div class="ks">Mediana · tempo para fechar o ticket · dias úteis</div></div>
     <div class="kc cs"><div class="kl">1ª Resposta — Blis Saude</div>
-      <div class="kv" style="font-size:26px;color:var(--saude)">${fmtTempo(avg(tmrS))}</div>
+      <div class="kv" style="font-size:26px;color:var(--saude)">${fmtTempo(kpiAvg(tmrS))}</div>
       <div class="ks">Mediana · tempo até o agente responder pela 1ª vez · dias úteis</div></div>
 ` : "";
   document.getElementById("tempos-kpis").innerHTML = kpiR + kpiS;

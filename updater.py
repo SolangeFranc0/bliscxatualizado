@@ -549,7 +549,6 @@ def build_tempos(df_t: pd.DataFrame) -> dict:
             sub = df[(df["_wk"] == w) & (df["_team"] == team_key)]
             if col in sub.columns:
                 v = pd.to_numeric(sub[col], errors="coerce").dropna()
-                v = v[(v > 0) & (v < 2880)]
                 vals.append(round(float(v.median()) / 60, 1) if len(v) > 0 else None)
             else:
                 vals.append(None)
