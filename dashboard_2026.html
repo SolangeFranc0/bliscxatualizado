@@ -1142,7 +1142,8 @@ function renderMotivosColCharts(){
   // Grafico 2: volume por time (colunas verticais)
   const xTime=activeT.map(t=>TNOMES[t]);
   const yTime=activeT.map(t=>visibleM.reduce((a,m)=>a+getTeamVol(m,t),0));
-  const tCols=activeT.map(t=>COL[t]);
+  const GCOLS_T={ia:"#059669",saude:"#10B981",resolve:"#34D399",logistica:"#6EE7B7"};
+  const tCols=activeT.map(t=>GCOLS_T[t]||"#34D399");
   Plotly.react("ch-time-col",[{
     type:"bar", x:xTime, y:yTime,
     marker:{color:tCols.map(c=>c+"CC"), line:{color:tCols,width:1}},
@@ -1161,15 +1162,15 @@ function renderMotivosColCharts(){
 function renderSubMotivos(){
   const mi=activeMesIndices();
   const SUB_META={
-    appblis:  {idx:1,nome:"AppBlis",             icon:"A",col:"#818CF8",motKey:"appblis"},
-    cadastros:{idx:2,nome:"Cadastros",            icon:"C",col:"#38BDF8",motKey:"cadastros"},
-    medicos:  {idx:3,nome:"Blis Medicos",         icon:"M",col:"#34D399",motKey:"medicos"},
-    docs:     {idx:4,nome:"Documentos",           icon:"D",col:"#FBBF24",motKey:"docs"},
-    logistica:{idx:5,nome:"Logistica",            icon:"L",col:"#F43F5E",motKey:"logistica"},
-    pagamento:{idx:6,nome:"Pagamentos",           icon:"P",col:"#F472B6",motKey:"pagamento"},
-    estoque:  {idx:7,nome:"Estoque",              icon:"E",col:"#A78BFA",motKey:"estoque"},
-    receitas: {idx:8,nome:"Receitas",             icon:"R",col:"#22D3EE",motKey:"receitas"},
-    cancela:  {idx:9,nome:"Cancelar Tratamento",  icon:"X",col:"#FB923C",motKey:"cancela"}
+    appblis:  {idx:1,nome:"AppBlis",             icon:"A",col:"#059669",motKey:"appblis"},
+    cadastros:{idx:2,nome:"Cadastros",            icon:"C",col:"#047857",motKey:"cadastros"},
+    medicos:  {idx:3,nome:"Blis Medicos",         icon:"M",col:"#10B981",motKey:"medicos"},
+    docs:     {idx:4,nome:"Documentos",           icon:"D",col:"#065F46",motKey:"docs"},
+    logistica:{idx:5,nome:"Logistica",            icon:"L",col:"#34D399",motKey:"logistica"},
+    pagamento:{idx:6,nome:"Pagamentos",           icon:"P",col:"#16A34A",motKey:"pagamento"},
+    estoque:  {idx:7,nome:"Estoque",              icon:"E",col:"#4ADE80",motKey:"estoque"},
+    receitas: {idx:8,nome:"Receitas",             icon:"R",col:"#6EE7B7",motKey:"receitas"},
+    cancela:  {idx:9,nome:"Cancelar Tratamento",  icon:"X",col:"#A7F3D0",motKey:"cancela"}
   };
   const perfilAllowSub=activePerfil&&D.perfis?.motivos?.[activePerfil]?new Set(D.perfis.motivos[activePerfil]):null;
   const totalGeral=(D.motivos||[]).reduce((a,m)=>a+sumArr(m.monthly),0);
