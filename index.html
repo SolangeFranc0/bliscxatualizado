@@ -809,11 +809,11 @@ canvas.med-chart{max-height:250px}
     <!-- ── SECTION 1: Dashboard ── -->
     <section class="cx-section cx-section--dash active" id="section-dashboard">
       <iframe
-        src="dashboard.html?v=202608061454"
         title="Dashboard CX Appblis"
         allowfullscreen
         id="dashFrame"
       ></iframe>
+      <script>document.getElementById('dashFrame').src='dashboard.html?v='+Date.now();</script>
     </section>
 
     <!-- ── SECTION 2: Time de Atendimento ── -->
