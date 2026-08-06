@@ -283,21 +283,22 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 /* ── CSAT Gauges ──────────────────────────────────────── */
 .gauges{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
-.gauge{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 18px;text-align:center}
+.gauge{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 16px 20px;text-align:center;transition:box-shadow .2s}
+.gauge:hover{box-shadow:0 4px 16px rgba(0,0,0,0.08)}
 .gcircle{
   width:96px;height:96px;border-radius:50%;
-  margin:0 auto 14px;display:flex;flex-direction:column;
+  margin:0 auto 16px;display:flex;flex-direction:column;
   align-items:center;justify-content:center;
-  font-size:24px;font-weight:800;border:3px solid;
+  font-size:26px;font-weight:800;
   letter-spacing:-1px;
 }
-.gcircle.gi{border-color:var(--ia);color:var(--ia);box-shadow:0 0 20px var(--ia-gl)}
-.gcircle.gs{border-color:var(--saude);color:var(--saude);box-shadow:0 0 20px var(--saude-gl)}
-.gcircle.gr{border-color:var(--res);color:var(--res);box-shadow:0 0 20px var(--res-gl)}
-.gcircle.gl{border-color:var(--log);color:var(--log);box-shadow:0 0 20px var(--log-gl)}
-.gcircle.gg{border-color:var(--good);color:var(--good);box-shadow:0 0 20px var(--good-gl)}
-.gsub{font-size:8.5px;font-weight:500;color:var(--text-dim);letter-spacing:0.5px;margin-top:2px}
-.glabel{font-size:12px;font-weight:700;color:var(--text)}
+.gcircle.gi{color:var(--ia);background:rgba(99,102,241,0.10)}
+.gcircle.gs{color:var(--saude);background:rgba(20,184,166,0.10)}
+.gcircle.gr{color:var(--res);background:rgba(14,165,233,0.10)}
+.gcircle.gl{color:var(--log);background:rgba(249,115,22,0.10)}
+.gcircle.gg{color:var(--good);background:rgba(16,185,129,0.10)}
+.gsub{font-size:8.5px;font-weight:600;color:var(--text-dim);letter-spacing:0.8px;margin-top:2px;text-transform:uppercase}
+.glabel{font-size:12.5px;font-weight:700;color:var(--text)}
 .gmini{font-size:10.5px;color:var(--text-sec);margin-top:5px}
 
 /* ── Comments ────────────────────────────────────────── */
