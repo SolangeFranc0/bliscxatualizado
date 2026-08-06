@@ -1058,6 +1058,14 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
     # 5. Construção dos blocos — usa dataset completo do Supabase
     df_sb, df_csat_sb = _load_full_from_supabase()
     df_build = df_sb if len(df_sb) > len(df_full) else df_full
+    # Deduplica CSAT do Supabase: cliente pode ter mudado avaliação (bad→good),
+    # gerando múltiplos csat_ids para o mesmo ticket. Manter só o mais recente
+    # é o mesmo critério que o Zendesk usa. Sem isso, bads extras inflam a contagem.
+    if not df_csat_sb.empty and "avaliado_em" in df_csat_sb.columns:
+        df_csat_sb["avaliado_em"] = pd.to_datetime(df_csat_sb["avaliado_em"], utc=True, errors="coerce")
+        df_csat_sb = (df_csat_sb.sort_values("avaliado_em", ascending=False)
+                                 .drop_duplicates("ticket_id", keep="first")
+                                 .reset_index(drop=True))
     df_csat_build = df_csat_sb if len(df_csat_sb) > len(df_csat) else df_csat
     log.info(f"Dataset para build: {len(df_build)} tickets, {len(df_csat_build)} CSAT")
 
