@@ -879,7 +879,7 @@ function renderMensal(){
 function renderPie(){
   const teams=["ia","saude","resolve","logistica"]; const lbs=teams.map(t=>TNOMES[t]);
   const vals=teams.map(t=>ticketsFor(t));
-  Plotly.react("ch-pie",[{type:"pie",labels:lbs,values:vals,marker:{colors:teams.map(t=>COL[t])},textinfo:"percent+label",textfont:{size:11,color:"#B8C4D8"},hole:0.42,hovertemplate:"<b>%{label}</b><br>%{value:,}<br>%{percent}<extra></extra>"}],{...BL,showlegend:false,margin:{t:10,b:10,l:10,r:10}},CFG);
+  Plotly.react("ch-pie",[{type:"pie",labels:lbs,values:vals,marker:{colors:teams.map(t=>COL[t])},textinfo:"percent+label",textfont:{size:12,color:"#FFFFFF"},insidetextfont:{size:12,color:"#FFFFFF"},outsidetextfont:{size:11,color:"#64748B"},hole:0.42,hovertemplate:"<b>%{label}</b><br>%{value:,}<br>%{percent}<extra></extra>"}],{...BL,showlegend:false,margin:{t:10,b:10,l:10,r:10}},CFG);
 }
 
 function renderSemanas(){
