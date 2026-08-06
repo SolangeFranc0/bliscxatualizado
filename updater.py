@@ -296,11 +296,18 @@ def build_semanas(df: pd.DataFrame) -> dict:
         "logistica": weekly["logistica"],
     }
 
+_CSAT_GROUP_MAP = {
+    50304023554451: "ia",
+    42056691282323: "resolve",
+    43771604769299: "saude",
+}
+
 def build_csat(df_c: pd.DataFrame, df_t: pd.DataFrame) -> dict:
     out = {t: {"good":[0]*N_MONTHS,"bad":[0]*N_MONTHS}
            for t in ("ia","saude","resolve","logistica")}
-    # Usa o campo `time` do CSAT como fonte primária (vem direto do group_id Zendesk).
-    # Fallback para cross-referência com tabela_tickets para registros sem `time`.
+    # Usa o campo `time` do CSAT como fonte primária.
+    # Fallback 1: group_id direto (cobre registros com time ausente/divergente).
+    # Fallback 2: cross-referência com tabela_tickets.
     ia_ticket_ids: set = set()
     logistica_ticket_ids: set = set()
     for _, r in df_t.iterrows():
@@ -327,11 +334,20 @@ def build_csat(df_c: pd.DataFrame, df_t: pd.DataFrame) -> dict:
             out["ia"][score][m] += 1
         elif "Logística" in time_val or "Logistica" in time_val or time_val == "logistica":
             out["logistica"][score][m] += 1
-        elif str(r.get("ticket_id","")) in logistica_ticket_ids:
-            out["logistica"][score][m] += 1
-        elif str(r.get("ticket_id","")) in ia_ticket_ids:
-            # fallback: ticket marcado como IA mas sem group_id mapeado
-            out["ia"][score][m] += 1
+        else:
+            # Fallback 1: group_id
+            try:
+                gid = int(str(r.get("group_id") or 0).split(".")[0])
+                team_by_gid = _CSAT_GROUP_MAP.get(gid)
+            except (ValueError, TypeError):
+                team_by_gid = None
+            if team_by_gid:
+                out[team_by_gid][score][m] += 1
+            # Fallback 2: ticket_id lookup
+            elif str(r.get("ticket_id","")) in logistica_ticket_ids:
+                out["logistica"][score][m] += 1
+            elif str(r.get("ticket_id","")) in ia_ticket_ids:
+                out["ia"][score][m] += 1
     return out
 
 # ── Motivos / Submotivos / Perfis ────────────────────────────────────────────
