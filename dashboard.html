@@ -331,24 +331,27 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .ww:hover{transform:scale(1.1);background:rgba(244,63,94,0.2)}
 
 /* ── Motivos ─────────────────────────────────────────── */
+#motivos-list{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
 .mrow{
   display:flex;align-items:center;gap:14px;
-  padding:13px 16px;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:10px;transition:background .14s;
+  padding:10px 16px;
+  background:transparent;
+  border-bottom:1px solid var(--border);
+  transition:background .12s;
 }
+.mrow:last-child{border-bottom:none}
 .mrow:hover{background:var(--surface-2)}
-.mrank{font-size:14px;font-weight:800;color:var(--text-dim);width:24px;text-align:center;flex-shrink:0}
+.mrank{font-size:11px;font-weight:700;color:var(--text-dim);width:18px;text-align:center;flex-shrink:0}
 .minfo{flex:1;min-width:0}
 .mname{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mteams{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
-.mtbadge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:3px}
+.mteams{display:flex;gap:10px;margin-top:3px;flex-wrap:nowrap;align-items:center}
+.mtbadge{font-size:9.5px;font-weight:600;padding:0;background:none!important}
 .mbar{flex:2;min-width:80px}
-.mbg{background:var(--surface-3);border-radius:3px;height:5px;overflow:hidden}
-.mfill{height:100%;border-radius:3px;transition:width .5s}
-.mnums{min-width:88px;text-align:right;flex-shrink:0}
-.mvol{font-size:14px;font-weight:800;letter-spacing:-0.3px;color:var(--text)}
-.mpct{font-size:10.5px;color:var(--text-sec)}
+.mbg{background:var(--surface-3);border-radius:2px;height:3px;overflow:hidden}
+.mfill{height:100%;border-radius:2px;transition:width .5s}
+.mnums{min-width:80px;text-align:right;flex-shrink:0}
+.mvol{font-size:13.5px;font-weight:800;letter-spacing:-0.3px;color:var(--text)}
+.mpct{font-size:10px;color:var(--text-sec)}
 .mdelta{font-size:10.5px;font-weight:600}
 
 /* ── Sub-motivos accordion ───────────────────────────── */
@@ -596,7 +599,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
   <div>
     <div class="slabel">Ranking de Motivos — Periodo Selecionado</div>
-    <div style="display:flex;flex-direction:column;gap:7px" id="motivos-list"></div>
+    <div id="motivos-list"></div>
   </div>
 
   <div>
@@ -1088,9 +1091,11 @@ function renderMotivosList(){
       <div class="minfo">
         <div class="mname">${r.nome} ${r.momHtml}</div>
         <div class="mteams">
-          <span class="mtbadge" style="background:rgba(56,189,248,0.1);color:#38BDF8">Resolve: ${fmtN(r.rVol)}</span>
-          <span class="mtbadge" style="background:rgba(52,211,153,0.1);color:#34D399">Saude: ${fmtN(r.sVol)}</span>
-          <span class="mtbadge" style="background:rgba(129,140,248,0.1);color:#818CF8">IA: ${fmtN(r.iVol)}</span>
+          <span class="mtbadge" style="color:#38BDF8">R ${fmtN(r.rVol)}</span>
+          <span style="color:var(--border);font-size:9px">·</span>
+          <span class="mtbadge" style="color:#34D399">S ${fmtN(r.sVol)}</span>
+          <span style="color:var(--border);font-size:9px">·</span>
+          <span class="mtbadge" style="color:#818CF8">IA ${fmtN(r.iVol)}</span>
         </div>
       </div>
       <div class="mbar"><div class="mbg"><div class="mfill" style="width:${Math.round(r.vol/maxV*100)}%;background:${COLORS_M[i]}"></div></div></div>
