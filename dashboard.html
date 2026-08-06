@@ -1544,15 +1544,6 @@ function renderCriadosResolvidos(){
         `<div><div style="font-size:11px;color:var(--text-sec)">Resolvidos/sem</div><div class="kv" style="font-size:22px;color:${col}">${ar}</div></div>`+
         `</div><div class="ks">${nw} sem. no período</div></div>`;
     });
-    if(team==="all"){
-      html+=`<div class="kc" style="border-color:${dColor}40">`+
-        `<div class="kl">Saldo Consolidado — todos os times</div>`+
-        `<div style="display:flex;gap:20px;align-items:baseline;margin-top:6px">`+
-        `<div><div style="font-size:11px;color:var(--text-sec)">Criados/sem</div><div class="kv" style="font-size:24px;color:#94A3B8">${avgC}</div></div>`+
-        `<div><div style="font-size:11px;color:var(--text-sec)">Resolvidos/sem</div><div class="kv" style="font-size:24px;color:#38BDF8">${avgR}</div></div>`+
-        `<div><div style="font-size:11px;color:var(--text-sec)">Saldo</div><div class="kv" style="font-size:24px;color:${dColor}">${delta>=0?"+":""}${delta}</div></div>`+
-        `</div><div class="ks">${nW} semanas · positivo = resolve mais do que abre</div></div>`;
-    }
     volEl.innerHTML = html;
   } catch(e){ console.warn("vol-kpis cards error:", e); }
 }
