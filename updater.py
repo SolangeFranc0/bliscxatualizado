@@ -1284,6 +1284,7 @@ def sync_metabase(save_js: bool = True) -> bool:
                 'dias_1_2_sum': 0, 'dias_1_2_cnt': 0,
                 'ativou_90d': 0, 'inativos': 0,
                 'n_1': 0, 'n_2': 0, 'n_3': 0, 'n_4plus': 0,
+                '_inativo_idades': [],  # idades (dias) de clientes com 1 pedido
             })
             tipo_map  = defaultdict(lambda: {'total': 0, 'total_pedidos': 0, 'receita': 0.0})
             TIPOS = [('Novo', 1, 1), ('Recorrente', 2, 3), ('Fiel', 4, 6), ('Alta Frequência', 7, 9999)]
@@ -1325,8 +1326,7 @@ def sync_metabase(save_js: bool = True) -> bool:
                     if tot == 1 and len(d1) == 10:
                         try:
                             age = (today_d - _date.fromisoformat(d1)).days
-                            if age > 90:
-                                sd['inativos'] += 1
+                            sd['_inativo_idades'].append(age)
                         except Exception:
                             pass
 
@@ -1343,6 +1343,14 @@ def sync_metabase(save_js: bool = True) -> bool:
                 'avg_dias_1_2','inativos','pct_ativou_90d',
                 'n_1','n_2','n_3','n_4plus',
             ]]
+            # 2ª passagem: calcula inativos usando o intervalo médio da própria safra
+            # como limite (em vez de 90 dias fixo). Isso corrige safras recentes
+            # cujo intervalo médio é menor que 90d (ex: maio com 45d).
+            for safra, d in safra_map.items():
+                avg_d12_safra = round(d['dias_1_2_sum'] / d['dias_1_2_cnt'], 1) if d['dias_1_2_cnt'] else 90
+                threshold = max(int(avg_d12_safra), 30)
+                d['inativos'] = sum(1 for age in d['_inativo_idades'] if age > threshold)
+
             safra_rows = []
             for safra in sorted(safra_map.keys()):
                 d = safra_map[safra]
