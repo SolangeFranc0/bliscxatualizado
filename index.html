@@ -503,6 +503,15 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--surface);color:va
   .analytics-2col{grid-template-columns:1fr!important}
 }
 
+/* ── KPI cards de analytics ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi-card{background:var(--g50);border:1px solid var(--g100);border-radius:14px;padding:16px 18px;transition:box-shadow .2s}
+.kpi-card:hover{box-shadow:0 4px 16px rgba(5,150,105,0.1)}
+.kpi-card.kpi-skel{pointer-events:none}
+.kpi-value{font-family:'Plus Jakarta Sans',sans-serif;font-size:26px;font-weight:800;line-height:1.1;margin-bottom:4px}
+.kpi-label{font-size:12px;font-weight:600;color:var(--title)}
+.kpi-sub{font-size:11px;color:#6B7280;margin-top:2px}
+
 /* ── Analytics de Clientes ── */
 .analytics-divider{display:flex;align-items:center;gap:14px;margin:28px 0 18px}
 .analytics-divider-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--g400),transparent);opacity:.35}
@@ -977,10 +986,20 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--surface);color:va
         <span class="badge" id="analise-last-update" style="display:none">Carregando…</span>
       </div>
 
+      <!-- CX Zendesk — resumo de atendimento via Supabase -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #059669;border-radius:16px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.05)">
+        <div style="font-size:14px;font-weight:800;color:var(--title);margin-bottom:14px">Performance CX — Zendesk</div>
+        <div class="kpi-grid" id="block-cx-resumo-kpis" style="grid-template-columns:repeat(3,1fr)">
+          <div class="kpi-card kpi-skel"><div class="skel" style="height:26px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
+          <div class="kpi-card kpi-skel"><div class="skel" style="height:26px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
+          <div class="kpi-card kpi-skel"><div class="skel" style="height:26px;width:70%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:50%"></div></div>
+        </div>
+      </div>
+
       <!-- Recompra Blis Saúde — sem classes, só inline styles -->
-      <div id="block-saude-recompra" style="background:#fff;border:1px solid #E5E7EB;border-left:4px solid #6366F1;border-radius:16px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.07)">
+      <div id="block-saude-recompra" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #059669;border-radius:16px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.05)">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-          <div style="font-size:15px;font-weight:800;color:#1B4D2E">Recompra — Clientes Blis Saúde</div>
+          <div style="font-size:15px;font-weight:800;color:var(--title)">Recompra — Clientes Blis Saúde</div>
           <div id="saude-recompra-ano-filter" style="display:flex;gap:4px">
             <button onclick="_setSaudeRecompraAno('')"  id="srf-btn-todos" style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #D1D5DB;background:#1B4D2E;color:#fff;cursor:pointer">Todos</button>
             <button onclick="_setSaudeRecompraAno('2025')" id="srf-btn-2025" style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #D1D5DB;background:#fff;color:#374151;cursor:pointer">2025</button>
@@ -1006,10 +1025,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--surface);color:va
           </div>
           <div class="card-body" id="block-ticket-segmento-body" style="padding:16px 20px">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:6px">🌱 Novo</div><div style="font-size:20px;font-weight:800;color:#1e293b">22.983</div><div style="font-size:11px;color:#6B7280;margin-top:2px">69,7% da base · 1,0 pedidos</div><div style="margin-top:8px;font-size:13px;font-weight:700;color:#1e293b">R$ 1.602,30</div><div style="font-size:10px;color:#6B7280">ticket médio · Receita: R$ 36,8M</div></div>
-              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:6px">🔄 Recorrente</div><div style="font-size:20px;font-weight:800;color:#1e293b">7.975</div><div style="font-size:11px;color:#6B7280;margin-top:2px">24,2% da base · 2,3 pedidos</div><div style="margin-top:8px;font-size:13px;font-weight:700;color:#1e293b">R$ 1.602,30</div><div style="font-size:10px;color:#6B7280">ticket médio · Receita: R$ 29,0M</div></div>
-              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:6px">⭐ Fiel</div><div style="font-size:20px;font-weight:800;color:#1e293b">1.687</div><div style="font-size:11px;color:#6B7280;margin-top:2px">5,1% da base · 4,6 pedidos</div><div style="margin-top:8px;font-size:13px;font-weight:700;color:#1e293b">R$ 1.602,30</div><div style="font-size:10px;color:#6B7280">ticket médio · Receita: R$ 12,4M</div></div>
-              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:6px">🚀 Alta Frequência</div><div style="font-size:20px;font-weight:800;color:#1e293b">339</div><div style="font-size:11px;color:#6B7280;margin-top:2px">1,0% da base · 8,6 pedidos</div><div style="margin-top:8px;font-size:13px;font-weight:700;color:#1e293b">R$ 1.602,30</div><div style="font-size:10px;color:#6B7280">ticket médio · Receita: R$ 4,6M</div></div>
+              <div style="background:var(--g50);border:1px solid var(--g100);border-radius:12px;padding:14px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--g600);margin-bottom:6px">Novo</div><div style="font-size:20px;font-weight:800;color:var(--g800)">22.983</div><div style="font-size:11px;color:#6B7280;margin-top:2px">69,7% da base · 1,0 pedidos</div><div style="margin-top:8px;font-size:13px;font-weight:700;color:var(--g800)">R$ 1.602,30</div><div style="font-size:10px;color:#6B7280">ticket médio · Receita: R$ 36,8M</div></div>
+              <div style="background:var(--g50);border:1px solid var(--g100);border-radius:12px;padding:14px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--g600);margin-bottom:6px">Recorrente</div><div style="font-size:20px;font-weight:800;color:var(--g800)">7.975</div><div style="font-size:11px;color:#6B7280;margin-top:2px">24,2% da base · 2,3 pedidos</div><div style="margin-top:8px;font-size:13px;font-weight:700;color:var(--g800)">R$ 1.602,30</div><div style="font-size:10px;color:#6B7280">ticket médio · Receita: R$ 29,0M</div></div>
+              <div style="background:var(--g50);border:1px solid var(--g100);border-radius:12px;padding:14px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--g600);margin-bottom:6px">Fiel</div><div style="font-size:20px;font-weight:800;color:var(--g800)">1.687</div><div style="font-size:11px;color:#6B7280;margin-top:2px">5,1% da base · 4,6 pedidos</div><div style="margin-top:8px;font-size:13px;font-weight:700;color:var(--g800)">R$ 1.602,30</div><div style="font-size:10px;color:#6B7280">ticket médio · Receita: R$ 12,4M</div></div>
+              <div style="background:var(--g50);border:1px solid var(--g100);border-radius:12px;padding:14px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--g600);margin-bottom:6px">Alta Frequência</div><div style="font-size:20px;font-weight:800;color:var(--g800)">339</div><div style="font-size:11px;color:#6B7280;margin-top:2px">1,0% da base · 8,6 pedidos</div><div style="margin-top:8px;font-size:13px;font-weight:700;color:var(--g800)">R$ 1.602,30</div><div style="font-size:10px;color:#6B7280">ticket médio · Receita: R$ 4,6M</div></div>
             </div>
           </div>
         </div>
@@ -1023,9 +1042,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--surface);color:va
           </div>
           <div class="card-body" id="block-freq-compras-body" style="padding:16px 20px">
             <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
-              <div style="background:#f0fdfa;border-radius:8px;padding:10px 14px;min-width:110px"><div style="font-size:18px;font-weight:700;color:#0d9488">32.985</div><div style="font-size:11px;color:#6B7280">total clientes</div></div>
-              <div style="background:#f0fdf4;border-radius:8px;padding:10px 14px;min-width:110px"><div style="font-size:18px;font-weight:700;color:#16a34a">10.021</div><div style="font-size:11px;color:#6B7280">compraram 2x+</div></div>
-              <div style="background:#faf5ff;border-radius:8px;padding:10px 14px;min-width:110px"><div style="font-size:18px;font-weight:700;color:#7c3aed">30,4%</div><div style="font-size:11px;color:#6B7280">taxa recompra</div></div>
+              <div style="background:var(--g50);border-radius:8px;padding:10px 14px;min-width:110px"><div style="font-size:18px;font-weight:700;color:#059669">32.985</div><div style="font-size:11px;color:#6B7280">total clientes</div></div>
+              <div style="background:var(--g50);border-radius:8px;padding:10px 14px;min-width:110px"><div style="font-size:18px;font-weight:700;color:#10B981">10.021</div><div style="font-size:11px;color:#6B7280">compraram 2x+</div></div>
+              <div style="background:var(--g50);border-radius:8px;padding:10px 14px;min-width:110px"><div style="font-size:18px;font-weight:700;color:#34D399">30,4%</div><div style="font-size:11px;color:#6B7280">taxa recompra</div></div>
             </div>
             <div style="display:flex;flex-direction:column;gap:8px">
               <div style="display:flex;align-items:center;gap:8px"><span style="width:130px;font-size:12px;font-weight:600;color:#374151;flex-shrink:0">1 pedido</span><div style="flex:1;background:#f1f5f9;border-radius:4px;height:22px;overflow:hidden"><div style="height:100%;width:100%;background:#cbd5e1;border-radius:4px;display:flex;align-items:center;padding-left:6px"><span style="font-size:10px;font-weight:700;color:#1e293b">22.964</span></div></div><span style="font-size:11px;color:#6B7280;min-width:38px;text-align:right">69,6%</span></div>
@@ -1375,6 +1394,17 @@ function toggleSidebar() {
 function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('overlay').classList.remove('active');
+}
+
+/* ── Supabase CX ─────────────────────────────────── */
+const _SB_URL = 'https://duzqjnbtxufhkozyclqk.supabase.co/rest/v1';
+const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1enFqbmJ0eHVmaGtvenljbHFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4OTY4NzMsImV4cCI6MjA5NTQ3Mjg3M30.LbMlUGOTEKtbKVdkSiPHdUi1FsacfoiFbPDCFynYPv0';
+
+async function _sbGet(table, params) {
+  const url = _SB_URL + '/' + table + (params ? '?' + params : '');
+  const res = await fetch(url, { headers: { 'apikey': _SB_KEY, 'Authorization': 'Bearer ' + _SB_KEY } });
+  if (!res.ok) throw new Error('Supabase ' + table + ': ' + res.status);
+  return res.json();
 }
 
 /* ── Knowledge Base (nexus-hub) ─────────────────── */
@@ -2142,6 +2172,57 @@ function _renderClienteAnalytics() {
   _safe(_renderFreqCompras);
 }
 
+let _analiseInited = false;
+
+async function initAnalise() {
+  if (_analiseInited) return;
+  _analiseInited = true;
+  _mapClientesAnalytics();
+  _renderClienteAnalytics();
+  _renderSaudeRecompra();
+  _renderAnalyseCXMetrics();
+  const badge = document.getElementById('analise-last-update');
+  if (badge) {
+    badge.textContent = window.MB_PRELOADED ? 'Dados via Metabase' : 'Carregando…';
+    badge.style.display = '';
+  }
+}
+
+function _kpiCard(k, id) {
+  const accents = ['#059669','#10B981','#34D399','#6EE7B7'];
+  const idx = parseInt((id || '').replace(/\D/g,'') || '0') % accents.length;
+  const col = accents[idx];
+  return `<div class="kpi-card">
+    <div class="kpi-value" style="color:${col}">${k.val}</div>
+    <div class="kpi-label">${k.label}</div>
+    ${k.sub ? `<div class="kpi-sub">${k.sub}</div>` : ''}
+  </div>`;
+}
+
+async function _renderAnalyseCXMetrics() {
+  const wrap = document.getElementById('block-cx-resumo-kpis');
+  if (!wrap) return;
+  try {
+    const [perf, tma] = await Promise.all([
+      _sbGet('cx_performance_agentes', 'select=total_tickets,csat_good,csat_bad&order=mes.desc&limit=12'),
+      _sbGet('cx_tma_semanal', 'select=tma_h,tmr_h,n_tickets&order=semana.desc&limit=40'),
+    ]);
+    const totTickets = (perf || []).reduce((s, r) => s + (r.total_tickets || 0), 0);
+    const totGood    = (perf || []).reduce((s, r) => s + (r.csat_good || 0), 0);
+    const totBad     = (perf || []).reduce((s, r) => s + (r.csat_bad  || 0), 0);
+    const csatPct    = (totGood + totBad) > 0 ? (totGood / (totGood + totBad) * 100).toFixed(1) + '%' : '—';
+    const tmaRows    = (tma || []).filter(r => r.tma_h > 0);
+    const tmaAvg     = tmaRows.length ? (tmaRows.reduce((s, r) => s + r.tma_h, 0) / tmaRows.length).toFixed(1) + 'h' : '—';
+    wrap.innerHTML = [
+      { val: totTickets.toLocaleString('pt-BR'), label: 'Tickets Zendesk', sub: 'últimos 12 meses' },
+      { val: csatPct, label: 'CSAT Global', sub: `${totGood} bom · ${totBad} ruim` },
+      { val: tmaAvg, label: 'TMA Médio', sub: 'tempo de resolução' },
+    ].map((k, i) => _kpiCard(k, 'cx' + i)).join('');
+  } catch(e) {
+    wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:16px;font-size:13px;grid-column:1/-1">Carregando dados CX…</p>';
+  }
+}
+
 function _populateProtocoloFilter() {
   const protos = _med.raw.protocoloAnalise || [];
   if (!protos.length) return;
@@ -2213,13 +2294,13 @@ function _renderAnalyticsKPIs() {
     const pAgg = (protos[0] || null);
     if (protoMes.length > 0) {
       kpis = [
-        { icon: '💰', val: 'R$ ' + _fmtMoney(pRec), label: 'Receita do Protocolo', sub: periodoLabel },
-        { icon: '📦', val: pPed.toLocaleString('pt-BR'), label: 'Pedidos', sub: pTicket ? 'ticket R$ ' + _fmtMoney(pTicket) : periodoLabel },
-        { icon: '🔁', val: pAgg?.pct_recompra != null ? (pAgg.pct_recompra * 100).toFixed(1) + '%' : '—', label: 'Taxa de Recompra', sub: 'acumulado histórico' },
-        { icon: '🩺', val: pAgg?.qtd_consultas != null ? Number(pAgg.qtd_consultas).toLocaleString('pt-BR') : '—', label: 'Consultas', sub: 'acumulado histórico' },
+        { val: 'R$ ' + _fmtMoney(pRec), label: 'Receita do Protocolo', sub: periodoLabel },
+        { val: pPed.toLocaleString('pt-BR'), label: 'Pedidos', sub: pTicket ? 'ticket R$ ' + _fmtMoney(pTicket) : periodoLabel },
+        { val: pAgg?.pct_recompra != null ? (pAgg.pct_recompra * 100).toFixed(1) + '%' : '—', label: 'Taxa de Recompra', sub: 'acumulado histórico' },
+        { val: pAgg?.qtd_consultas != null ? Number(pAgg.qtd_consultas).toLocaleString('pt-BR') : '—', label: 'Consultas', sub: 'acumulado histórico' },
       ];
     } else {
-      kpis = [{ icon: '🧬', val: '—', label: _analytics.protocolo, sub: 'sem dados para ' + periodoLabel }];
+      kpis = [{ val: '—', label: _analytics.protocolo, sub: 'sem dados para ' + periodoLabel }];
     }
   } else if (hasPeriod) {
     // Período selecionado sem protocolo — KPIs respondem ao mês/ano
@@ -2252,23 +2333,23 @@ function _renderAnalyticsKPIs() {
     const subPed = totalConsultas ? `de ${totalConsultas.toLocaleString('pt-BR')} consultas` : periodoLabel;
 
     kpis = [
-      { icon: '📦', val: totalPedidos.toLocaleString('pt-BR'), label: 'Pedidos', sub: periodoLabel || 'período filtrado' },
-      { icon: '🔁', val: totalRecompras.toLocaleString('pt-BR'), label: 'Recompras', sub: subPed },
-      { icon: '⭐', val: avgAval != null ? avgAval.toFixed(2) : '—', label: 'Avaliação Média', sub: 'nota dos pacientes' },
-      { icon: '📊', val: avgNps != null ? (avgNps * 100).toFixed(1) + '%' : '—', label: 'NPS', sub: avgPctCancel != null ? `${(avgPctCancel * 100).toFixed(1)}% cancelamento` : 'promotores líquidos' },
+      { val: totalPedidos.toLocaleString('pt-BR'), label: 'Pedidos', sub: periodoLabel || 'período filtrado' },
+      { val: totalRecompras.toLocaleString('pt-BR'), label: 'Recompras', sub: subPed },
+      { val: avgAval != null ? avgAval.toFixed(2) : '—', label: 'Avaliação Média', sub: 'nota dos pacientes' },
+      { val: avgNps != null ? (avgNps * 100).toFixed(1) + '%' : '—', label: 'NPS', sub: avgPctCancel != null ? `${(avgPctCancel * 100).toFixed(1)}% cancelamento` : 'promotores líquidos' },
     ];
   } else if (_analytics.protocolo) {
     // Protocolo selecionado sem período — KPIs acumulados do protocolo
     const p = protos[0] || null;
     if (p) {
       kpis = [
-        { icon: '💰', val: p.soma_receita  != null ? 'R$ ' + _fmtMoney(p.soma_receita)                : '—', label: 'Receita do Protocolo', sub: 'acumulado histórico' },
-        { icon: '📦', val: p.qtd_pedidos   != null ? Number(p.qtd_pedidos).toLocaleString('pt-BR')     : '—', label: 'Pedidos',              sub: p.ticket_medio ? 'ticket R$ ' + _fmtMoney(p.ticket_medio) : 'total do protocolo' },
-        { icon: '🔁', val: p.pct_recompra  != null ? (p.pct_recompra * 100).toFixed(1) + '%'          : '—', label: 'Taxa de Recompra',      sub: p.total_usuarios ? Number(p.total_usuarios).toLocaleString('pt-BR') + ' clientes' : '' },
-        { icon: '🩺', val: p.qtd_consultas != null ? Number(p.qtd_consultas).toLocaleString('pt-BR')   : '—', label: 'Consultas',             sub: 'que geraram este protocolo' },
+        { val: p.soma_receita  != null ? 'R$ ' + _fmtMoney(p.soma_receita)                : '—', label: 'Receita do Protocolo', sub: 'acumulado histórico' },
+        { val: p.qtd_pedidos   != null ? Number(p.qtd_pedidos).toLocaleString('pt-BR')     : '—', label: 'Pedidos',              sub: p.ticket_medio ? 'ticket R$ ' + _fmtMoney(p.ticket_medio) : 'total do protocolo' },
+        { val: p.pct_recompra  != null ? (p.pct_recompra * 100).toFixed(1) + '%'          : '—', label: 'Taxa de Recompra',      sub: p.total_usuarios ? Number(p.total_usuarios).toLocaleString('pt-BR') + ' clientes' : '' },
+        { val: p.qtd_consultas != null ? Number(p.qtd_consultas).toLocaleString('pt-BR')   : '—', label: 'Consultas',             sub: 'que geraram este protocolo' },
       ];
     } else {
-      kpis = [{ icon: '🧬', val: '—', label: _analytics.protocolo, sub: 'sem dados para este protocolo' }];
+      kpis = [{ val: '—', label: _analytics.protocolo, sub: 'sem dados para este protocolo' }];
     }
   } else if (selectedTipo) {
     // Modo filtrado por tipo: mostra stats do segmento
@@ -2276,12 +2357,11 @@ function _renderAnalyticsKPIs() {
     const media   = selectedTipo.media_pedidos != null ? selectedTipo.media_pedidos.toFixed(1) + ' pedidos' : '—';
     const ticketV = (selectedTipo.ticket_medio != null && selectedTipo.ticket_medio > 0) ? selectedTipo.ticket_medio : _gTicket;
     const ticket  = ticketV != null ? 'R$ ' + _fmtMoney(ticketV) : '—';
-    const TIPO_ICONS = { 'Novo': '🌱', 'Recorrente': '🔄', 'Fiel': '⭐', 'Alta Frequência': '🚀' };
     kpis = [
-      { icon: TIPO_ICONS[selectedTipo.tipo_cliente] || '👤', val: Number(selectedTipo.qtd_usuarios).toLocaleString('pt-BR'), label: selectedTipo.tipo_cliente, sub: 'clientes neste segmento' },
-      { icon: '📊', val: pct, label: '% do Total de Clientes', sub: 'participação na base' },
-      { icon: '📦', val: media, label: 'Média de Pedidos', sub: 'por cliente do segmento' },
-      { icon: '💰', val: ticket, label: 'Ticket Médio', sub: 'estimativa global por pedido' },
+      { val: Number(selectedTipo.qtd_usuarios).toLocaleString('pt-BR'), label: selectedTipo.tipo_cliente, sub: 'clientes neste segmento' },
+      { val: pct, label: '% do Total de Clientes', sub: 'participação na base' },
+      { val: media, label: 'Média de Pedidos', sub: 'por cliente do segmento' },
+      { val: ticket, label: 'Ticket Médio', sub: 'estimativa global por pedido' },
     ];
   } else {
     // Modo geral
@@ -2292,10 +2372,10 @@ function _renderAnalyticsKPIs() {
     const totalRec2 = resumo.total_recompras_periodo;
     const nProtos  = protos.length;
     kpis = [
-      { icon: '👥', val: clientes != null ? Number(clientes).toLocaleString('pt-BR') : '—', label: 'Clientes Únicos', sub: 'total com pedido confirmado' },
-      { icon: '🔁', val: taxaRec != null ? taxaRec.toFixed(1) + '%' : '—', label: 'Taxa de Recompra', sub: 'clientes com 2+ pedidos' },
-      { icon: '📦', val: totalRec2 != null ? Number(totalRec2).toLocaleString('pt-BR') : (totalRec ? totalRec.toLocaleString('pt-BR') : '—'), label: 'Total Recompras', sub: 'pedidos histórico' },
-      { icon: '🧬', val: nProtos ? nProtos + (nProtos === 1 ? ' protocolo' : ' protocolos') : '—', label: 'Protocolos Ativos', sub: _analytics.protocolo ? 'filtrado' : 'com pedidos registrados' },
+      { val: clientes != null ? Number(clientes).toLocaleString('pt-BR') : '—', label: 'Clientes Únicos', sub: 'total com pedido confirmado' },
+      { val: taxaRec != null ? taxaRec.toFixed(1) + '%' : '—', label: 'Taxa de Recompra', sub: 'clientes com 2+ pedidos' },
+      { val: totalRec2 != null ? Number(totalRec2).toLocaleString('pt-BR') : (totalRec ? totalRec.toLocaleString('pt-BR') : '—'), label: 'Total Recompras', sub: 'pedidos histórico' },
+      { val: nProtos ? nProtos + (nProtos === 1 ? ' protocolo' : ' protocolos') : '—', label: 'Protocolos Ativos', sub: _analytics.protocolo ? 'filtrado' : 'com pedidos registrados' },
     ];
   }
   grid.innerHTML = kpis.map((k, i) => _kpiCard(k, 'a' + i)).join('');
@@ -2408,7 +2488,7 @@ function _renderTipoCliente() {
     wrap.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:14px">Sem dados de tipo de cliente</p>';
     return;
   }
-  const ICONS = { 'Novo': '🌱', 'Recorrente': '🔄', 'Fiel': '⭐', 'Alta Frequência': '🚀' };
+  const ICONS = {};
   const _protoBannerTipo = _analytics.protocolo
     ? `<div style="margin-bottom:10px;font-size:11px;color:#1e40af;background:#eff6ff;border-radius:6px;padding:5px 10px;border-left:3px solid #3b82f6">Dados globais da base — tipo de cliente não tem breakdown por protocolo</div>`
     : '';
@@ -2425,11 +2505,9 @@ function _renderTipoCliente() {
       ? r.qtd_usuarios * r.media_pedidos * r.ticket_medio
       : r.receita_total;
     const rec    = recVal != null ? 'R$ ' + _fmtMoney(recVal) : '—';
-    const icon   = ICONS[r.tipo_cliente] || '👤';
     wrap.innerHTML = _protoBannerTipo + `
       <div class="tipo-detalhe">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <span style="font-size:32px">${icon}</span>
           <div>
             <div style="font-size:18px;font-weight:800;color:var(--g800)">${r.tipo_cliente}</div>
             <div style="font-size:12px;color:#6B7280">clientes neste segmento</div>
@@ -2446,9 +2524,8 @@ function _renderTipoCliente() {
         <div style="margin-top:10px;font-size:11px;color:#9CA3AF">Clique em outro tipo abaixo para comparar · Protocolos e safras mostram dados globais</div>
         <div class="tipo-grid" style="margin-top:12px;opacity:.45">${all.filter(x => x.tipo_cliente !== _analytics.tipoCliente).map(x => {
           const px  = x.pct_do_total != null ? (x.pct_do_total * 100).toFixed(1) + '%' : '—';
-          const ix  = ICONS[x.tipo_cliente] || '👤';
           return `<div class="tipo-card" onclick="filterByTipo('${x.tipo_cliente}')" style="cursor:pointer">
-            <div style="display:flex;align-items:center;gap:6px"><span style="font-size:18px">${ix}</span><span class="tipo-card-label">${x.tipo_cliente}</span></div>
+            <div style="display:flex;align-items:center;gap:6px"><span class="tipo-card-label">${x.tipo_cliente}</span></div>
             <div class="tipo-card-num" style="font-size:16px">${x.qtd_usuarios != null ? Number(x.qtd_usuarios).toLocaleString('pt-BR') : '—'}</div>
             <div class="tipo-card-sub">${px} do total</div>
           </div>`;
@@ -2462,10 +2539,8 @@ function _renderTipoCliente() {
   wrap.innerHTML = _protoBannerTipo + `<div class="tipo-grid">${all.map(r => {
     const pct  = r.pct_do_total != null ? (r.pct_do_total * 100).toFixed(1) + '%' : '—';
     const bar  = maxU ? Math.round((r.qtd_usuarios / maxU) * 100) : 0;
-    const icon = ICONS[r.tipo_cliente] || '👤';
     return `<div class="tipo-card" onclick="filterByTipo('${r.tipo_cliente}')">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-        <span style="font-size:22px">${icon}</span>
         <span class="tipo-card-label">${r.tipo_cliente}</span>
       </div>
       <div class="tipo-card-num">${r.qtd_usuarios != null ? Number(r.qtd_usuarios).toLocaleString('pt-BR') : '—'}</div>
@@ -3337,9 +3412,9 @@ function _renderComportamentoKPIs() {
   const pct90    = kd.pct_ativou_90d != null ? (kd.pct_ativou_90d * 100).toFixed(1) + '%' : '—';
   const inativos = kd.inativos_global != null ? Number(kd.inativos_global).toLocaleString('pt-BR') : '—';
   const kpis = [
-    { icon: '📅', val: avg12,    label: 'Intervalo 1ª → 2ª Compra', sub: 'janela de reativação ideal' },
-    { icon: '⚡',  val: pct90,    label: 'Recompra em até 90 dias',   sub: 'dentre quem voltou a comprar' },
-    { icon: '😴',  val: inativos, label: 'Clientes Inativos',         sub: '1 pedido há mais de 90 dias' },
+    { val: avg12,    label: 'Intervalo 1ª → 2ª Compra', sub: 'janela de reativação ideal' },
+    { val: pct90,    label: 'Recompra em até 90 dias',   sub: 'dentre quem voltou a comprar' },
+    { val: inativos, label: 'Clientes Inativos',         sub: '1 pedido há mais de 90 dias' },
   ];
   const _protoBannerComp = _analytics.protocolo
     ? `<div style="margin-bottom:10px;font-size:11px;color:#1e40af;background:#eff6ff;border-radius:6px;padding:5px 10px;border-left:3px solid #3b82f6">Comportamento global da base — sem breakdown por protocolo</div>`
@@ -3433,7 +3508,7 @@ function _renderTicketSegmento() {
   const wrap = document.getElementById('block-ticket-segmento-body') || document.querySelector('#block-ticket-segmento .card-body');
   if (!wrap) return;
 
-  const ICONS = { 'Novo': '🌱', 'Recorrente': '🔄', 'Fiel': '⭐', 'Alta Frequência': '🚀' };
+  const ICONS = {};
   const ORDER = ['Novo','Recorrente','Fiel','Alta Frequência'];
 
   let rows = null;
@@ -3505,7 +3580,7 @@ function _renderTicketSegmento() {
     const barW     = maxUsers ? Math.round((r.qtd_usuarios || 0) / maxUsers * 100) : 0;
     const pct      = r.pct_do_total != null ? (r.pct_do_total * 100).toFixed(1) + '%' : '—';
     html += '<div class="seg-card">';
-    html += '<div class="seg-card-label">' + (ICONS[r.tipo_cliente] || '👤') + ' ' + r.tipo_cliente + '</div>';
+    html += '<div class="seg-card-label">' + r.tipo_cliente + '</div>';
     html += '<div class="seg-card-val">' + (r.qtd_usuarios || 0).toLocaleString('pt-BR') + '</div>';
     html += '<div class="seg-card-sub">' + pct + ' da base &middot; média ' + (r.media_pedidos || 0).toFixed(1) + ' pedidos</div>';
     if (ticket) {
@@ -3557,7 +3632,7 @@ function _renderFreqCompras() {
   html += '<div style="font-size:22px;font-weight:700;color:#22C55E">' + recompra.toLocaleString('pt-BR') + '</div>';
   html += '<div style="font-size:12px;color:#6B7280;margin-top:2px">compraram 2x ou mais</div></div>';
   html += '<div style="background:var(--g50,#f8fafc);border-radius:10px;padding:14px 20px;min-width:140px">';
-  html += '<div style="font-size:22px;font-weight:700;color:#7C3AED">' + pctRec + '%</div>';
+  html += '<div style="font-size:22px;font-weight:700;color:#34D399">' + pctRec + '%</div>';
   html += '<div style="font-size:12px;color:#6B7280;margin-top:2px">taxa de recompra</div></div>';
   html += '</div>';
   html += '<div style="display:flex;flex-direction:column;gap:10px">';

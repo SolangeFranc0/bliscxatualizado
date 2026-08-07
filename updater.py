@@ -1195,6 +1195,50 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
     return True, issues
 
 
+def _sync_analytics_snapshot(result: dict) -> None:
+    """Salva snapshot diário de KPIs analíticos na tabela cx_analytics_snapshot."""
+    try:
+        import db_loader_metabase as _dbl
+        _sb = _dbl.get_client()
+
+        safra_rows  = result.get("safraAnalise",     {}).get("data", {}).get("rows", [])
+        tipo_rows   = result.get("tipoCliente",      {}).get("data", {}).get("rows", [])
+        cli_rows    = result.get("clientesUnicos",   {}).get("data", {}).get("rows", [])
+        bk_rows     = result.get("comportamentoKpis",{}).get("data", {}).get("rows", [])
+        churn_rows  = result.get("churnMensal",      {}).get("data", {}).get("rows", [])
+
+        total_clientes = cli_rows[0][0] if cli_rows else None
+        total_safras   = len(safra_rows)
+
+        # Taxa recompra: clientes não-Novo / total
+        total_all = sum(r[1] for r in tipo_rows) if tipo_rows else 0
+        total_rec = sum(r[1] for r in tipo_rows if r[0] != "Novo") if tipo_rows else 0
+        taxa_recompra = round(total_rec / total_all * 100, 2) if total_all else None
+
+        bk          = bk_rows[0] if bk_rows else None
+        avg_dias_12 = bk[1] if bk else None
+        inativos    = bk[3] if bk else None
+
+        # Total churn (soma de todos os meses carregados)
+        total_churn = sum(r[1] for r in churn_rows) if churn_rows else None
+
+        now_brt = datetime.now(BRT)
+        record  = {
+            "data":               now_brt.date().isoformat(),
+            "total_clientes":     int(total_clientes) if total_clientes is not None else None,
+            "total_safras":       total_safras,
+            "taxa_recompra_pct":  taxa_recompra,
+            "avg_dias_1_2":       float(avg_dias_12) if avg_dias_12 is not None else None,
+            "inativos":           int(inativos) if inativos is not None else None,
+            "total_churn":        int(total_churn) if total_churn is not None else None,
+            "atualizado_em":      now_brt.isoformat(),
+        }
+        _sb.table("cx_analytics_snapshot").upsert(record, on_conflict="data").execute()
+        log.info(f"cx_analytics_snapshot: snapshot {record['data']} salvo — clientes={total_clientes} recompra={taxa_recompra}%")
+    except Exception as e:
+        log.warning(f"cx_analytics_snapshot falhou (não crítico): {e}")
+
+
 def sync_metabase(save_js: bool = True) -> bool:
     """Passo 2: Metabase → Supabase (fallback JS gerado se save_js=True)."""
     log.info("=== sync_metabase: início ===")
@@ -1597,6 +1641,9 @@ def sync_metabase(save_js: bool = True) -> bool:
             log.info("Supabase Metabase: sync concluído.")
         except Exception as e:
             log.warning(f"Supabase Metabase sync falhou (não crítico): {e}")
+
+        # Snapshot diário de KPIs analíticos → cx_analytics_snapshot
+        _sync_analytics_snapshot(result)
 
         log.info("=== sync_metabase: concluído ===")
         return True
