@@ -243,7 +243,6 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .kc.cr{--accent-gl:rgba(52,211,153,0.07)}.kc.cr::before{background:var(--res)}
 .kc.cl{--accent-gl:rgba(110,231,183,0.07)}.kc.cl::before{background:var(--log)}
 .kc.cb{--accent-gl:rgba(244,63,94,0.07)}.kc.cb::before{background:var(--bad)}
-.ki{font-size:22px;margin-bottom:8px;line-height:1;display:block;opacity:.8}
 .kl{font-size:10.5px;color:var(--text-sec);font-weight:700;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px}
 .kv{font-size:34px;font-weight:800;line-height:1;letter-spacing:-1.5px;color:var(--text)}
 .ks{font-size:12px;color:var(--text-sec);margin-top:8px}
@@ -857,13 +856,13 @@ function renderKPIs(){
     if(prev>0){const d=((curr-prev)/prev*100).toFixed(1);momTotal=`<div class="kdelta ${+d>=0?'up':'dn'}">${+d>0?'▲':'▼'} ${Math.abs(d)}% vs ${MSHORT[S.mes-1]}</div>`;}
   }
   document.getElementById("kpis").innerHTML=`
-    <div class="kc ct"><span class="ki">🎫</span><div class="kl">Total de Tickets</div><div class="kv">${fmtN(total)}</div>${momTotal}<div class="ks">${periodoLabel}</div></div>
-    <div class="kc cg"><span class="ki">✅</span><div class="kl">Resolvidos / Fechados</div><div class="kv">${fmtN(solved)}</div><div class="ks"><span class="badge bg">${solvedPct}%</span></div></div>
-    <div class="kc cw"><span class="ki">⏳</span><div class="kl">Em Andamento</div><div class="kv">${fmtN(open_)}</div><div class="ks">abertos · pendentes · novos</div></div>
-    <div class="kc ci"><span class="ki">🤖</span><div class="kl">Cloud Humans IA</div><div class="kv">${fmtN(ia)}</div><div class="ks"><span class="badge bp">${total>0?(ia/total*100).toFixed(1):0}%</span> do volume</div></div>
-    <div class="kc cs"><span class="ki">🩺</span><div class="kl">Blis Saúde</div><div class="kv">${fmtN(saude)}</div><div class="ks"><span class="badge bg">${total>0?(saude/total*100).toFixed(1):0}%</span></div></div>
-    <div class="kc cr"><span class="ki">🔧</span><div class="kl">Blis Resolve</div><div class="kv">${fmtN(resolve)}</div><div class="ks"><span class="badge bl">${total>0?(resolve/total*100).toFixed(1):0}%</span></div></div>
-    <div class="kc cl"><span class="ki">📦</span><div class="kl">Blis Logística</div><div class="kv">${fmtN(logistica)}</div><div class="ks"><span class="badge" style="background:var(--log-gl);color:var(--log)">${total>0?(logistica/total*100).toFixed(1):0}%</span></div></div>`;
+    <div class="kc ct"><div class="kl">Total de Tickets</div><div class="kv">${fmtN(total)}</div>${momTotal}<div class="ks">${periodoLabel}</div></div>
+    <div class="kc cg"><div class="kl">Resolvidos / Fechados</div><div class="kv">${fmtN(solved)}</div><div class="ks"><span class="badge bg">${solvedPct}%</span></div></div>
+    <div class="kc cw"><div class="kl">Em Andamento</div><div class="kv">${fmtN(open_)}</div><div class="ks">abertos · pendentes · novos</div></div>
+    <div class="kc ci"><div class="kl">Cloud Humans IA</div><div class="kv">${fmtN(ia)}</div><div class="ks"><span class="badge bp">${total>0?(ia/total*100).toFixed(1):0}%</span> do volume</div></div>
+    <div class="kc cs"><div class="kl">Blis Saude</div><div class="kv">${fmtN(saude)}</div><div class="ks"><span class="badge bg">${total>0?(saude/total*100).toFixed(1):0}%</span></div></div>
+    <div class="kc cr"><div class="kl">Blis Resolve</div><div class="kv">${fmtN(resolve)}</div><div class="ks"><span class="badge bl">${total>0?(resolve/total*100).toFixed(1):0}%</span></div></div>
+    <div class="kc cl"><div class="kl">Blis Logistica</div><div class="kv">${fmtN(logistica)}</div><div class="ks"><span class="badge" style="background:var(--log-gl);color:var(--log)">${total>0?(logistica/total*100).toFixed(1):0}%</span></div></div>`;
 }
 
 function renderMensal(){
