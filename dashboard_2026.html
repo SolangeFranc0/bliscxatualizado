@@ -282,24 +282,16 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .tks{font-size:11px;color:var(--text-sec);margin-top:3px}
 
 /* ── CSAT Gauges ──────────────────────────────────────── */
-.gauges{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
-.gauge{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 16px 20px;text-align:center;transition:box-shadow .2s}
-.gauge:hover{box-shadow:0 4px 16px rgba(0,0,0,0.08)}
-.gcircle{
-  width:96px;height:96px;border-radius:50%;
-  margin:0 auto 16px;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  font-size:26px;font-weight:800;
-  letter-spacing:-1px;
-}
-.gcircle.gi{color:var(--ia);background:rgba(99,102,241,0.10)}
-.gcircle.gs{color:var(--saude);background:rgba(20,184,166,0.10)}
-.gcircle.gr{color:var(--res);background:rgba(14,165,233,0.10)}
-.gcircle.gl{color:var(--log);background:rgba(249,115,22,0.10)}
-.gcircle.gg{color:var(--good);background:rgba(16,185,129,0.10)}
-.gsub{font-size:8.5px;font-weight:600;color:var(--text-dim);letter-spacing:0.8px;margin-top:2px;text-transform:uppercase}
-.glabel{font-size:12.5px;font-weight:700;color:var(--text)}
-.gmini{font-size:10.5px;color:var(--text-sec);margin-top:5px}
+.gauges{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
+.gauge{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px 14px 18px;text-align:center;transition:box-shadow .2s,transform .2s}
+.gauge:hover{box-shadow:0 6px 24px rgba(5,150,105,0.12);transform:translateY(-2px)}
+.gcircle-wrap{width:96px;height:96px;margin:0 auto 14px;position:relative}
+.gcircle-bg{width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:8px}
+.gcircle-inner{background:var(--surface);width:100%;height:100%;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 1px 4px rgba(0,0,0,0.06)}
+.gcircle-pct{font-size:21px;font-weight:800;letter-spacing:-0.5px;line-height:1.1}
+.gcircle-sub{font-size:7.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-top:1px}
+.glabel{font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:2px}
+.gmini{font-size:10.5px;color:var(--text-sec);margin-top:4px}
 
 /* ── Comments ────────────────────────────────────────── */
 .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -956,8 +948,22 @@ function renderGauges(){
   let tG=0,tB=0;
   teams.forEach(t=>{tG+=sumArr(D.csat[t].good);tB+=sumArr(D.csat[t].bad);});
   const gPct=(tG+tB)>0?((tG/(tG+tB))*100).toFixed(1):"—";
+  const GCOLS={gi:"#047857",gs:"#10B981",gr:"#34D399",gl:"#6EE7B7",gg:"#059669"};
   function ghtml(pct,lbl,sub,cls,cg,cb){
-    return `<div class="gauge"><div class="gcircle ${cls}"><span>${pct}${pct!=="—"?"%":""}</span><span class="gsub">CSAT</span></div><div class="glabel">${lbl}</div><div class="gmini">${cg} bom · ${cb} ruim</div><div class="gmini" style="margin-top:4px">${sub}</div></div>`;
+    const col=GCOLS[cls]||"#059669";
+    const pctNum=pct==="—"?0:parseFloat(pct);
+    const ring=`conic-gradient(${col} ${pctNum}%, var(--surface-3) 0)`;
+    return `<div class="gauge">
+      <div class="gcircle-wrap"><div class="gcircle-bg" style="background:${ring}">
+        <div class="gcircle-inner">
+          <span class="gcircle-pct" style="color:${col}">${pct}${pct!=="—"?"%":""}</span>
+          <span class="gcircle-sub">CSAT</span>
+        </div>
+      </div></div>
+      <div class="glabel">${lbl}</div>
+      <div class="gmini">${cg} bom · ${cb} ruim</div>
+      <div class="gmini" style="margin-top:2px">${sub}</div>
+    </div>`;
   }
   let html=ghtml(gPct,"CSAT Geral","Periodo selecionado","gg",tG,tB);
   teams.forEach(t=>{
@@ -970,14 +976,16 @@ function renderGauges(){
 
 function renderCSATCharts(){
   const teams=activeTeams(); const mi=activeMesIndices(); const lbs=mi.map(i=>MONTHS[i]);
+  const GCOLS_C={ia:"#047857",saude:"#10B981",resolve:"#34D399",logistica:"#6EE7B7"};
   const tvol=[];
   teams.forEach(t=>{
+    const gc=GCOLS_C[t]||"#059669";
     const tshort=t==="ia"?"IA":t==="saude"?"Saude":t==="resolve"?"Resolve":"Logistica";
-    tvol.push({name:tshort+" Positivo",type:"bar",x:lbs,y:mi.map(i=>D.csat[t].good[i]||0),marker:{color:COL[t]+"99",line:{color:COL[t],width:1}},legendgroup:t});
-    tvol.push({name:tshort+" Negativo",type:"bar",x:lbs,y:mi.map(i=>D.csat[t].bad[i]||0),marker:{color:"rgba(244,63,94,0.4)",line:{color:"#F43F5E",width:1}},legendgroup:t,showlegend:false});
+    tvol.push({name:tshort+" Positivo",type:"bar",x:lbs,y:mi.map(i=>D.csat[t].good[i]||0),marker:{color:gc+"99",line:{color:gc,width:1}},legendgroup:t});
+    tvol.push({name:tshort+" Negativo",type:"bar",x:lbs,y:mi.map(i=>D.csat[t].bad[i]||0),marker:{color:"rgba(148,163,184,0.35)",line:{color:"rgba(148,163,184,0.6)",width:1}},legendgroup:t,showlegend:false});
   });
   Plotly.react("ch-csat-vol",tvol,{...BL,barmode:"group",showlegend:true},CFG);
-  const tpct=teams.map(t=>{const yv=mi.map(i=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;});return{name:TNOMES[t],type:"scatter",mode:"lines+markers+text",x:lbs,y:yv,text:yv.map(v=>v!=null?v+"%":""),textposition:"top center",textfont:{size:10,color:COL[t]},line:{color:COL[t],width:2.5,shape:"spline"},marker:{size:5,color:COL[t]}};});
+  const tpct=teams.map(t=>{const gc=GCOLS_C[t]||"#059669";const yv=mi.map(i=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;});return{name:TNOMES[t],type:"scatter",mode:"lines+markers+text",x:lbs,y:yv,text:yv.map(v=>v!=null?v+"%":""),textposition:"top center",textfont:{size:10,color:gc},line:{color:gc,width:2.5,shape:"spline"},marker:{size:5,color:gc}};});
   tpct.push({name:"Meta 90%",type:"scatter",mode:"lines",x:lbs,y:lbs.map(()=>90),line:{color:"rgba(100,116,139,0.4)",width:1.5,dash:"dash"},showlegend:true});
   Plotly.react("ch-csat-pct",tpct,{...BL,yaxis:{...BL.yaxis,range:[60,100],ticksuffix:"%"},showlegend:true},CFG);
 }
