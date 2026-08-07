@@ -775,7 +775,7 @@ canvas.med-chart{max-height:250px}
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
           </svg>
         </span>
-        <span>Dash Médicos</span>
+        <span>Médicos</span>
       </button>
       <button class="cx-nav-item" id="nav-analise" onclick="show('analise',this)">
         <span class="nav-icon">
@@ -1143,13 +1143,13 @@ canvas.med-chart{max-height:250px}
 
     </section>
 
-    <!-- ── SECTION 4: Dash Médicos ── -->
+    <!-- ── SECTION 4: Médicos ── -->
     <section class="cx-section cx-section--content" id="section-medicos">
 
       <!-- Header -->
       <div class="s-header">
         <div>
-          <h1 class="s-title">Dash Médicos</h1>
+          <h1 class="s-title">Médicos</h1>
           <p class="s-sub">Consultas, CSAT, cupons e performance dos médicos — dados em tempo real via Metabase.</p>
         </div>
         <span class="badge" id="mb-last-update" style="display:none">Atualizado agora</span>
@@ -1768,7 +1768,7 @@ function show(name, btn) {
   document.querySelectorAll('.cx-nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('section-' + name).classList.add('active');
   btn.classList.add('active');
-  const labels = {dashboard:'Dashboard CX', time:'Time de Atendimento', knowledge:'Base de Conhecimento', lgpd:'LGPD', medicos:'Dash Médicos', analise:'Análises'};
+  const labels = {dashboard:'Dashboard CX', time:'Time de Atendimento', knowledge:'Base de Conhecimento', lgpd:'LGPD', medicos:'Médicos', analise:'Análises'};
   document.getElementById('mobileTitle').textContent = labels[name] || name;
   if (name === 'medicos') initMedicos();
   if (name === 'analise') initAnalise();
@@ -2160,7 +2160,7 @@ async function _nxKbUploadFile(file) {
 function filterArticles() { _nxKbFilter(); }
 function closeArticle()   { _nxKbBack(); }
 
-/* ── Dash Médicos ──────────────────────────────── */
+/* ── Médicos ──────────────────────────────── */
 const CUPONS_CONSULTA = ['ATENDE200','ATENDE300','ATEND89','ENFE200','ATENDE160','ATENDE40'];
 const _cupomOk = c => CUPONS_CONSULTA.includes((c||'').toUpperCase());
 
