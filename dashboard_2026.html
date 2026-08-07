@@ -1340,19 +1340,19 @@ function renderTempos(){
 
   // ── KPI cards (apenas times visíveis) ─────────────
   const kpiR = showR ? `
-    <div class="kc cr"><div class="kl">Resolucao — Blis Resolve</div>
-      <div class="kv" style="font-size:26px;color:var(--res)">${fmtTempo(kpiAvg(tmaR))}</div>
+    <div class="kc" style="border-color:#05966940"><div class="kl">Resolucao — Blis Resolve</div>
+      <div class="kv" style="font-size:26px;color:#059669">${fmtTempo(kpiAvg(tmaR))}</div>
       <div class="ks">Mediana · tempo para fechar o ticket · dias úteis</div></div>
-    <div class="kc cr"><div class="kl">1ª Resposta — Blis Resolve</div>
-      <div class="kv" style="font-size:26px;color:var(--res)">${fmtTempo(kpiAvg(tmrR))}</div>
+    <div class="kc" style="border-color:#05966940"><div class="kl">1ª Resposta — Blis Resolve</div>
+      <div class="kv" style="font-size:26px;color:#059669">${fmtTempo(kpiAvg(tmrR))}</div>
       <div class="ks">Mediana · tempo até o agente responder pela 1ª vez · dias úteis</div></div>
 ` : "";
   const kpiS = showS ? `
-    <div class="kc cs"><div class="kl">Resolucao — Blis Saude</div>
-      <div class="kv" style="font-size:26px;color:var(--saude)">${fmtTempo(kpiAvg(tmaS))}</div>
+    <div class="kc" style="border-color:#10B98140"><div class="kl">Resolucao — Blis Saude</div>
+      <div class="kv" style="font-size:26px;color:#10B981">${fmtTempo(kpiAvg(tmaS))}</div>
       <div class="ks">Mediana · tempo para fechar o ticket · dias úteis</div></div>
-    <div class="kc cs"><div class="kl">1ª Resposta — Blis Saude</div>
-      <div class="kv" style="font-size:26px;color:var(--saude)">${fmtTempo(kpiAvg(tmrS))}</div>
+    <div class="kc" style="border-color:#10B98140"><div class="kl">1ª Resposta — Blis Saude</div>
+      <div class="kv" style="font-size:26px;color:#10B981">${fmtTempo(kpiAvg(tmrS))}</div>
       <div class="ks">Mediana · tempo até o agente responder pela 1ª vez · dias úteis</div></div>
 ` : "";
   document.getElementById("tempos-kpis").innerHTML = kpiR + kpiS;
@@ -1366,15 +1366,15 @@ function renderTempos(){
 
   const trR = (y,customdata,dash,sz) => ({
     name:"Blis Resolve",type:"scatter",mode:"lines+markers+text",x:labs,y,
-    text:customdata, textposition:"top center", textfont:{size:10,color:"#38BDF8"},
+    text:customdata, textposition:"top center", textfont:{size:10,color:"#059669"},
     customdata, hovertemplate:"%{x}<br><b>%{customdata}</b><extra>Blis Resolve</extra>",
-    line:{color:"#38BDF8",width:2.5,dash:dash||"solid"},marker:{color:"#38BDF8",size:sz||6}
+    line:{color:"#059669",width:2.5,dash:dash||"solid"},marker:{color:"#059669",size:sz||6}
   });
   const trS = (y,customdata,dash,sz) => ({
     name:"Blis Saude",type:"scatter",mode:"lines+markers+text",x:labs,y,
-    text:customdata, textposition:"bottom center", textfont:{size:10,color:"#34D399"},
+    text:customdata, textposition:"bottom center", textfont:{size:10,color:"#10B981"},
     customdata, hovertemplate:"%{x}<br><b>%{customdata}</b><extra>Blis Saúde</extra>",
-    line:{color:"#34D399",width:2.5,dash:dash||"solid"},marker:{color:"#34D399",size:sz||6}
+    line:{color:"#10B981",width:2.5,dash:dash||"solid"},marker:{color:"#10B981",size:sz||6}
   });
 
   Plotly.react("ch-tma-semana",
@@ -1390,15 +1390,15 @@ function renderTempos(){
   Plotly.react("ch-tempos-col",[
     ...(showR?[{name:"Blis Resolve",type:"bar",x:metricas,
       y:valsR,
-      marker:{color:"#38BDF8CC",line:{color:"#38BDF8",width:1}},
+      marker:{color:"#059669CC",line:{color:"#059669",width:1}},
       text:valsR.map(fmtTempo),
-      textposition:"outside",textfont:{size:10,color:"#38BDF8"},cliponaxis:false,
+      textposition:"outside",textfont:{size:10,color:"#059669"},cliponaxis:false,
       hovertemplate:"%{x}<br><b>%{text}</b><extra>Blis Resolve</extra>"}]:[]),
     ...(showS?[{name:"Blis Saude",type:"bar",x:metricas,
       y:valsS,
-      marker:{color:"#34D399CC",line:{color:"#34D399",width:0}},
+      marker:{color:"#10B981CC",line:{color:"#10B981",width:0}},
       text:valsS.map(fmtTempo),
-      textposition:"outside",textfont:{size:10,color:"#34D399"},cliponaxis:false,
+      textposition:"outside",textfont:{size:10,color:"#10B981"},cliponaxis:false,
       hovertemplate:"%{x}<br><b>%{text}</b><extra>Blis Saúde</extra>"}]:[]),
   ],{...BL,barmode:"group",
     margin:{t:40,b:60,l:50,r:20},
