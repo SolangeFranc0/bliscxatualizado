@@ -1373,6 +1373,20 @@ const _KB_FALLBACK = ARTICLES.slice(); // artigos locais usados enquanto Supabas
 let _kbLoaded = false;
 let activeCat = 'Todos';
 
+/* ── Dash state ─────────────────────────────────── */
+const _med = {
+  initialized: false,
+  loading: false,
+  month: '',
+  medico: '',
+  cupom: '',
+  reviewFilter: 'all',
+  sortCol: 'consultas_finalizadas',
+  sortDir: -1,
+  raw: {},
+  perfRows: []
+};
+
 /* ── Navigation ────────────────────────────────── */
 function show(name, btn) {
   document.querySelectorAll('.cx-section').forEach(s => s.classList.remove('active'));
