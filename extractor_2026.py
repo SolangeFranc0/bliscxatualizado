@@ -97,7 +97,7 @@ def fetch_agents() -> list[dict]:
     return unique
 
 
-def fetch_tickets_with_metrics(since_ts: int | None = None) -> tuple[list[dict], dict[int, dict], int]:
+def fetch_tickets_with_metrics(since_ts: "int | None" = None) -> "tuple[list[dict], dict[int, dict], int]":
     """Incremental export com include=metric_sets — 1000 tickets/página, única passagem.
     since_ts: Unix timestamp do último sync bem-sucedido (None = usa START_DATE).
     Retorna (tickets, metrics_map, end_time) onde end_time é o cursor para o próximo run.
