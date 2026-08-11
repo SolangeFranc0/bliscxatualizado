@@ -1012,10 +1012,10 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
         df_groups   = _ext.build_groups(groups)
 
         # Enrich tickets com nome do agente
-        df_tickets = df_tickets.merge(
-            df_agents[["agent_id", "nome"]].rename(columns={"agent_id": "assignee_id", "nome": "nome_agente"}),
-            on="assignee_id", how="left"
-        )
+        df_tickets["assignee_id"] = pd.to_numeric(df_tickets["assignee_id"], errors="coerce").astype("Int64")
+        df_agents_merge = df_agents[["agent_id", "nome"]].rename(columns={"agent_id": "assignee_id", "nome": "nome_agente"})
+        df_agents_merge["assignee_id"] = df_agents_merge["assignee_id"].astype("Int64")
+        df_tickets = df_tickets.merge(df_agents_merge, on="assignee_id", how="left")
 
         df_csat = _ext.build_csat(ratings, df_tickets)
 
