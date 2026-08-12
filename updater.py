@@ -1066,8 +1066,11 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
         df_csat_sb = (df_csat_sb.sort_values("avaliado_em", ascending=False)
                                  .drop_duplicates("ticket_id", keep="first")
                                  .reset_index(drop=True))
-    df_csat_build = df_csat_sb if len(df_csat_sb) > len(df_csat) else df_csat
-    log.info(f"Dataset para build: {len(df_build)} tickets, {len(df_csat_build)} CSAT")
+    # Sempre usa CSAT da API Zendesk: fetch_csat já é completo (START_DATE→END_DATE),
+    # classifica por group_id da avaliação (critério nativo do Zendesk) e é deduplicado acima.
+    # df_csat_sb tem mais linhas mas pode ter classificações desatualizadas.
+    df_csat_build = df_csat
+    log.info(f"Dataset para build: {len(df_build)} tickets, {len(df_csat_build)} CSAT (Zendesk API)")
 
     tickets_data      = build_tickets(df_build)
     status            = build_status(df_build)
