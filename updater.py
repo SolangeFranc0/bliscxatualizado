@@ -621,8 +621,88 @@ def build_criados_dia(df_t: pd.DataFrame) -> dict:
 def _js(obj) -> str:
     return json.dumps(obj, ensure_ascii=False, separators=(",",":"))
 
+# ── Score: Pronto para Comprar ────────────────────────────────────────────────
+
+_SC_PESOS_TAG = {
+    "duvida_uso": 75, "duvida_produto": 75, "elogio": 70,
+    "cupom": 65, "assinatura": 80, "documentacao": 55,
+    "rastreio": 45, "entrega": 45, "financeiro": 40,
+    "reclamacao_atendimento": 30, "reclamacao_produto": 20,
+    "cancelamento": 10, "optout": 5,
+}
+_SC_W_CSAT, _SC_W_TIPO, _SC_W_TEMPO = 0.4, 0.3, 0.3
+
+def _sc_peso_tipo(tags_str: str) -> float:
+    for tag in str(tags_str or "").split("|"):
+        if tag.strip() in _SC_PESOS_TAG:
+            return float(_SC_PESOS_TAG[tag.strip()])
+    return 50.0
+
+def _sc_tempo_norm(minutos) -> float:
+    try:
+        m = float(minutos)
+        if m != m:  # NaN check (NaN != NaN é sempre True)
+            return 50.0
+    except (TypeError, ValueError):
+        return 50.0
+    if m <= 10:  return 100.0
+    if m >= 240: return 0.0
+    return round(100 * (1 - (m - 10) / 230), 1)
+
+def build_score_pronto_comprar(df_build: pd.DataFrame, df_csat: pd.DataFrame) -> dict:
+    """Score de 'pronto para comprar' por cliente (requester_id), combinando
+    CSAT (40%), tipo de ticket por tag (30%) e tempo de 1ª resposta (30%)."""
+    if df_build.empty or df_csat.empty:
+        return {}
+    if "requester_id" not in df_build.columns:
+        return {}
+
+    csat_gb = df_csat[df_csat["score_raw"].isin(["good", "bad"])].copy()
+    if csat_gb.empty:
+        return {}
+
+    csat_gb["ticket_id"] = csat_gb["ticket_id"].astype(str)
+    t_cols = [c for c in ["ticket_id", "requester_id", "tags", "primeira_resposta_min"] if c in df_build.columns]
+    df_t = df_build[t_cols].copy()
+    df_t["ticket_id"] = df_t["ticket_id"].astype(str)
+
+    merged = csat_gb.merge(df_t, on="ticket_id", how="inner")
+    if merged.empty:
+        return {}
+
+    from collections import defaultdict as _dd
+    por_req: dict = _dd(list)
+    for _, row in merged.iterrows():
+        s_csat = 100.0 if row["score_raw"] == "good" else 0.0
+        s_tipo = _sc_peso_tipo(row.get("tags", ""))
+        s_temp = _sc_tempo_norm(row.get("primeira_resposta_min"))
+        score  = round(_SC_W_CSAT * s_csat + _SC_W_TIPO * s_tipo + _SC_W_TEMPO * s_temp, 1)
+        try:
+            rid = int(row["requester_id"])
+        except (TypeError, ValueError):
+            continue
+        por_req[rid].append(score)
+
+    ranking = sorted(
+        [{"rid": rid, "s": round(sum(sc)/len(sc), 1), "n": len(sc)}
+         for rid, sc in por_req.items()
+         if sc and all(x == x for x in sc)],  # filtra listas com NaN
+        key=lambda r: -r["s"]
+    )
+    total = len(ranking)
+    hot  = sum(1 for r in ranking if r["s"] >= 70)
+    warm = sum(1 for r in ranking if 40 <= r["s"] < 70)
+    cold = sum(1 for r in ranking if r["s"] < 40)
+    valid_scores = [r["s"] for r in ranking if r["s"] == r["s"]]
+    med  = round(sum(valid_scores) / len(valid_scores), 1) if valid_scores else 0
+
+    log.info(f"score_pronto_comprar: {total} clientes | hot={hot} warm={warm} cold={cold} | med={med}")
+    return {"ranking": ranking[:100], "total": total, "hot": hot, "warm": warm, "cold": cold, "med": med}
+
+
 def build_data_js(tickets, status, status_monthly, channels, channels_monthly, semanas, csat, tempos,
-                  motivos_data, sub_data, perfis_data, n2_data, resolucoes_dia=None, criados_dia=None) -> str:
+                  motivos_data, sub_data, perfis_data, n2_data, resolucoes_dia=None, criados_dia=None,
+                  score_comprar=None) -> str:
     now = datetime.now(BRT).strftime("%d/%m/%Y %H:%M")
     tempos_js  = f"  tempos:{_js(tempos)},"  if tempos      else "  // tempos: nao disponivel"
     perfis_js  = f"  perfis:{_js(perfis_data)}," if perfis_data else "  perfis:{},"
@@ -630,6 +710,7 @@ def build_data_js(tickets, status, status_monthly, channels, channels_monthly, s
     sub_js     = f"  sub:{_js(sub_data)},"    if sub_data    else "  sub:{},"
     resol_js   = f"  resolucoes_dia:{_js(resolucoes_dia)}," if resolucoes_dia else "  resolucoes_dia:{},"
     criados_js = f"  criados_dia:{_js(criados_dia)}," if criados_dia else "  criados_dia:{},"
+    sc_js      = f"  score_comprar:{_js(score_comprar)}," if score_comprar else "  score_comprar:{},"
     return f"""  // Gerado por updater.py em {now} — fonte: Zendesk API
   // tickets: {{{', '.join(f'{t}={sum(v)}' for t,v in tickets.items())}}}
   tickets:{_js(tickets)},
@@ -645,7 +726,8 @@ def build_data_js(tickets, status, status_monthly, channels, channels_monthly, s
 {motivos_js}
 {sub_js}
 {resol_js}
-{criados_js}"""
+{criados_js}
+{sc_js}"""
 
 # ── Injeção no HTML ───────────────────────────────────────────────────────────
 
@@ -903,7 +985,8 @@ def _load_full_from_supabase() -> tuple[pd.DataFrame, pd.DataFrame]:
         "group_id,nome_grupo,time,assignee_id,atendido_por_ia,transferido_n2,"
         "resolvido_fcr,ano_mes,motivo,motivo_tag,submotivo_tag,submotivo_field_id,"
         "perfil,nome_agente,primeira_resposta_min,primeira_resposta_biz_min,"
-        "resolucao_min,resolucao_biz_min,pendencia_min,pendencia_biz_min"
+        "resolucao_min,resolucao_biz_min,pendencia_min,pendencia_biz_min,"
+        "requester_id,tags,assunto"
     )
     CSAT_COLS = (
         "csat_id,ticket_id,assignee_id,score_raw,score,comentario,"
@@ -1087,6 +1170,7 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
     perfis_data       = build_perfis_data(df_build)
     resolucoes_dia    = build_resolucoes_dia(df_build)
     criados_dia       = build_criados_dia(df_build)
+    score_comprar     = build_score_pronto_comprar(df_build, df_csat_build)
 
     log.info("Blocos construídos.")
     for t in ("ia","saude","resolve","logistica"):
@@ -1109,7 +1193,7 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
         html = DASHBOARD.read_text(encoding="utf-8")
         data_js = build_data_js(tickets_data, status, status_monthly, channels, channels_monthly,
                                  semanas, csat, tempos, motivos_data, sub_data, perfis_data, n2_data,
-                                 resolucoes_dia, criados_dia)
+                                 resolucoes_dia, criados_dia, score_comprar=score_comprar)
         html = inject_into_html(html, data_js)
         html = update_sync_ts(html, ts)
 
