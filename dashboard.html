@@ -8,47 +8,50 @@
 <meta http-equiv="Expires" content="0">
 <title>Appblis | Blis CX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
 :root{
-  --bg:#07090F;
-  --surface:#0E1420;
-  --surface-2:#141C2E;
-  --surface-3:#1A2438;
-  --border:rgba(255,255,255,0.07);
-  --border-hi:rgba(255,255,255,0.13);
-  --text:#DDE4F5;
-  --text-sec:#7B8BA8;
-  --text-dim:#4A566E;
-  --ia:#059669;--ia-dk:#047857;--ia-gl:rgba(5,150,105,0.12);
+  --bg:#05091A;
+  --surface:#0B1128;
+  --surface-2:#101930;
+  --surface-3:#16223C;
+  --border:rgba(90,140,255,0.08);
+  --border-hi:rgba(90,140,255,0.16);
+  --text:#E4ECF8;
+  --text-sec:#6880A8;
+  --text-dim:#374E72;
+  --g50:#F8FAFC;
+  --g800:#1E293B;
+  --ia:#00D47C;--ia-dk:#00A862;--ia-gl:rgba(0,212,124,0.12);
   --saude:#10B981;--saude-dk:#065F46;--saude-gl:rgba(16,185,129,0.12);
   --res:#34D399;--res-dk:#059669;--res-gl:rgba(52,211,153,0.12);
   --log:#6EE7B7;--log-dk:#4ADE80;--log-gl:rgba(110,231,183,0.12);
-  --good:#34D399;--good-gl:rgba(52,211,153,0.18);
+  --good:#00D47C;--good-gl:rgba(0,212,124,0.18);
   --bad:#F43F5E;--bad-gl:rgba(244,63,94,0.18);
-  --warn:#FBBF24;--warn-gl:rgba(251,191,36,0.18);
-  --sh:0 2px 8px rgba(0,0,0,0.5),0 12px 32px rgba(0,0,0,0.4);
+  --warn:#F59E0B;--warn-gl:rgba(245,158,11,0.18);
+  --sh:0 4px 24px rgba(0,0,0,0.7),0 1px 4px rgba(0,0,0,0.5);
+  --font-num:'Syne',system-ui,sans-serif;
 }
 /* ── Light mode ──────────────────────────────────────── */
 [data-theme="light"]{
-  --bg:#F1F5F9;
+  --bg:#EEF2FB;
   --surface:#FFFFFF;
-  --surface-2:#F8FAFC;
-  --surface-3:#E2E8F0;
-  --border:rgba(0,0,0,0.08);
-  --border-hi:rgba(0,0,0,0.14);
-  --text:#0F172A;
-  --text-sec:#475569;
-  --text-dim:#94A3B8;
+  --surface-2:#F5F8FF;
+  --surface-3:#E4EAF8;
+  --border:rgba(0,0,0,0.07);
+  --border-hi:rgba(0,0,0,0.13);
+  --text:#0D1829;
+  --text-sec:#44557A;
+  --text-dim:#8A9CBD;
   --ia:#047857;--ia-dk:#065F46;--ia-gl:rgba(4,120,87,0.1);
   --saude:#10B981;--saude-dk:#059669;--saude-gl:rgba(16,185,129,0.1);
-  --res:#34D399;--res-dk:#10B981;--res-gl:rgba(52,211,153,0.1);
+  --res:#059669;--res-dk:#047857;--res-gl:rgba(52,211,153,0.1);
   --log:#6EE7B7;--log-dk:#4ADE80;--log-gl:rgba(110,231,183,0.1);
-  --good:#10B981;--good-gl:rgba(16,185,129,0.12);
+  --good:#059669;--good-gl:rgba(16,185,129,0.12);
   --bad:#DC2626;--bad-gl:rgba(220,38,38,0.12);
   --warn:#D97706;--warn-gl:rgba(217,119,6,0.12);
-  --sh:0 2px 8px rgba(0,0,0,0.06),0 12px 32px rgba(0,0,0,0.04);
+  --sh:0 2px 12px rgba(0,0,0,0.07),0 1px 3px rgba(0,0,0,0.04);
 }
 [data-theme="light"] .hdr{background:rgba(248,250,252,0.96)}
 [data-theme="light"] .nav{background:#FFFFFF}
@@ -113,19 +116,23 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
 }
 .logo{
-  width:34px;height:34px;flex-shrink:0;
-  background:#22C55E;
-  border-radius:50%;
-  box-shadow:0 0 14px rgba(34,197,94,0.45);
+  width:36px;height:36px;flex-shrink:0;
+  background:linear-gradient(135deg,#00D47C,#059669);
+  border-radius:10px;
+  box-shadow:0 0 18px rgba(0,212,124,0.4),0 2px 6px rgba(0,0,0,0.4);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-num);font-size:15px;font-weight:800;color:#fff;letter-spacing:-0.5px;
 }
-.hdr-title{font-size:14px;font-weight:700;letter-spacing:-0.3px;color:var(--text)}
-.hdr-sub{font-size:11px;color:var(--text-dim);margin-top:1px;letter-spacing:0.1px}
+.hdr-title{font-size:15px;font-weight:700;letter-spacing:-0.4px;color:var(--text)}
+.hdr-sub{font-size:10px;color:var(--text-dim);margin-top:2px;letter-spacing:0.2px}
 .hdr-pill{
   display:flex;align-items:center;gap:7px;
-  padding:5px 12px;border-radius:7px;
+  padding:6px 13px;border-radius:8px;
   background:var(--surface-2);border:1px solid var(--border-hi);
   font-size:11px;color:var(--text-sec);
+  cursor:pointer;transition:all .2s;
 }
+.hdr-pill:hover{background:var(--surface-3);color:var(--text)}
 .live-dot{
   width:6px;height:6px;border-radius:50%;
   background:var(--good);
@@ -215,11 +222,13 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 /* ── Section label ───────────────────────────────────── */
 .slabel{
-  font-size:11px;font-weight:700;color:var(--text-sec);
-  text-transform:uppercase;letter-spacing:0.8px;
-  margin-bottom:12px;display:flex;align-items:center;gap:10px;
+  font-size:10px;font-weight:800;color:var(--text-sec);
+  text-transform:uppercase;letter-spacing:1px;
+  margin-bottom:14px;
+  padding-left:10px;
+  border-left:3px solid var(--ia);
+  line-height:1.4;
 }
-.slabel::after{content:'';flex:1;height:1px;background:var(--border)}
 
 /* ── KPI strip ───────────────────────────────────────── */
 .kstrip{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
@@ -243,9 +252,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .kc.cr{--accent-gl:rgba(52,211,153,0.07)}.kc.cr::before{background:var(--res)}
 .kc.cl{--accent-gl:rgba(110,231,183,0.07)}.kc.cl::before{background:var(--log)}
 .kc.cb{--accent-gl:rgba(244,63,94,0.07)}.kc.cb::before{background:var(--bad)}
-.kl{font-size:10.5px;color:var(--text-sec);font-weight:700;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px}
-.kv{font-size:34px;font-weight:800;line-height:1;letter-spacing:-1.5px;color:var(--text)}
-.ks{font-size:12px;color:var(--text-sec);margin-top:8px}
+.kl{font-size:10px;color:var(--text-sec);font-weight:700;text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px}
+.kv{font-size:38px;font-weight:800;line-height:1;letter-spacing:-2px;color:var(--text);font-family:var(--font-num);font-variant-numeric:tabular-nums}
+.ks{font-size:11.5px;color:var(--text-sec);margin-top:9px}
 .kdelta{font-size:11px;font-weight:600;margin-top:5px}
 .kdelta.up{color:var(--good)}.kdelta.dn{color:var(--bad)}.kdelta.eq{color:var(--text-dim)}
 .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:0.1px}
@@ -276,8 +285,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .td{font-size:10.5px;color:var(--text-sec);margin-top:2px}
 .tkpis{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
 .tkpi{background:var(--surface);padding:15px 18px}
-.tkl{font-size:11px;color:var(--text-sec);font-weight:700;text-transform:uppercase;letter-spacing:0.4px}
-.tkv{font-size:24px;font-weight:800;margin-top:5px;letter-spacing:-0.5px}
+.tkl{font-size:10px;color:var(--text-sec);font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.tkv{font-size:26px;font-weight:800;margin-top:5px;letter-spacing:-0.8px;font-family:var(--font-num);font-variant-numeric:tabular-nums}
 .tks{font-size:11px;color:var(--text-sec);margin-top:3px}
 
 /* ── CSAT Gauges ──────────────────────────────────────── */
@@ -400,17 +409,61 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   white-space:nowrap;border:1px solid rgba(244,63,94,0.18);
 }
 
+/* ── Vitals bar ──────────────────────────────────────── */
+.vbar{
+  display:flex;align-items:center;
+  padding:0 32px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  height:56px;overflow-x:auto;white-space:nowrap;
+  gap:0;
+}
+.vital{
+  display:flex;flex-direction:column;align-items:flex-start;
+  padding:0 22px;flex-shrink:0;cursor:default;
+}
+.vital:first-child{padding-left:0}
+.vv{
+  font-family:var(--font-num);
+  font-size:17px;font-weight:800;
+  color:var(--text);letter-spacing:-0.5px;
+  line-height:1.1;font-variant-numeric:tabular-nums;
+  transition:color .2s;
+}
+.vl{
+  font-size:8.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.9px;
+  color:var(--text-dim);margin-top:2px;
+}
+.vsep{width:1px;height:30px;background:var(--border);flex-shrink:0}
+.vital.vgood .vv{color:var(--good)}
+.vital.vbad  .vv{color:var(--bad)}
+.vital.vwarn .vv{color:var(--warn)}
+/* ── CSAT Gauges redesign ─────────────────────────────── */
+.gcircle-pct{font-size:22px;font-weight:800;letter-spacing:-0.5px;line-height:1.1;font-family:var(--font-num)}
 /* ── Utility ─────────────────────────────────────────── */
 .hidden{display:none!important}
-@media(max-width:900px){.g2,.g3,.g21,.g12,.cgrid{grid-template-columns:1fr}.tgrid{grid-template-columns:1fr}}
+@media(max-width:900px){.g2,.g3,.g21,.g12,.cgrid{grid-template-columns:1fr}.tgrid{grid-template-columns:1fr}.vbar{padding:0 16px}.vv{font-size:15px}}
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
 <div class="hdr">
-
+  <!-- Branding -->
+  <div style="display:flex;align-items:center;gap:13px">
+    <div class="logo">CX</div>
+    <div>
+      <div class="hdr-title">Blis CX Intelligence</div>
+      <div class="hdr-sub">Customer Experience · Zendesk API</div>
+    </div>
+  </div>
+  <!-- Right controls -->
   <div style="display:flex;align-items:center;gap:10px">
+    <div class="hdr-pill" id="sync-pill" onclick="forceSyncUI()" title="Clique para forcar atualizacao">
+      <div class="live-dot" id="sync-dot"></div>
+      <span id="sync-label">Carregando...</span>
+    </div>
     <button id="btn-theme" onclick="toggleTheme()" title="Alternar modo claro / escuro">
       <svg id="icon-sol" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
@@ -425,11 +478,36 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 <!-- TAB NAV -->
 <div class="nav">
-  <div class="ntab on" onclick="showTab('geral',this)">Visao Geral</div>
-  <div class="ntab" onclick="showTab('csat',this)">CSAT &amp; Satisfacao</div>
-  <div class="ntab" onclick="showTab('motivos',this)">Motivos de Contato</div>
-  <div class="ntab" onclick="showTab('trend',this)">Tendencias</div>
-  <div class="ntab" onclick="showTab('tempos',this)">Tempos de Atendimento</div>
+  <div class="ntab on" onclick="showTab('geral',this)">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;margin-right:6px"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Visao Geral
+  </div>
+  <div class="ntab" onclick="showTab('csat',this)">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;margin-right:6px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>CSAT &amp; Satisfacao
+  </div>
+  <div class="ntab" onclick="showTab('motivos',this)">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;margin-right:6px"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Motivos de Contato
+  </div>
+  <div class="ntab" onclick="showTab('trend',this)">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;margin-right:6px"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Tendencias
+  </div>
+  <div class="ntab" onclick="showTab('tempos',this)">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;margin-right:6px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Tempos de Atendimento
+  </div>
+</div>
+
+<!-- VITALS BAR — sempre visível, mostra saude do CX independente da aba -->
+<div class="vbar">
+  <div class="vital"><span class="vv" id="vt-tickets">—</span><span class="vl">Tickets 2026</span></div>
+  <div class="vsep"></div>
+  <div class="vital"><span class="vv" id="vt-csat">—</span><span class="vl">CSAT Geral</span></div>
+  <div class="vsep"></div>
+  <div class="vital"><span class="vv" id="vt-csat-ia">—</span><span class="vl">CSAT IA</span></div>
+  <div class="vsep"></div>
+  <div class="vital"><span class="vv" id="vt-avaliacoes">—</span><span class="vl">Avaliacoes 2026</span></div>
+  <div class="vsep"></div>
+  <div class="vital"><span class="vv" id="vt-agosto">—</span><span class="vl">Tickets Agosto</span></div>
+  <div class="vsep"></div>
+  <div class="vital"><span class="vv" id="vt-fcr">—</span><span class="vl">FCR Rate</span></div>
 </div>
 
 <!-- FILTER BAR -->
@@ -1733,6 +1811,69 @@ function forceSyncUI(){
     syncSetOK(ts);
   }, 800);
 }
+function renderVitals(){
+  try{
+    const teams=['ia','saude','resolve','logistica'];
+    // Total tickets YTD
+    let tot=0;
+    teams.forEach(t=>{if(D.tickets&&D.tickets[t])D.tickets[t].forEach(v=>tot+=v||0);});
+    const vtTk=document.getElementById('vt-tickets');
+    if(vtTk)vtTk.textContent=tot>=1000?(tot/1000).toFixed(1)+'k':tot.toLocaleString('pt-BR');
+
+    // CSAT Geral — soma todos os times
+    let tg=0,tb=0;
+    teams.forEach(t=>{
+      if(D.csat&&D.csat[t]){
+        tg+=(D.csat[t].good||[]).reduce((a,b)=>a+(b||0),0);
+        tb+=(D.csat[t].bad||[]).reduce((a,b)=>a+(b||0),0);
+      }
+    });
+    const vtCs=document.getElementById('vt-csat');
+    if(vtCs&&(tg+tb)>0){
+      const pctG=(tg/(tg+tb))*100;
+      vtCs.textContent=pctG.toFixed(1)+'%';
+      const vEl=vtCs.closest('.vital');
+      if(vEl){vEl.classList.remove('vgood','vwarn','vbad');vEl.classList.add(pctG>=88?'vgood':pctG>=80?'vwarn':'vbad');}
+    }
+
+    // CSAT IA
+    let ig=0,ib=0;
+    if(D.csat&&D.csat.ia){
+      ig=(D.csat.ia.good||[]).reduce((a,b)=>a+(b||0),0);
+      ib=(D.csat.ia.bad||[]).reduce((a,b)=>a+(b||0),0);
+    }
+    const vtIa=document.getElementById('vt-csat-ia');
+    if(vtIa&&(ig+ib)>0){
+      const pctI=(ig/(ig+ib))*100;
+      vtIa.textContent=pctI.toFixed(1)+'%';
+      const vEl=vtIa.closest('.vital');
+      if(vEl){vEl.classList.remove('vgood','vwarn','vbad');vEl.classList.add(pctI>=88?'vgood':pctI>=80?'vwarn':'vbad');}
+    }
+
+    // Total avaliações (good + bad + offered, all teams)
+    const vtAv=document.getElementById('vt-avaliacoes');
+    if(vtAv)vtAv.textContent=(tg+tb).toLocaleString('pt-BR');
+
+    // Tickets Agosto (índice 7 = agosto nos arrays mensais)
+    let ago=0;
+    teams.forEach(t=>{if(D.tickets&&D.tickets[t])ago+=(D.tickets[t][7]||0);});
+    const vtAgo=document.getElementById('vt-agosto');
+    if(vtAgo)vtAgo.textContent=ago.toLocaleString('pt-BR');
+
+    // FCR Rate — percentual de tickets resolvidos no primeiro contato
+    const vtFcr=document.getElementById('vt-fcr');
+    if(vtFcr&&D.tempos){
+      const allFcr=teams.map(t=>D.tempos[t]?.fcr_pct).filter(v=>v!=null&&v===v);
+      if(allFcr.length){
+        const med=allFcr.reduce((a,b)=>a+b,0)/allFcr.length;
+        vtFcr.textContent=med.toFixed(1)+'%';
+        const vEl=vtFcr.closest('.vital');
+        if(vEl){vEl.classList.remove('vgood','vwarn','vbad');vEl.classList.add(med>=70?'vgood':med>=50?'vwarn':'vbad');}
+      }else{vtFcr.textContent='—';}
+    }
+  }catch(e){console.warn('renderVitals:',e);}
+}
+
 document.addEventListener("DOMContentLoaded",()=>{
   // Aplica tema salvo antes de renderizar (evita flash)
   let savedTheme; try{savedTheme=localStorage.getItem(THEME_KEY);}catch(_){}
