@@ -9,7 +9,7 @@
 <title>Appblis | Blis CX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <style>
 :root{
   --bg:#05091A;
@@ -91,7 +91,7 @@
 #btn-theme svg{flex-shrink:0;transition:transform .3s}
 #btn-theme:hover svg{transform:rotate(20deg)}
 
-/* ── Global transitions (somente UI, não bloqueia Plotly) */
+/* ── Global transitions ───────────────────────────────── */
 body,button,.kc,.cc,.tc2,.gauge,.ccol,.smot,.mrow,.ntab,.hdr,.nav,.fbar,
 .hdr-pill,.citem,.offrow,.ttable td,.ttable th,.smot table td,.smot table th{
   transition:background-color .25s,border-color .2s,color .15s,box-shadow .25s;
@@ -872,18 +872,18 @@ const COL  = {ia:"#047857", saude:"#10B981", resolve:"#34D399", logistica:"#6EE7
 const COLAG= {ia:"rgba(4,120,87,0.12)", saude:"rgba(16,185,129,0.12)", resolve:"rgba(52,211,153,0.12)", logistica:"rgba(110,231,183,0.12)"};
 const COLD = {ia:"#065F46", saude:"#059669", resolve:"#10B981", logistica:"#34D399"};
 const TNOMES= {ia:"Cloud Humans IA", saude:"Blis Saude", resolve:"Blis Resolve", logistica:"Blis Logistica"};
-const CFG  = {responsive:true, displayModeBar:false};
-const BL   = {
-  paper_bgcolor:"transparent", plot_bgcolor:"transparent",
-  font:{family:"Inter,system-ui,sans-serif", color:"#94A3B8", size:11},
-  margin:{t:12, b:50, l:12, r:12},
-  barcornerradius:8,
-  bargap:0.3,
-  bargroupgap:0.08,
-  xaxis:{gridcolor:"rgba(0,0,0,0)", zerolinecolor:"rgba(0,0,0,0)", showgrid:false, zeroline:false, showline:false, tickfont:{color:"#94A3B8",size:11}},
-  yaxis:{gridcolor:"rgba(0,0,0,0.05)", zerolinecolor:"rgba(0,0,0,0)", showgrid:true, zeroline:false, showticklabels:false},
-  legend:{bgcolor:"transparent", font:{color:"#64748B",size:11}, orientation:"h", y:-0.3, x:0.5, xanchor:"center"}
-};
+// ── ECharts registry ───────────────────────────────────────
+const EC={};
+function ec(id){const el=document.getElementById(id);if(!el)return null;if(!EC[id]||EC[id].isDisposed())EC[id]=echarts.init(el);return EC[id];}
+function ecDispose(id){if(EC[id]){try{EC[id].dispose();}catch(_){}delete EC[id];}}
+// ── ECharts shared styles ──────────────────────────────────
+const ECC='#94A3B8';
+const ECG='rgba(255,255,255,0.04)';
+const ECTT={backgroundColor:'#0B1128',borderColor:'rgba(90,140,255,0.2)',borderWidth:1,textStyle:{color:'#E4ECF8',fontSize:12},extraCssText:'border-radius:8px;padding:8px 12px'};
+const ECLG={bottom:2,textStyle:{color:'#64748B',fontSize:11},icon:'circle',itemWidth:8,itemGap:12};
+const EXC=d=>({type:'category',data:d,axisLine:{lineStyle:{color:'rgba(255,255,255,0.07)'}},axisTick:{show:false},axisLabel:{color:ECC,fontSize:11},splitLine:{show:false}});
+const EYV=(fmt,mn=0)=>({type:'value',min:mn,axisLine:{show:false},axisTick:{show:false},axisLabel:{show:!!fmt,color:ECC,fontSize:11,formatter:fmt||null},splitLine:{lineStyle:{color:ECG,type:'dashed'}}});
+const ECNO=(txt)=>({graphic:[{type:'text',left:'center',top:'middle',style:{text:txt||'Sem dados',fill:'#4A566E',fontSize:13,fontFamily:'Inter,system-ui,sans-serif'}}]});
 const COLORS_M = ["#059669","#10B981","#34D399","#6EE7B7","#065F46","#047857","#4ADE80","#A7F3D0","#D1FAE5"];
 
 function activeTeams(){return S.team==="all"?["ia","saude","resolve","logistica"]:[S.team]}
@@ -953,26 +953,38 @@ function renderKPIs(){
 
 function renderMensal(){
   const teams=activeTeams(); const mi=activeMesIndices(); const lbs=mi.map(i=>MONTHS[i]);
-  const traces=teams.map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:mi.map(i=>D.tickets[t][i]||0),marker:{color:COL[t]+"99",line:{width:0}},text:mi.map(i=>fmtN(D.tickets[t][i]||0)),textposition:"outside",textfont:{size:11,color:"#CBD5E1"},cliponaxis:false,hovertemplate:"<b>%{x}</b><br>"+TNOMES[t]+": <b>%{y:,}</b><extra></extra>"}));
-  Plotly.react("ch-mensal",traces,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,t:28}},CFG);
+  const chart=ec('ch-mensal'); if(!chart) return;
+  chart.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'axis',axisPointer:{type:'shadow'}},legend:{...ECLG},grid:{top:30,right:20,bottom:55,left:15,containLabel:true},xAxis:EXC(lbs),yAxis:EYV(),
+    series:teams.map(t=>({name:TNOMES[t],type:'bar',data:mi.map(i=>D.tickets[t][i]||0),itemStyle:{color:COL[t]+'99',borderRadius:[4,4,0,0]},emphasis:{itemStyle:{color:COL[t]}},label:{show:true,position:'top',fontSize:11,color:COL[t],formatter:p=>p.value>0?fmtN(p.value):''}}))
+  },true);
 }
 
 function renderPie(){
-  const teams=["ia","saude","resolve","logistica"]; const lbs=teams.map(t=>TNOMES[t]);
-  const vals=teams.map(t=>ticketsFor(t));
-  Plotly.react("ch-pie",[{type:"pie",labels:lbs,values:vals,marker:{colors:teams.map(t=>COL[t])},textinfo:"percent+label",textfont:{size:12,color:"#FFFFFF"},insidetextfont:{size:12,color:"#FFFFFF"},outsidetextfont:{size:11,color:"#CBD5E1"},hole:0.42,hovertemplate:"<b>%{label}</b><br>%{value:,}<br>%{percent}<extra></extra>"}],{...BL,showlegend:false,margin:{t:10,b:10,l:10,r:10}},CFG);
+  const teams=["ia","saude","resolve","logistica"];
+  const chart=ec('ch-pie'); if(!chart) return;
+  chart.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'item',formatter:p=>`<b>${p.name}</b><br>${fmtN(p.value)} (${p.percent.toFixed(1)}%)`},
+    series:[{type:'pie',radius:['38%','68%'],center:['50%','50%'],
+      data:teams.map(t=>({name:TNOMES[t],value:ticketsFor(t),itemStyle:{color:COL[t]}})),
+      label:{formatter:'{b}\n{d}%',color:ECC,fontSize:11},
+      labelLine:{lineStyle:{color:ECC}},
+      emphasis:{itemStyle:{shadowBlur:10,shadowColor:'rgba(0,0,0,0.4)'}}
+    }]
+  },true);
 }
 
 function renderSemanas(){
   const teams=activeTeams(); const si=semIndices(); const lbs=si.map(i=>D.semanas.datas[i]);
-  const traces=teams.map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:si.map(i=>D.semanas[t][i]||0),marker:{color:COL[t]+"99",line:{width:0}},text:si.map(i=>fmtN(D.semanas[t][i]||0)),textposition:"outside",textfont:{size:11,color:"#CBD5E1"},cliponaxis:false,hovertemplate:"<b>%{x}</b><br>"+TNOMES[t]+": <b>%{y:,}</b><extra></extra>"}));
   const tit=S.mes===-1?"Todos os Meses":MONTHS[S.mes];
   document.getElementById("sem-title").textContent=`Tickets por Semana · ${tit}`;
-  Plotly.react("ch-semanas",traces,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,t:28,b:55}},CFG);
+  const chart=ec('ch-semanas'); if(!chart) return;
+  chart.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'axis',axisPointer:{type:'shadow'}},legend:{...ECLG},grid:{top:30,right:20,bottom:60,left:15,containLabel:true},xAxis:EXC(lbs),yAxis:EYV(),
+    series:teams.map(t=>({name:TNOMES[t],type:'bar',data:si.map(i=>D.semanas[t][i]||0),itemStyle:{color:COL[t]+'99',borderRadius:[3,3,0,0]},emphasis:{itemStyle:{color:COL[t]}},label:{show:true,position:'top',fontSize:9,color:COL[t],formatter:p=>p.value>0?fmtN(p.value):''}}))
+  },true);
 }
 
 function renderTeamCards(){
   const teams=activeTeams(); const mi=activeMesIndices(); const lbs=mi.map(i=>MSHORT[i]);
+  ["ia","saude","resolve","logistica"].forEach(t=>ecDispose(`mini-${t}`));
   const INFO={
     ia:{nome:"Cloud Humans IA",desc:"Atendimento autonomo · WhatsApp · desde 23/mar/26",cl:"ci"},
     saude:{nome:"Blis Saude",desc:"Esclarecimentos clinicos · maior volume",cl:"cs"},
@@ -1003,7 +1015,12 @@ function renderTeamCards(){
     </div>`;
   }).join("");
   teams.forEach(t=>{
-    Plotly.react(`mini-${t}`,[{type:"bar",x:lbs,y:mi.map(i=>D.tickets[t][i]||0),marker:{color:COL[t]+"CC",line:{color:COL[t],width:0}},showlegend:false,text:mi.map(i=>fmtN(D.tickets[t][i]||0)),textposition:"outside",textfont:{size:9,color:COL[t]}}],{paper_bgcolor:"transparent",plot_bgcolor:"transparent",barcornerradius:5,margin:{t:5,b:26,l:30,r:4},xaxis:{gridcolor:BL.xaxis.gridcolor,showgrid:false,tickfont:{size:9,color:BL.xaxis.tickfont.color},zeroline:false},yaxis:{gridcolor:BL.yaxis.gridcolor,tickfont:{size:9,color:BL.yaxis.tickfont.color},zeroline:false}},CFG);
+    const mc=ec(`mini-${t}`); if(!mc) return;
+    mc.setOption({backgroundColor:'transparent',grid:{top:5,right:4,bottom:26,left:30},
+      xAxis:{type:'category',data:lbs,axisLine:{show:false},axisTick:{show:false},axisLabel:{color:ECC,fontSize:9},splitLine:{show:false}},
+      yAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{show:false},splitLine:{show:false}},
+      series:[{type:'bar',data:mi.map(i=>D.tickets[t][i]||0),itemStyle:{color:COL[t]+'CC',borderRadius:[3,3,0,0]},label:{show:true,position:'top',fontSize:9,color:COL[t],formatter:p=>p.value>0?fmtN(p.value):''}}]
+    },true);
   });
 }
 
@@ -1011,8 +1028,10 @@ function renderStatus(){
   const teams=activeTeams(); const lbs=teams.map(t=>TNOMES[t]);
   const SLBLS=["Fechado","Resolvido","Aberto","Pendente","Novo"]; const SKEYS=["closed","solved","open","pending","new_"];
   const SCOLS=["#818CF8","#34D399","#FBBF24","#F43F5E","#7B8BA8"];
-  const traces=SKEYS.map((k,i)=>({name:SLBLS[i],type:"bar",x:lbs,y:teams.map(t=>statusFor(t,k)||0),marker:{color:SCOLS[i]+"BB"},text:teams.map(t=>fmtN(statusFor(t,k)||0)),textposition:"outside",textfont:{size:11,color:"#CBD5E1"},cliponaxis:false}));
-  Plotly.react("ch-status",traces,{...BL,barmode:"stack",showlegend:true,margin:{...BL.margin,b:55}},CFG);
+  const chart=ec('ch-status'); if(!chart) return;
+  chart.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'axis',axisPointer:{type:'shadow'}},legend:{...ECLG},grid:{top:30,right:20,bottom:60,left:15,containLabel:true},xAxis:EXC(lbs),yAxis:EYV(),
+    series:SKEYS.map((k,i)=>({name:SLBLS[i],type:'bar',stack:'s',data:teams.map(t=>statusFor(t,k)||0),itemStyle:{color:SCOLS[i]+'BB'},emphasis:{focus:'series'}}))
+  },true);
 }
 
 function renderCanal(){
@@ -1024,8 +1043,10 @@ function renderCanal(){
   }
   const allC=[...new Set(teams.flatMap(t=>Object.keys(D.channels[t])))];
   const CCOLS=["#818CF8","#34D399","#38BDF8","#FBBF24","#7B8BA8"];
-  const traces=allC.map((c,ci)=>({name:c,type:"bar",x:lbs,y:teams.map(t=>chanFor(t,c)),marker:{color:CCOLS[ci]+"BB"},text:teams.map(t=>fmtN(chanFor(t,c))),textposition:"outside",textfont:{size:11,color:"#CBD5E1"},cliponaxis:false}));
-  Plotly.react("ch-canal",traces,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,b:55}},CFG);
+  const chart=ec('ch-canal'); if(!chart) return;
+  chart.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'axis',axisPointer:{type:'shadow'}},legend:{...ECLG},grid:{top:30,right:20,bottom:60,left:15,containLabel:true},xAxis:EXC(lbs),yAxis:EYV(),
+    series:allC.map((c,ci)=>({name:c,type:'bar',data:teams.map(t=>chanFor(t,c)),itemStyle:{color:CCOLS[ci]+'BB'},emphasis:{focus:'series'}}))
+  },true);
 }
 
 function renderGauges(){
@@ -1062,17 +1083,21 @@ function renderGauges(){
 function renderCSATCharts(){
   const teams=activeTeams(); const mi=activeMesIndices(); const lbs=mi.map(i=>MONTHS[i]);
   const GCOLS_C={ia:"#047857",saude:"#10B981",resolve:"#34D399",logistica:"#6EE7B7"};
-  const tvol=[];
+  const volSeries=[];
   teams.forEach(t=>{
     const gc=GCOLS_C[t]||"#059669";
-    const tshort=t==="ia"?"IA":t==="saude"?"Saude":t==="resolve"?"Resolve":"Logistica";
-    tvol.push({name:tshort+" Positivo",type:"bar",x:lbs,y:mi.map(i=>D.csat[t].good[i]||0),marker:{color:gc+"99",line:{color:gc,width:1}},legendgroup:t});
-    tvol.push({name:tshort+" Negativo",type:"bar",x:lbs,y:mi.map(i=>D.csat[t].bad[i]||0),marker:{color:"rgba(148,163,184,0.35)",line:{color:"rgba(148,163,184,0.6)",width:1}},legendgroup:t,showlegend:false});
+    const ts=t==="ia"?"IA":t==="saude"?"Saude":t==="resolve"?"Resolve":"Logistica";
+    volSeries.push({name:ts+" Positivo",type:'bar',data:mi.map(i=>D.csat[t].good[i]||0),itemStyle:{color:gc+'99'},emphasis:{focus:'series'}});
+    volSeries.push({name:ts+" Negativo",type:'bar',data:mi.map(i=>D.csat[t].bad[i]||0),itemStyle:{color:'rgba(148,163,184,0.35)'},legend:{show:false},emphasis:{focus:'series'}});
   });
-  Plotly.react("ch-csat-vol",tvol,{...BL,barmode:"group",showlegend:true},CFG);
-  const tpct=teams.map(t=>{const gc=GCOLS_C[t]||"#059669";const yv=mi.map(i=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;});return{name:TNOMES[t],type:"scatter",mode:"lines+markers+text",x:lbs,y:yv,text:yv.map(v=>v!=null?v+"%":""),textposition:"top center",textfont:{size:11,color:gc},line:{color:gc,width:2.5,shape:"spline"},marker:{size:5,color:gc}};});
-  tpct.push({name:"Meta 90%",type:"scatter",mode:"lines",x:lbs,y:lbs.map(()=>90),line:{color:"rgba(100,116,139,0.4)",width:1.5,dash:"dash"},showlegend:true});
-  Plotly.react("ch-csat-pct",tpct,{...BL,yaxis:{...BL.yaxis,range:[60,100],ticksuffix:"%"},showlegend:true},CFG);
+  const cVol=ec('ch-csat-vol'); if(cVol) cVol.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'axis',axisPointer:{type:'shadow'}},legend:{...ECLG},grid:{top:30,right:20,bottom:55,left:15,containLabel:true},xAxis:EXC(lbs),yAxis:EYV(),series:volSeries},true);
+  const pctSeries=teams.map(t=>{
+    const gc=GCOLS_C[t]||"#059669";
+    const yv=mi.map(i=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;});
+    return{name:TNOMES[t],type:'line',smooth:0.3,data:yv,lineStyle:{color:gc,width:2.5},symbol:'circle',symbolSize:5,itemStyle:{color:gc},label:{show:true,position:'top',fontSize:11,color:gc,formatter:p=>p.value!=null?p.value+'%':''}};
+  });
+  pctSeries.push({name:"Meta 90%",type:'line',data:lbs.map(()=>90),lineStyle:{color:'rgba(100,116,139,0.4)',width:1.5,type:'dashed'},symbol:'none',itemStyle:{color:'rgba(100,116,139,0.4)'}});
+  const cPct=ec('ch-csat-pct'); if(cPct) cPct.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'axis'},legend:{...ECLG},grid:{top:30,right:20,bottom:55,left:45},xAxis:EXC(lbs),yAxis:{...EYV(v=>v+'%',60),max:100},series:pctSeries},true);
 }
 
 function renderCSATAudit(){
@@ -1218,38 +1243,20 @@ function renderMotivosColCharts(){
   const sorted=[...visibleM].sort((a,b)=>getVol(b)-getVol(a));
   const xMot=sorted.map(m=>m.nome);
   const yMot=sorted.map(m=>getVol(m));
-  Plotly.react("ch-mot-col",[{
-    type:"bar", x:xMot, y:yMot,
-    marker:{color:COLORS_M.slice(0,xMot.length).map(c=>c+"CC"), line:{color:COLORS_M.slice(0,xMot.length),width:1}},
-    text:yMot.map(v=>fmtN(v)),
-    textposition:"outside",
-    textfont:{size:11, color:"#CBD5E1"},
-    cliponaxis:false
-  }],{
-    ...BL,
-    margin:{t:30,b:100,l:45,r:15},
-    xaxis:{...BL.xaxis, tickangle:-35, automargin:true},
-    yaxis:{...BL.yaxis}
-  },CFG);
+  const cMot=ec('ch-mot-col'); if(cMot) cMot.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'axis',axisPointer:{type:'shadow'}},grid:{top:20,right:15,bottom:110,left:15,containLabel:true},
+    xAxis:{...EXC(xMot),axisLabel:{rotate:-35,color:ECC,fontSize:11,interval:0}},yAxis:EYV(),
+    series:[{type:'bar',data:yMot,itemStyle:{color:p=>COLORS_M[p.dataIndex]+'CC',borderRadius:[4,4,0,0]},label:{show:true,position:'top',fontSize:11,color:ECC,formatter:p=>fmtN(p.value)}}]
+  },true);
 
   // Grafico 2: volume por time (colunas verticais)
   const xTime=activeT.map(t=>TNOMES[t]);
   const yTime=activeT.map(t=>visibleM.reduce((a,m)=>a+getTeamVol(m,t),0));
   const GCOLS_T={ia:"#059669",saude:"#10B981",resolve:"#34D399",logistica:"#6EE7B7"};
   const tCols=activeT.map(t=>GCOLS_T[t]||"#34D399");
-  Plotly.react("ch-time-col",[{
-    type:"bar", x:xTime, y:yTime,
-    marker:{color:tCols.map(c=>c+"CC"), line:{color:tCols,width:1}},
-    text:yTime.map(v=>fmtN(v)),
-    textposition:"outside",
-    textfont:{size:11, color:"#CBD5E1", family:"Inter,system-ui,sans-serif"},
-    cliponaxis:false
-  }],{
-    ...BL,
-    margin:{t:30,b:60,l:45,r:15},
-    xaxis:{...BL.xaxis},
-    yaxis:{...BL.yaxis}
-  },CFG);
+  const cTime=ec('ch-time-col'); if(cTime) cTime.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'axis',axisPointer:{type:'shadow'}},grid:{top:20,right:15,bottom:60,left:15,containLabel:true},
+    xAxis:EXC(xTime),yAxis:EYV(),
+    series:[{type:'bar',data:yTime,itemStyle:{color:p=>tCols[p.dataIndex]+'CC',borderRadius:[4,4,0,0]},label:{show:true,position:'top',fontSize:11,color:ECC,formatter:p=>fmtN(p.value)}}]
+  },true);
 }
 
 function renderSubMotivos(){
@@ -1341,22 +1348,23 @@ function toggleSM(el){
 
 function renderTrends(){
   const lbs=MONTHS;
-  // Volume por time
-  const ttv=["ia","saude","resolve","logistica"].map(t=>({name:TNOMES[t],type:"scatter",mode:"lines+markers+text",x:lbs,y:D.tickets[t],text:D.tickets[t].map(v=>v>0?fmtN(v):""),textposition:"top center",textfont:{size:11,color:COL[t]},line:{color:COL[t],width:2.5,shape:"spline"},marker:{size:6,color:COL[t]}}));
-  Plotly.react("ch-trend-vol",ttv,{...BL,showlegend:true,margin:{...BL.margin,t:28}},CFG);
-  // Motivos
-  const ttm=(D.motivos||[]).map((m,i)=>({name:m.nome,type:"scatter",mode:"lines+markers+text",x:lbs,y:m.monthly,text:m.monthly.map(v=>v>0?fmtN(v):""),textposition:"top center",textfont:{size:10,color:COLORS_M[i]},line:{color:COLORS_M[i],width:2,shape:"spline"},marker:{size:5,color:COLORS_M[i]}}));
-  Plotly.react("ch-trend-mot",ttm,{...BL,showlegend:true,legend:{...BL.legend,orientation:"v",x:1.01,y:1},margin:{t:28,b:50,l:55,r:165}},CFG);
-  // CSAT %
-  const ttc=["ia","saude","resolve","logistica"].map(t=>{
+  const cVol=ec('ch-trend-vol'); if(cVol) cVol.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'axis'},legend:{...ECLG},grid:{top:30,right:20,bottom:55,left:15,containLabel:true},xAxis:EXC(lbs),yAxis:EYV(),
+    series:["ia","saude","resolve","logistica"].map(t=>({name:TNOMES[t],type:'line',smooth:0.3,data:D.tickets[t],lineStyle:{color:COL[t],width:2.5},symbol:'circle',symbolSize:6,itemStyle:{color:COL[t]},label:{show:true,position:'top',fontSize:11,color:COL[t],formatter:p=>p.value>0?fmtN(p.value):''}}))
+  },true);
+  const cMot=ec('ch-trend-mot'); if(cMot) cMot.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'axis'},
+    legend:{right:0,top:0,orient:'vertical',textStyle:{color:'#64748B',fontSize:11},itemWidth:8,icon:'circle'},
+    grid:{top:30,right:165,bottom:55,left:15,containLabel:true},xAxis:EXC(lbs),yAxis:EYV(),
+    series:(D.motivos||[]).map((m,i)=>({name:m.nome,type:'line',smooth:0.3,data:m.monthly,lineStyle:{color:COLORS_M[i],width:2},symbol:'circle',symbolSize:5,itemStyle:{color:COLORS_M[i]},label:{show:true,position:'top',fontSize:10,color:COLORS_M[i],formatter:p=>p.value>0?fmtN(p.value):''}}))
+  },true);
+  const ttcSeries=["ia","saude","resolve","logistica"].map(t=>{
     const yv=MONTHS.map((_,i)=>{const g=D.csat[t].good[i]||0,b=D.csat[t].bad[i]||0;return(g+b)>0?+(g/(g+b)*100).toFixed(1):null;});
-    return{name:TNOMES[t],type:"scatter",mode:"lines+markers+text",x:lbs,y:yv,text:yv.map(v=>v!=null?v+"%":""),textposition:"top center",textfont:{size:11,color:COL[t]},line:{color:COL[t],width:2.5,shape:"spline"},marker:{size:5,color:COL[t]}};
+    return{name:TNOMES[t],type:'line',smooth:0.3,data:yv,lineStyle:{color:COL[t],width:2.5},symbol:'circle',symbolSize:5,itemStyle:{color:COL[t]},label:{show:true,position:'top',fontSize:11,color:COL[t],formatter:p=>p.value!=null?p.value+'%':''}};
   });
-  ttc.push({name:"Meta 90%",type:"scatter",mode:"lines",x:lbs,y:lbs.map(()=>90),line:{color:"rgba(100,116,139,0.4)",width:1.5,dash:"dash"}});
-  Plotly.react("ch-trend-csat",ttc,{...BL,yaxis:{...BL.yaxis,range:[0,105],ticksuffix:"%"},showlegend:true,margin:{...BL.margin,t:28}},CFG);
-  // Avaliações negativas
-  const ttb=["ia","saude","resolve","logistica"].map(t=>({name:TNOMES[t],type:"bar",x:lbs,y:D.csat[t].bad,text:D.csat[t].bad.map(v=>v>0?fmtN(v):""),textposition:"outside",textfont:{size:11,color:COL[t]},cliponaxis:false,marker:{color:COL[t]+"CC",line:{color:COL[t],width:0}}}));
-  Plotly.react("ch-trend-bad",ttb,{...BL,barmode:"group",showlegend:true,margin:{...BL.margin,t:28}},CFG);
+  ttcSeries.push({name:"Meta 90%",type:'line',data:lbs.map(()=>90),lineStyle:{color:'rgba(100,116,139,0.4)',width:1.5,type:'dashed'},symbol:'none',itemStyle:{color:'rgba(100,116,139,0.4)'}});
+  const cCsat=ec('ch-trend-csat'); if(cCsat) cCsat.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'axis'},legend:{...ECLG},grid:{top:30,right:20,bottom:55,left:45},xAxis:EXC(lbs),yAxis:{...EYV(v=>v+'%',0),max:105},series:ttcSeries},true);
+  const cBad=ec('ch-trend-bad'); if(cBad) cBad.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'axis',axisPointer:{type:'shadow'}},legend:{...ECLG},grid:{top:30,right:20,bottom:55,left:15,containLabel:true},xAxis:EXC(lbs),yAxis:EYV(),
+    series:["ia","saude","resolve","logistica"].map(t=>({name:TNOMES[t],type:'bar',data:D.csat[t].bad,itemStyle:{color:COL[t]+'CC',borderRadius:[3,3,0,0]},label:{show:true,position:'top',fontSize:11,color:COL[t],formatter:p=>p.value>0?fmtN(p.value):''}}))
+  },true);
   renderTrendTable();
 }
 
@@ -1396,7 +1404,7 @@ function renderTempos(){
         </div>
       </div>`;
     ["ch-tma-semana","ch-tmr-semana","ch-tempos-col"].forEach(id=>{
-      Plotly.react(id,[],{...BL,annotations:[{text:"Sem dados para IA",showarrow:false,font:{color:"#4A566E",size:13},xref:"paper",yref:"paper",x:0.5,y:0.5}]},CFG);
+      const c=ec(id); if(c) c.setOption({...ECNO("Sem dados para IA"),backgroundColor:'transparent'},true);
     });
     renderResolucoesdia();
     renderCriadosResolvidos();
@@ -1450,55 +1458,18 @@ function renderTempos(){
 ` : "";
   document.getElementById("tempos-kpis").innerHTML = kpiR + kpiS;
 
-  const lineLayout = (ytitle) => ({...BL,
-    margin:{t:20,b:65,l:60,r:20},
-    showlegend:true, legend:{...BL.legend, x:0, y:-0.28},
-    xaxis:{...BL.xaxis, tickangle:-35},
-    yaxis:{...BL.yaxis, title:{text:ytitle||"horas",font:{size:10,color:BL.font.color},standoff:8}}
-  });
-
-  const trR = (y,customdata,dash,sz) => ({
-    name:"Blis Resolve",type:"scatter",mode:"lines+markers+text",x:labs,y,
-    text:customdata, textposition:"top center", textfont:{size:11,color:"#059669"},
-    customdata, hovertemplate:"%{x}<br><b>%{customdata}</b><extra>Blis Resolve</extra>",
-    line:{color:"#059669",width:2.5,dash:dash||"solid"},marker:{color:"#059669",size:sz||6}
-  });
-  const trS = (y,customdata,dash,sz) => ({
-    name:"Blis Saude",type:"scatter",mode:"lines+markers+text",x:labs,y,
-    text:customdata, textposition:"bottom center", textfont:{size:11,color:"#10B981"},
-    customdata, hovertemplate:"%{x}<br><b>%{customdata}</b><extra>Blis Saúde</extra>",
-    line:{color:"#10B981",width:2.5,dash:dash||"solid"},marker:{color:"#10B981",size:sz||6}
-  });
-
-  Plotly.react("ch-tma-semana",
-    [...(showR?[trR(tmaR,hoverFmt(tmaR))]:[]  ), ...(showS?[trS(tmaS,hoverFmt(tmaS))]:[] )],
-    lineLayout("horas"), CFG);
-  Plotly.react("ch-tmr-semana",
-    [...(showR?[trR(tmrR,hoverFmt(tmrR),"dot",5)]:[] ), ...(showS?[trS(tmrS,hoverFmt(tmrS),"dot",5)]:[] )],
-    lineLayout("horas"), CFG);
+  const ecLine=(id,seriesArr)=>{const c=ec(id);if(!c)return;c.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'axis',formatter:params=>{let h=params[0].name+'<br>';params.forEach(p=>{if(p.value!=null)h+=`<span style="color:${p.color}">●</span> ${p.seriesName}: <b>${fmtTempo(p.value)}</b><br>`;});return h;}},legend:{...ECLG,left:0},grid:{top:20,right:20,bottom:65,left:15,containLabel:true},xAxis:{...EXC(labs),axisLabel:{rotate:-35,color:ECC,fontSize:11}},yAxis:{...EYV(v=>fmtTempo(v)),name:'horas',nameTextStyle:{color:ECC,fontSize:10}},series:seriesArr},true);};
+  const ecSR=(y,tp)=>({name:"Blis Resolve",type:'line',smooth:0.3,data:y,lineStyle:{color:"#059669",width:2.5,type:tp||'solid'},symbol:'circle',symbolSize:6,itemStyle:{color:"#059669"},label:{show:true,position:'top',fontSize:11,color:"#059669",formatter:p=>p.value!=null?fmtTempo(p.value):''}});
+  const ecSS=(y,tp)=>({name:"Blis Saude",type:'line',smooth:0.3,data:y,lineStyle:{color:"#10B981",width:2.5,type:tp||'solid'},symbol:'circle',symbolSize:6,itemStyle:{color:"#10B981"},label:{show:true,position:'bottom',fontSize:11,color:"#10B981",formatter:p=>p.value!=null?fmtTempo(p.value):''}});
+  ecLine('ch-tma-semana',[...(showR?[ecSR(tmaR)]:[]  ),...(showS?[ecSS(tmaS)]:[] )]);
+  ecLine('ch-tmr-semana',[...(showR?[ecSR(tmrR,'dashed')]:[] ),...(showS?[ecSS(tmrS,'dashed')]:[] )]);
   // ── Colunas comparativas com unidade automática ────
   const metricas = ["Resolucao","1ª Resposta"];
   const valsR = [avg(tmaR),avg(tmrR)];
   const valsS = [avg(tmaS),avg(tmrS)];
-  Plotly.react("ch-tempos-col",[
-    ...(showR?[{name:"Blis Resolve",type:"bar",x:metricas,
-      y:valsR,
-      marker:{color:"#059669CC",line:{color:"#059669",width:1}},
-      text:valsR.map(fmtTempo),
-      textposition:"outside",textfont:{size:12,color:"#059669"},cliponaxis:false,
-      hovertemplate:"%{x}<br><b>%{text}</b><extra>Blis Resolve</extra>"}]:[]),
-    ...(showS?[{name:"Blis Saude",type:"bar",x:metricas,
-      y:valsS,
-      marker:{color:"#10B981CC",line:{color:"#10B981",width:0}},
-      text:valsS.map(fmtTempo),
-      textposition:"outside",textfont:{size:12,color:"#10B981"},cliponaxis:false,
-      hovertemplate:"%{x}<br><b>%{text}</b><extra>Blis Saúde</extra>"}]:[]),
-  ],{...BL,barmode:"group",
-    margin:{t:40,b:60,l:50,r:20},
-    showlegend:true,legend:{...BL.legend,x:0,y:-0.28},
-    xaxis:{...BL.xaxis},
-    yaxis:{...BL.yaxis,title:{text:"horas",font:{size:10,color:BL.font.color},standoff:8}}
-  },CFG);
+  const cCol=ec('ch-tempos-col'); if(cCol) cCol.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'axis',axisPointer:{type:'shadow'},formatter:params=>{let h=params[0].name+'<br>';params.forEach(p=>{if(p.value!=null)h+=`<span style="color:${p.color}">●</span> ${p.seriesName}: <b>${fmtTempo(p.value)}</b><br>`;});return h;}},legend:{...ECLG,left:0},grid:{top:40,right:20,bottom:65,left:15,containLabel:true},xAxis:EXC(metricas),yAxis:{...EYV(v=>fmtTempo(v)),name:'horas',nameTextStyle:{color:ECC,fontSize:10}},
+    series:[...(showR?[{name:"Blis Resolve",type:'bar',data:valsR,itemStyle:{color:"#059669CC",borderRadius:[4,4,0,0]},label:{show:true,position:'top',fontSize:12,color:"#059669",formatter:p=>fmtTempo(p.value)}}]:[]),...(showS?[{name:"Blis Saude",type:'bar',data:valsS,itemStyle:{color:"#10B981CC",borderRadius:[4,4,0,0]},label:{show:true,position:'top',fontSize:12,color:"#10B981",formatter:p=>fmtTempo(p.value)}}]:[])],
+  },true);
 
   renderResolucoesdia();
   renderCriadosResolvidos();
@@ -1524,26 +1495,16 @@ function renderResolucoesdia(){
   let dates = Array.from(allDatesSet).sort();
   if(mi.length<6) dates = dates.filter(d => mi.includes(MONTH_OF(d)));
 
+  const cRes=ec('ch-resolucoes-dia');
   if(!dates.length){
-    Plotly.react("ch-resolucoes-dia",[],{...BL,annotations:[{text:"Sem dados",showarrow:false,font:{color:"#4A566E",size:13},xref:"paper",yref:"paper",x:0.5,y:0.5}]},CFG);
+    if(cRes) cRes.setOption({...ECNO('Sem dados'),backgroundColor:'transparent'},true);
     return;
   }
-
-  const traces = visTeams.map(({key,color,name})=>{
-    const data=rd[key]||{};
-    return {name,type:"bar",x:dates,y:dates.map(d=>data[d]||0),
-      marker:{color:color+"CC",line:{color,width:0.5}},
-      hovertemplate:"%{x}<br><b>%{y} tickets</b><extra>"+name+"</extra>"};
-  });
-
-  Plotly.react("ch-resolucoes-dia",traces,{...BL,
-    barmode:"group",
-    margin:{t:20,b:80,l:55,r:20},
-    showlegend:true,
-    legend:{...BL.legend,x:0,y:-0.28},
-    xaxis:{...BL.xaxis,tickangle:-45,nticks:30},
-    yaxis:{...BL.yaxis,title:{text:"tickets",font:{size:10,color:BL.font.color},standoff:8}},
-  },CFG);
+  if(cRes) cRes.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'axis',axisPointer:{type:'shadow'}},legend:{...ECLG,left:0},grid:{top:20,right:20,bottom:80,left:50},
+    xAxis:{...EXC(dates),axisLabel:{rotate:-45,color:ECC,fontSize:10,interval:'auto'}},
+    yAxis:{...EYV(v=>v,''),name:'tickets',nameTextStyle:{color:ECC,fontSize:10}},
+    series:visTeams.map(({key,color,name})=>({name,type:'bar',data:dates.map(d=>(rd[key]||{})[d]||0),itemStyle:{color:color+'CC'},emphasis:{itemStyle:{color}}}))
+  },true);
 }
 
 function renderCriadosResolvidos(){
@@ -1581,25 +1542,21 @@ function renderCriadosResolvidos(){
   let dates = mi.length<6 ? allDates.filter(d=>mi.includes(MONTH_OF(d))) : allDates;
 
   // ── Gráfico primeiro — sempre renderiza independente dos cards ─────────────
+  const cCR=ec('ch-criados-resolvidos');
   if(!dates.length){
-    Plotly.react("ch-criados-resolvidos",[],{...BL,annotations:[{text:"Sem dados",showarrow:false,font:{color:"#4A566E",size:13},xref:"paper",yref:"paper",x:0.5,y:0.5}]},CFG);
+    if(cCR) cCR.setOption({...ECNO('Sem dados'),backgroundColor:'transparent'},true);
   } else {
     const baseColor = team==="all" ? null : teamColors[team];
     const criadoColor    = baseColor ? baseColor+"99" : "#6EE7B799";
     const resolvidoColor = baseColor ? baseColor+"EE" : "#059669EE";
-    Plotly.react("ch-criados-resolvidos",[
-      {name:"Criados",type:"bar",x:dates,y:dates.map(d=>criados[d]||0),
-       marker:{color:criadoColor,line:{color:"#94A3B8",width:0.5}},
-       hovertemplate:"%{x}<br><b>%{y} criados</b><extra>Criados</extra>"},
-      {name:"Resolvidos",type:"bar",x:dates,y:dates.map(d=>resolvidos[d]||0),
-       marker:{color:resolvidoColor,line:{color:resolvidoColor,width:0.5}},
-       hovertemplate:"%{x}<br><b>%{y} resolvidos</b><extra>Resolvidos</extra>"},
-    ],{...BL,barmode:"group",
-      margin:{t:20,b:80,l:55,r:20},showlegend:true,
-      legend:{...BL.legend,x:0,y:-0.28},
-      xaxis:{...BL.xaxis,tickangle:-45,nticks:30},
-      yaxis:{...BL.yaxis,title:{text:"tickets",font:{size:10,color:BL.font.color},standoff:8}},
-    },CFG);
+    if(cCR) cCR.setOption({backgroundColor:'transparent',tooltip:{...ECTT,trigger:'axis',axisPointer:{type:'shadow'}},legend:{...ECLG,left:0},grid:{top:20,right:20,bottom:80,left:50},
+      xAxis:{...EXC(dates),axisLabel:{rotate:-45,color:ECC,fontSize:10,interval:'auto'}},
+      yAxis:{...EYV(v=>v,''),name:'tickets',nameTextStyle:{color:ECC,fontSize:10}},
+      series:[
+        {name:"Criados",type:'bar',data:dates.map(d=>criados[d]||0),itemStyle:{color:criadoColor}},
+        {name:"Resolvidos",type:'bar',data:dates.map(d=>resolvidos[d]||0),itemStyle:{color:resolvidoColor}}
+      ]
+    },true);
   }
 
   // ── Cards de média semanal (isolado em try/catch) ──────────────────────────
@@ -1746,19 +1703,7 @@ function showTab(id,el){
 const THEME_KEY = "zd_theme";
 
 function refreshBL(){
-  const light = document.documentElement.getAttribute("data-theme")==="light";
-  const gc = light?"rgba(0,0,0,0.04)":"rgba(255,255,255,0.04)";
-  const tc = light?"#64748b":"#7B8BA8";
-  const lc = light?"#475569":"#B8C4D8";
-  BL.font.color = tc;
-  BL.xaxis.gridcolor = BL.xaxis.zerolinecolor = gc;
-  BL.yaxis.gridcolor = BL.yaxis.zerolinecolor = gc;
-  BL.xaxis.tickfont  = {color:tc,size:10};
-  BL.yaxis.tickfont  = {color:tc,size:10};
-  BL.xaxis.showgrid  = false;
-  BL.legend.font     = {color:lc,size:10};
-  BL.legend.y        = -0.24;
-  BL.margin          = {t:8,b:46,l:44,r:8};
+  // ECharts charts re-render via renderAll() called after applyTheme
 }
 
 function applyTheme(theme){
@@ -1908,8 +1853,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   syncSetOK(lastSync||"17/08/2026 17:36");
 });
 window.addEventListener("resize",()=>{
-  ["ch-mensal","ch-pie","ch-semanas","ch-status","ch-canal","ch-csat-vol","ch-csat-pct","ch-mot-col","ch-time-col","ch-trend-vol","ch-trend-mot","ch-trend-csat","ch-trend-bad","ch-tma-semana","ch-tmr-semana","ch-tempos-col","ch-resolucoes-dia","ch-criados-resolvidos"].forEach(id=>{try{Plotly.Plots.resize(id)}catch(_){}});
-  document.querySelectorAll("[id^='mini-']").forEach(el=>{try{Plotly.Plots.resize(el.id)}catch(_){}});
+  Object.values(EC).forEach(c=>{try{c.resize();}catch(_){}});
 });
 </script>
 </body>
