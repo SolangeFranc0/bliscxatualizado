@@ -325,6 +325,15 @@ def build_csat(df_c: pd.DataFrame, df_t: pd.DataFrame) -> dict:
         m = MONTH_IDX.get(str(r.get("ano_mes","")))
         if m is None:
             continue
+        tid = str(r.get("ticket_id",""))
+        # Prioridade 1: ticket_id lookup — se o ticket passou pela IA conta como IA
+        # (mesmo que a avaliação chegou depois de transferência — igual ao Zendesk)
+        if tid in ia_ticket_ids:
+            out["ia"][score][m] += 1
+            continue
+        if tid in logistica_ticket_ids:
+            out["logistica"][score][m] += 1
+            continue
         time_val = str(r.get("time",""))
         if "Saúde" in time_val or "Saude" in time_val or time_val == "saude":
             out["saude"][score][m] += 1
@@ -335,7 +344,7 @@ def build_csat(df_c: pd.DataFrame, df_t: pd.DataFrame) -> dict:
         elif "Logística" in time_val or "Logistica" in time_val or time_val == "logistica":
             out["logistica"][score][m] += 1
         else:
-            # Fallback 1: group_id
+            # Fallback: group_id
             try:
                 gid = int(str(r.get("group_id") or 0).split(".")[0])
                 team_by_gid = _CSAT_GROUP_MAP.get(gid)
@@ -343,11 +352,6 @@ def build_csat(df_c: pd.DataFrame, df_t: pd.DataFrame) -> dict:
                 team_by_gid = None
             if team_by_gid:
                 out[team_by_gid][score][m] += 1
-            # Fallback 2: ticket_id lookup
-            elif str(r.get("ticket_id","")) in logistica_ticket_ids:
-                out["logistica"][score][m] += 1
-            elif str(r.get("ticket_id","")) in ia_ticket_ids:
-                out["ia"][score][m] += 1
     return out
 
 # ── Motivos / Submotivos / Perfis ────────────────────────────────────────────
