@@ -813,7 +813,7 @@ const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","A
 const MSHORT = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago"];
 
 const D = {
-  // Gerado por updater.py em 18/08/2026 04:46 — fonte: Zendesk API
+  // Gerado por updater.py em 18/08/2026 05:46 — fonte: Zendesk API
   // tickets: {ia=17657, saude=27157, resolve=18570, logistica=246}
   tickets:{"ia":[0,0,1132,4702,3721,2902,3646,1554],"saude":[1361,5936,10106,5825,1540,933,911,545],"resolve":[2624,2384,2440,1990,2001,2596,3075,1460],"logistica":[1,29,64,51,32,6,20,43]},
   status:{"ia":{"closed":17641,"solved":0,"open":16,"pending":0,"new_":0},"saude":{"closed":27156,"solved":0,"open":0,"pending":1,"new_":0},"resolve":{"closed":18422,"solved":25,"open":81,"pending":40,"new_":2},"logistica":{"closed":208,"solved":0,"open":1,"pending":37,"new_":0}},
@@ -1850,7 +1850,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   })();
 
   let lastSync; try{lastSync=localStorage.getItem(SYNC_KEY);}catch(_){}
-  syncSetOK(lastSync||"18/08/2026 04:46");
+  syncSetOK(lastSync||"18/08/2026 05:46");
 });
 window.addEventListener("resize",()=>{
   Object.values(EC).forEach(c=>{try{c.resize();}catch(_){}});
