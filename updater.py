@@ -2175,7 +2175,7 @@ def _refresh_agentes_via_rpc() -> None:
         sync_agent_performance()
 
 
-def _log_sync_audit(stats: dict, iniciado_em: datetime, status: str, erros: list | None = None) -> None:
+def _log_sync_audit(stats: dict, iniciado_em: datetime, status: str, erros=None) -> None:
     """Registra execução do pipeline em cx_sync_audit."""
     try:
         import db_loader_metabase as _dbl
