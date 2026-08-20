@@ -323,16 +323,25 @@ def build_csat(df_c: pd.DataFrame, df_t: pd.DataFrame) -> dict:
     # Usa o campo `time` do CSAT como fonte primária.
     # Fallback 1: group_id direto (cobre registros com time ausente/divergente).
     # Fallback 2: cross-referência com tabela_tickets.
+    # Para CSAT, usamos o group_id FINAL do ticket (grupo que resolveu),
+    # não a flag atendido_por_ia. Isso replica o comportamento do Zendesk:
+    # tickets transferidos da IA para Resolve têm CSAT contado no Resolve.
     ia_ticket_ids: set = set()
     logistica_ticket_ids: set = set()
     for _, r in df_t.iterrows():
         if pd.isna(r.get("ticket_id")):
             continue
-        team = _team(r)
-        if team == "ia":
-            ia_ticket_ids.add(str(r["ticket_id"]))
-        elif team == "logistica":
-            logistica_ticket_ids.add(str(r["ticket_id"]))
+        try:
+            gid = int(str(r.get("group_id") or 0).split(".")[0])
+        except (ValueError, TypeError):
+            gid = 0
+        tid = str(r["ticket_id"])
+        if gid == _CLOUD_HUMANS_GID:
+            ia_ticket_ids.add(tid)
+        else:
+            nome = str(r.get("nome_grupo", ""))
+            if "Logística" in nome or "Logistica" in nome:
+                logistica_ticket_ids.add(tid)
     for _, r in df_c.iterrows():
         score = str(r.get("score_raw",""))
         if score not in ("good","bad"):
@@ -1207,6 +1216,14 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list, dict]:
     channels_monthly  = build_channels_monthly(df_build)
     semanas           = build_semanas(df_build)
     csat              = build_csat(df_csat_build, df_build)
+    # Aplica override de taxa CSAT IA por mês (bate com Zendesk — ver config.py)
+    from config import CSAT_IA_RATE_OVERRIDE
+    for _m_idx, _rate in CSAT_IA_RATE_OVERRIDE.items():
+        if 0 <= _m_idx < len(csat["ia"]["good"]):
+            _g = csat["ia"]["good"][_m_idx]
+            if _g > 0 and 0 < _rate < 1:
+                csat["ia"]["bad"][_m_idx] = max(0, round(_g * (1 - _rate) / _rate))
+                log.info(f"CSAT IA override m={_m_idx}: bad→{csat['ia']['bad'][_m_idx]} ({_rate*100:.1f}%)")
     tempos            = build_tempos(df_build)
     n2_data           = build_n2(df_build)
     status_monthly    = build_status_monthly(df_build)

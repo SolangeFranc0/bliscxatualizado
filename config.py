@@ -121,3 +121,12 @@ PERFIL_ORDER = [
     "medicos",
     "pergunta",
 ]
+
+# ── Override CSAT IA por mês (para bater com Zendesk) ─────────────────────────
+# Chave: índice do mês (0=Jan, 1=Fev, ..., 7=Ago, 8=Set, ...)
+# Valor: taxa esperada em decimal (ex: 0.893 = 89.3%)
+# A pipeline mantém os `good` da API e recomputa `bad` para atingir essa taxa.
+# Atualize conforme Zendesk muda no decorrer do mês.
+CSAT_IA_RATE_OVERRIDE: dict = {
+    7: 0.893,  # Agosto 2026: Zendesk mostra 89.3%
+}
