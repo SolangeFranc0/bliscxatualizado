@@ -328,8 +328,6 @@ def build_metrics(metrics_map: dict[int, dict]) -> pd.DataFrame:
 
 
 def build_csat(ratings: list[dict], df_tickets: pd.DataFrame) -> pd.DataFrame:
-    # Usa o group_id da própria avaliação (mesmo critério da Zendesk nativa),
-    # não o group atual do ticket (que pode ter mudado após a avaliação).
     score_num = {"good": 5, "bad": 1, "offered": None}
 
     def _time_from_group(gid):
@@ -339,6 +337,15 @@ def build_csat(ratings: list[dict], df_tickets: pd.DataFrame) -> pd.DataFrame:
         if gid == GRUPO_BLIS_LOGISTICA_ID:  return "Blis Logística"
         return "Outros"
 
+    # Índice de tickets IA por ticket_id — mesmo critério do updater.py:build_csat().
+    # Garante que a tabela `csat` no Supabase usa a mesma classificação que o HTML.
+    ia_ticket_ids: set = set()
+    if not df_tickets.empty and "ticket_id" in df_tickets.columns:
+        ia_col = df_tickets.get("atendido_por_ia", None)
+        if ia_col is not None:
+            ia_mask = ia_col.fillna(False).astype(bool)
+            ia_ticket_ids = {str(t) for t in df_tickets.loc[ia_mask, "ticket_id"].dropna()}
+
     rows = []
     for r in ratings:
         raw   = r.get("score")
@@ -346,6 +353,9 @@ def build_csat(ratings: list[dict], df_tickets: pd.DataFrame) -> pd.DataFrame:
         dt    = _dt(r.get("created_at") or r.get("updated_at"))
         dt_b  = _to_brt(dt)
         gid   = r.get("group_id")
+        tid   = str(r.get("ticket_id", ""))
+        # Prioridade: ticket_id lookup → group_id da avaliação (cobre tickets transferidos)
+        resolved_time = "IA" if (tid and tid in ia_ticket_ids) else _time_from_group(gid)
         rows.append({
             "csat_id":      r["id"],
             "ticket_id":    r.get("ticket_id"),
@@ -359,8 +369,8 @@ def build_csat(ratings: list[dict], df_tickets: pd.DataFrame) -> pd.DataFrame:
             "promotor":     score == 5,
             "detrator":     score == 1,
             "group_id":     gid,
-            "nome_grupo":   _time_from_group(gid),
-            "time":         _time_from_group(gid),
+            "nome_grupo":   resolved_time,
+            "time":         resolved_time,
         })
     df = pd.DataFrame(rows)
     if not df.empty:

@@ -98,6 +98,26 @@ jobs:
           else:
               print(f"OK: last_sync_ok = {rows[0]['value']}")
 
+          # 5. cx_sync_audit: último run com status 'ok' nas últimas 2h
+          from urllib.parse import quote
+          now_utc = datetime.now(timezone.utc)
+          cutoff  = (now_utc - timedelta(hours=2)).isoformat()
+          rows = sb_get(f'/rest/v1/cx_sync_audit?select=iniciado_em,status,duracao_s&status=eq.ok&iniciado_em=gte.{quote(cutoff)}&order=iniciado_em.desc&limit=1')
+          if not rows:
+              errors.append('ERRO: nenhum run ok em cx_sync_audit nas últimas 2h')
+          else:
+              r = rows[0]
+              print(f"OK: cx_sync_audit ok em {r['iniciado_em']} ({r['duracao_s']}s)")
+
+          # 6. tickets do mês atual acima de threshold mínimo
+          this_month = now_utc.strftime('%Y-%m-01')
+          rows = sb_get(f'/rest/v1/tickets?select=ticket_id&criado_em=gte.{this_month}&limit=500')
+          n_month = len(rows)
+          if n_month < 50:
+              errors.append(f'AVISO: apenas {n_month} tickets no mês atual (esperado ≥50)')
+          else:
+              print(f'OK: {n_month} tickets no mês atual')
+
           if errors:
               print('\n'.join(errors), file=sys.stderr)
               sys.exit(1)

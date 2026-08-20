@@ -1048,10 +1048,17 @@ def _load_full_from_supabase() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 # ── Pipeline principal ────────────────────────────────────────────────────────
 
-def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
-    """Passo 1: Extração Zendesk → processamento → HTML → Supabase tickets/csat."""
+def collect_and_build(save_csv: bool = True) -> tuple[bool, list, dict]:
+    """Passo 1: Extração Zendesk → processamento → HTML → Supabase tickets/csat.
+    Retorna (ok, issues, stats) onde stats alimenta cx_sync_audit."""
     import extractor_2026 as _ext
     from config import START_DATE, END_DATE, CAMPO_MOTIVO_PAI, CAMPO_PERFIL, CAMPOS_SUBMOTIVO
+
+    stats: dict = {
+        "tickets_recebidos": 0, "tickets_supabase": 0, "tickets_build": 0,
+        "tickets_upsertados": 0, "csat_bruto": 0, "csat_periodo": 0,
+        "csat_deduplicados": 0, "modo": "completo", "cursor_anterior": None, "cursor_novo": None,
+    }
 
     log.info("=== collect_and_build: início ===")
 
@@ -1074,6 +1081,7 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
         is_sunday = datetime.now(BRT).weekday() == 6
         if is_sunday:
             log.info("Sync completo (domingo): cursor ignorado para reprocessar período inteiro")
+        stats["modo"] = "completo" if is_sunday else "incremental"
 
         # Lê cursor incremental: Supabase primeiro, arquivo local como fallback
         since_ts = None
@@ -1082,22 +1090,28 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
             if cursor_str:
                 try:
                     since_ts = int(cursor_str)
+                    stats["cursor_anterior"] = since_ts
                     log.info(f"Zendesk incremental (Supabase) desde ts={since_ts} ({datetime.fromtimestamp(since_ts, tz=BRT).strftime('%d/%m/%Y %H:%M BRT')})")
                 except ValueError:
                     since_ts = None
             if since_ts is None and ZD_SYNC_FILE.exists():
                 try:
                     since_ts = int(ZD_SYNC_FILE.read_text().strip())
+                    stats["cursor_anterior"] = since_ts
                     log.info(f"Zendesk incremental (arquivo) desde ts={since_ts} ({datetime.fromtimestamp(since_ts, tz=BRT).strftime('%d/%m/%Y %H:%M BRT')})")
                 except (ValueError, OSError):
                     since_ts = None
 
         log.info("Buscando tickets + métricas...")
         tickets_raw, metrics_map, zd_end_time = _ext.fetch_tickets_with_metrics(since_ts=since_ts)
+        stats["tickets_recebidos"] = len(tickets_raw)
+        stats["cursor_novo"] = zd_end_time
         log.info(f"  tickets_raw: {len(tickets_raw)}")
 
         log.info("Buscando CSAT...")
         ratings = _ext.fetch_csat(START_DATE, END_DATE)
+        stats["csat_bruto"]  = len(ratings)
+        stats["csat_periodo"] = len(ratings)
         log.info(f"  ratings: {len(ratings)}")
 
         log.info("Buscando opções de campos customizados...")
@@ -1132,6 +1146,7 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
             removed = before - len(df_csat)
             if removed:
                 log.info(f"CSAT dedup: {removed} avaliações duplicadas removidas ({before} → {len(df_csat)})")
+        stats["csat_deduplicados"] = len(df_csat)
 
         # Merge métricas
         df_full = df_tickets.merge(df_metrics, on="ticket_id", how="left")
@@ -1140,7 +1155,7 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
 
     except Exception as e:
         log.error(f"Extração Zendesk falhou: {e}")
-        return False, [str(e)]
+        return False, [str(e)], stats
 
     # 3. Filtro CRM (tickets Blis Saúde sem assignee real)
     mask_crm = (df_full["time"] == "Blis Saúde") & (
@@ -1161,6 +1176,7 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
     # Isso garante que tickets criados nesta hora aparecem no dashboard imediatamente,
     # sem aguardar a próxima execução.
     df_sb, df_csat_sb = _load_full_from_supabase()
+    stats["tickets_supabase"] = len(df_sb)
     if not df_sb.empty and not df_full.empty and "ticket_id" in df_sb.columns and "ticket_id" in df_full.columns:
         df_build = (pd.concat([df_sb, df_full])
                       .drop_duplicates("ticket_id", keep="last")
@@ -1170,6 +1186,7 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
         df_build = df_sb
     else:
         df_build = df_full
+    stats["tickets_build"] = len(df_build)
     # Deduplica CSAT do Supabase: cliente pode ter mudado avaliação (bad→good),
     # gerando múltiplos csat_ids para o mesmo ticket. Manter só o mais recente
     # é o mesmo critério que o Zendesk usa. Sem isso, bads extras inflam a contagem.
@@ -1243,7 +1260,7 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
         if BACKUP.exists():
             shutil.copy2(BACKUP, DASHBOARD)
             log.info("Backup restaurado.")
-        return False, issues + [str(e)]
+        return False, issues + [str(e)], stats
 
     # 9. Escrever comments_data.json (db_loader_zendesk espera este arquivo)
     try:
@@ -1313,7 +1330,7 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
     sync_volume_diario(criados_dia, resolucoes_dia)
 
     log.info("=== collect_and_build: concluído ===")
-    return True, issues
+    return True, issues, stats
 
 
 def _sync_analytics_snapshot(result: dict) -> None:
@@ -2158,16 +2175,47 @@ def _refresh_agentes_via_rpc() -> None:
         sync_agent_performance()
 
 
+def _log_sync_audit(stats: dict, iniciado_em: datetime, status: str, erros: list | None = None) -> None:
+    """Registra execução do pipeline em cx_sync_audit."""
+    try:
+        import db_loader_metabase as _dbl
+        concluido_em = datetime.now(BRT)
+        duracao_s    = int((concluido_em - iniciado_em).total_seconds())
+        record = {
+            "iniciado_em":       iniciado_em.isoformat(),
+            "concluido_em":      concluido_em.isoformat(),
+            "status":            status,
+            "modo":              stats.get("modo"),
+            "cursor_anterior":   stats.get("cursor_anterior"),
+            "cursor_novo":       stats.get("cursor_novo"),
+            "tickets_recebidos": stats.get("tickets_recebidos"),
+            "tickets_supabase":  stats.get("tickets_supabase"),
+            "tickets_build":     stats.get("tickets_build"),
+            "tickets_upsertados":stats.get("tickets_upsertados"),
+            "csat_bruto":        stats.get("csat_bruto"),
+            "csat_periodo":      stats.get("csat_periodo"),
+            "csat_deduplicados": stats.get("csat_deduplicados"),
+            "duracao_s":         duracao_s,
+            "erros":             erros or [],
+        }
+        _dbl.get_client().table("cx_sync_audit").insert(record).execute()
+        log.info(f"cx_sync_audit: {status} em {duracao_s}s registrado")
+    except Exception as e:
+        log.warning(f"cx_sync_audit nao registrado (nao critico): {e}")
+
+
 def run():
-    now_brt = datetime.now(BRT)
-    ts      = now_brt.strftime("%d/%m/%Y %H:%M")
+    now_brt     = datetime.now(BRT)
+    iniciado_em = now_brt
+    ts          = now_brt.strftime("%d/%m/%Y %H:%M")
     log.info(f"=== Atualizacao iniciada: {ts} ===")
 
-    ok, issues = collect_and_build(save_csv=True)
+    ok, issues, stats = collect_and_build(save_csv=True)
     if not ok:
         log.error("collect_and_build falhou — pipeline interrompido.")
         _append_log("ERRO", ts, ["collect_and_build falhou"] + issues)
         _sb_state_set("last_sync_error", now_brt.isoformat())
+        _log_sync_audit(stats, iniciado_em, "erro", ["collect_and_build falhou"] + issues)
         return
 
     sync_metabase(save_js=True)
@@ -2175,10 +2223,11 @@ def run():
     _refresh_agentes_via_rpc()
     _refresh_tma_via_rpc()
 
-    status_str = "OK" if not issues else f"OK_COM_AVISOS({len(issues)})"
-    _append_log(status_str, ts, issues)
+    status_str  = "ok" if not issues else "parcial"
+    _append_log(status_str.upper(), ts, issues)
     _sb_state_set("last_sync_ok", now_brt.isoformat())
-    log.info(f"=== Concluido: {ts} — {status_str} ===")
+    _log_sync_audit(stats, iniciado_em, status_str, issues if issues else None)
+    log.info(f"=== Concluido: {ts} — {status_str.upper()} ===")
 
 if __name__ == "__main__":
     run()
