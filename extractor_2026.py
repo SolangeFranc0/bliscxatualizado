@@ -150,35 +150,34 @@ def fetch_csat(start: str, end: str) -> list[dict]:
     end_dt   = (datetime.strptime(end, "%Y-%m-%d").replace(tzinfo=timezone.utc)
                 + timedelta(days=1))
 
-    # API retorna do mais antigo ao mais novo (ascending por created_at)
-    # Offset pagination tem limite de 100 páginas → usar cursor pagination (page[size])
+    # Usa cursor pagination (page[size]) — offset tem limite de 100 páginas.
+    # Coleta TODAS as páginas sem break antecipado por data (a ordem retornada pela
+    # API não é garantida), filtrando o período no final.
     url    = f"{BASE_URL}/satisfaction_ratings.json"
     params = {"page[size]": 100}
-    ratings: list[dict] = []
+    all_ratings: list[dict] = []
+    page = 1
 
     while url:
+        log.debug(f"CSAT página {page} (acumulado: {len(all_ratings)})...")
         data  = _get(url, params)
         batch = data.get("satisfaction_ratings", [])
-        done  = False
-        for r in batch:
-            created = _dt(r.get("created_at") or r.get("updated_at"))
-            if not created:
-                continue
-            if created >= end_dt:    # mais novo que o intervalo — ignora
-                continue
-            if created < start_dt:   # mais antigo que o intervalo — para
-                done = True
-                break
-            ratings.append(r)
-        if done:
-            break
+        all_ratings.extend(batch)
         meta = data.get("meta", {})
         if not meta.get("has_more", False):
             break
         url    = data.get("links", {}).get("next")
         params = None
+        page  += 1
 
-    log.info(f"CSAT: {len(ratings)} avaliações (bruto)")
+    # Filtra pelo período após coletar tudo — robusto independente da ordem da API.
+    ratings = []
+    for r in all_ratings:
+        created = _dt(r.get("created_at") or r.get("updated_at"))
+        if created and start_dt <= created < end_dt:
+            ratings.append(r)
+
+    log.info(f"CSAT: {len(all_ratings)} avaliações (bruto) → {len(ratings)} no período")
     return ratings
 
 # ── Campos customizados ────────────────────────────────────────────────────────

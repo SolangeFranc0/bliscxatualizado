@@ -83,21 +83,36 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-MONTH_IDX = {"2026-01":0,"2026-02":1,"2026-03":2,"2026-04":3,"2026-05":4,"2026-06":5,"2026-07":6,"2026-08":7}
-N_MONTHS  = 8
+# MONTH_IDX e WEEK_TO_MONTH gerados dinamicamente — funcionam em qualquer mês futuro.
+def _build_month_idx() -> dict:
+    import calendar as _cal
+    from config import START_DATE
+    start = datetime.strptime(START_DATE, "%Y-%m-%d").date()
+    today = datetime.now(BRT).date()
+    idx, y, m, i = {}, start.year, start.month, 0
+    while (y, m) <= (today.year, today.month):
+        idx[f"{y}-{m:02d}"] = i
+        i += 1
+        m += 1
+        if m > 12:
+            m, y = 1, y + 1
+    return idx
 
-# Semanas ISO 2026 mapeadas para mês (0=Jan ... 7=Ago)
-# Semana começa segunda. Critério: maioria dos dias no mês.
-WEEK_TO_MONTH = {
-    1:0, 2:0, 3:0, 4:0,           # Jan: S01-S04
-    5:1, 6:1, 7:1, 8:1, 9:1,      # Fev: S05-S09
-    10:2,11:2,12:2,13:2,           # Mar: S10-S13
-    14:3,15:3,16:3,17:3,18:3,      # Abr: S14-S18
-    19:4,20:4,21:4,22:4,           # Mai: S19-S22
-    23:5,24:5,25:5,26:5,           # Jun: S23-S26
-    27:6,28:6,29:6,30:6,31:6,      # Jul: S27-S31
-    32:7,33:7,34:7,35:7,           # Ago: S32-S35
-}
+def _build_week_to_month(month_idx: dict) -> dict:
+    """Associa cada semana ISO ao mês em que tem mais dias."""
+    w2m: dict[int, int] = {}
+    for ym, mi in month_idx.items():
+        y, m = int(ym[:4]), int(ym[5:])
+        import calendar as _cal
+        _, days_in = _cal.monthrange(y, m)
+        for day in range(1, days_in + 1):
+            iso_w = datetime(y, m, day).isocalendar()[1]
+            w2m.setdefault(iso_w, mi)
+    return w2m
+
+MONTH_IDX     = _build_month_idx()
+N_MONTHS      = len(MONTH_IDX)
+WEEK_TO_MONTH = _build_week_to_month(MONTH_IDX)
 
 # ── Motivos / Perfis ──────────────────────────────────────────────────────────
 
@@ -1142,9 +1157,19 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
     for i in issues:
         log.warning(i)
 
-    # 5. Construção dos blocos — usa dataset completo do Supabase
+    # 5. Construção dos blocos — merge Supabase (histórico) + API (tickets novos)
+    # Isso garante que tickets criados nesta hora aparecem no dashboard imediatamente,
+    # sem aguardar a próxima execução.
     df_sb, df_csat_sb = _load_full_from_supabase()
-    df_build = df_sb if len(df_sb) > len(df_full) else df_full
+    if not df_sb.empty and not df_full.empty and "ticket_id" in df_sb.columns and "ticket_id" in df_full.columns:
+        df_build = (pd.concat([df_sb, df_full])
+                      .drop_duplicates("ticket_id", keep="last")
+                      .reset_index(drop=True))
+        log.info(f"df_build: merge Supabase({len(df_sb)}) + API({len(df_full)}) = {len(df_build)} tickets")
+    elif not df_sb.empty:
+        df_build = df_sb
+    else:
+        df_build = df_full
     # Deduplica CSAT do Supabase: cliente pode ter mudado avaliação (bad→good),
     # gerando múltiplos csat_ids para o mesmo ticket. Manter só o mais recente
     # é o mesmo critério que o Zendesk usa. Sem isso, bads extras inflam a contagem.
@@ -1271,13 +1296,18 @@ def collect_and_build(save_csv: bool = True) -> tuple[bool, list]:
         except Exception as e:
             log.warning(f"Supabase: load_comentarios_csat falhou: {e}")
         log.info("Supabase Zendesk: sync concluído.")
-        # Salva cursor incremental (Supabase + arquivo local)
-        if zd_end_time:
+    except Exception as e:
+        log.warning(f"Supabase Zendesk sync falhou (não crítico): {e}")
+
+    # Salva cursor APÓS extração Zendesk — independente do status do Supabase.
+    # O cursor representa "até onde a API foi lida", não "até onde o banco foi escrito".
+    if zd_end_time:
+        try:
             _sb_state_set("zendesk_cursor", str(zd_end_time))
             ZD_SYNC_FILE.write_text(str(zd_end_time))
             log.info(f"Cursor Zendesk salvo: {zd_end_time}")
-    except Exception as e:
-        log.warning(f"Supabase Zendesk sync falhou (não crítico): {e}")
+        except Exception as e:
+            log.warning(f"Cursor não salvo no Supabase (arquivo local OK): {e}")
 
     # 12. Sync volume diário (criados + resolvidos) → cx_volume_diario
     sync_volume_diario(criados_dia, resolucoes_dia)
